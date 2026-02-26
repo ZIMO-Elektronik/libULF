@@ -1,31 +1,32 @@
+#include <string.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include "../inc/port.h"
 
 int list_ports()
 {
-	/* A pointer to a null-terminated array of pointers to
-		* struct sp_port, which will contain the ports found.*/
 	struct sp_port **port_list;
-	printf("Getting port list.\n");
-	/* Call sp_list_ports() to get the ports. The port_list
-		* pointer will be updated to refer to the array created. */
 	enum sp_return result = sp_list_ports(&port_list);
-	if (result != SP_OK) {
+	if(result != SP_OK)
+    {
 		printf("sp_list_ports() failed!\n");
 		return -1;
 	}
-	/* Iterate through the ports. When port_list[i] is NULL
-		* this indicates the end of the list. */
-	int i;
-	for (i = 0; port_list[i] != NULL; i++) {
+    bool klug_found = false;
+	for(int i = 0; port_list[i] != NULL; i++)
+    {
 		struct sp_port *port = port_list[i];
-		/* Get the name of the port. */
 		char *port_name = sp_get_port_name(port);
-		printf("Found port: %s\n", port_name);
+        char *port_desc = sp_get_port_description(port);
+        char *port_manu = sp_get_port_usb_manufacturer(port);
+		printf("Found port: %s = %s %s\n", port_name, port_manu, port_desc);
+        if(port_manu && port_desc)
+            klug_found |= (!strcmp(port_manu, "ZIMO Elektronik") && !strncmp(port_desc, "KLUG ", 5));
 	}
-	printf("Found %d ports.\n", i);
-	printf("Freeing port list.\n");
-	/* Free the array created by sp_list_ports(). */
+    if(klug_found)
+        printf("ZIMO KLUG is indeed connected, I love it!\n");
+    else
+        printf("Very sorry to tell you we didn't find a KLUG :*(\n");
 	sp_free_port_list(port_list);
 	/* Note that this will also free all the sp_port structures
 		* it points to. If you want to keep one of them (e.g. to
