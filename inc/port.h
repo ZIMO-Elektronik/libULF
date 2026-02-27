@@ -24,7 +24,17 @@ extern "C" {
 #endif
 
 
-int list_ports();
+EXPORT int list_ports();
+
+EXPORT struct sp_port* find_klug(char *serial_number);
+
+EXPORT bool open_klug(struct sp_port *klug_port);
+
+EXPORT bool close_klug(struct sp_port *klug_port);
+
+EXPORT const char* ping_klug(struct sp_port *klug_port);
+
+int check(enum sp_return result);
 
 
 #ifdef __cplusplus
