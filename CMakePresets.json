@@ -1,0 +1,58 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 25,
+        "patch": 0
+    },
+    "include": [],
+    "configurePresets": [
+        {
+            "name": "release",
+            "displayName": "libKLUG Release",
+            "description": "Configures a Release-Build for X86-64 architecture",
+            "binaryDir": "${sourceDir}/build",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "release_clang", 
+            "displayName": "libKLUG Clang Release", 
+            "description": "Configures a Release-Build for X86-64 architecture using Clang", 
+            "binaryDir": "${sourceDir}/build",
+            "generator": "Ninja",
+            "environment": {
+                "CC": "/usr/bin/clang",
+                "CXX": "/usr/bin/clang++"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "release_android",
+            "displayName": "libKLUG Release Android",
+            "description": "Configures a Release-Build for AARCH64",
+            "binaryDir": "${sourceDir}/build", 
+            "generator": "Ninja", 
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "ANDROID_PLATFORM": "34", 
+                "ANDROID_STL": "c++_shared",
+                "CMAKE_TOOLCHAIN_FILE": "/home/worker/Tools/android-sdk/ndk/27.3.13750724/build/cmake/android.toolchain.cmake"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "release",
+            "displayName": "libKLUG Release",
+            "description": "Builds the Release-Library for X86-64 architecture",
+            "configurePreset": "release",
+            "jobs": 16,
+            "cleanFirst": false
+        }
+    ]
+}
