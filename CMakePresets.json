@@ -8,51 +8,58 @@
     "include": [],
     "configurePresets": [
         {
-            "name": "release",
-            "displayName": "libKLUG Release",
-            "description": "Configures a Release-Build for X86-64 architecture",
+            "name": "base",
+            "hidden": true,
+            "displayName": "Base Preset",
+            "description": "Base Preset providing base config",
             "binaryDir": "${sourceDir}/build",
             "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_PARALLEL_LEVEL": "16"
+            }
+        },
+        {
+            "name": "debug_base", 
+            "hidden": true,
+            "displayName": "Debug Base Preset",
+            "description": "Debug Base Preset providing base config for DEBUG builds",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "release_base", 
+            "hidden": true,
+            "displayName": "Release Base Preset", 
+            "description": "Release Base Preset providing base config for RELEASE builds", 
+            "inherits": "base",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
         },
         {
-            "name": "release_clang", 
-            "displayName": "libKLUG Clang Release", 
-            "description": "Configures a Release-Build for X86-64 architecture using Clang", 
-            "binaryDir": "${sourceDir}/build",
-            "generator": "Ninja",
-            "environment": {
-                "CC": "/usr/bin/clang",
-                "CXX": "/usr/bin/clang++"
-            },
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
+            "name": "debug_amd64", 
+            "displayName": "Debug AMD64", 
+            "description": "Debug build for AMD64 architecture",
+            "inherits": "debug_base"
+        },
+        {
+            "name": "release_amd64",
+            "displayName": "Release AMD64",
+            "description": "Release build for AMD64 architecture",
+            "inherits": "release_base"
         },
         {
             "name": "release_android",
             "displayName": "libKLUG Release Android",
             "description": "Configures a Release-Build for AARCH64",
-            "binaryDir": "${sourceDir}/build", 
-            "generator": "Ninja", 
+            "inherits": "release_base",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
-                "ANDROID_PLATFORM": "34", 
+                "ANDROID_PLATFORM": "34",
                 "ANDROID_STL": "c++_shared",
-                "CMAKE_TOOLCHAIN_FILE": "/home/worker/Tools/android-sdk/ndk/27.3.13750724/build/cmake/android.toolchain.cmake"
+                "CMAKE_TOOLCHAIN_FILE": "$env{ANDROID_SDK_ROOT}/ndk/27.3.13750724/build/cmake/android.toolchain.cmake"
             }
-        }
-    ],
-    "buildPresets": [
-        {
-            "name": "release",
-            "displayName": "libKLUG Release",
-            "description": "Builds the Release-Library for X86-64 architecture",
-            "configurePreset": "release",
-            "jobs": 16,
-            "cleanFirst": false
         }
     ]
 }

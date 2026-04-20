@@ -1,4 +1,4 @@
-//#include "inc/port.h"
+// #include "inc/port.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -12,7 +12,10 @@
 int main(int argc, char **argv)
 {
 	init();
-	open_klug();
+	if (!open_klug())
+	{
+		libusb_exit(nullptr); return -1;
+	}
 	ping_klug();
 	close_klug();
 }

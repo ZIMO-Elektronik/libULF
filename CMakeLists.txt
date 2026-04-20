@@ -13,7 +13,8 @@ version_from_git()
 
 project(libKLUG VERSION ${VERSION_FROM_GIT} LANGUAGES CXX C ASM)
 
-add_library(${CMAKE_PROJECT_NAME} SHARED test.cpp src/new_port.cpp)
+#add_library(${CMAKE_PROJECT_NAME} SHARED src/new_port.cpp)
+add_executable(${CMAKE_PROJECT_NAME} test.cpp src/new_port.cpp)
 
 target_compile_features(${CMAKE_PROJECT_NAME} PUBLIC cxx_std_23)
 
