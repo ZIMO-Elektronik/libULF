@@ -15,11 +15,12 @@
             "binaryDir": "${sourceDir}/build",
             "generator": "Ninja",
             "cacheVariables": {
-                "CMAKE_BUILD_PARALLEL_LEVEL": "16"
+                "CMAKE_BUILD_PARALLEL_LEVEL": "16",
+                "CPM_ZTL_SOURCE": "${sourceDir}/../ZTL"
             }
         },
         {
-            "name": "debug_base", 
+            "name": "debug_base",
             "hidden": true,
             "displayName": "Debug Base Preset",
             "description": "Debug Base Preset providing base config for DEBUG builds",
@@ -29,18 +30,18 @@
             }
         },
         {
-            "name": "release_base", 
+            "name": "release_base",
             "hidden": true,
-            "displayName": "Release Base Preset", 
-            "description": "Release Base Preset providing base config for RELEASE builds", 
+            "displayName": "Release Base Preset",
+            "description": "Release Base Preset providing base config for RELEASE builds",
             "inherits": "base",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
         },
         {
-            "name": "debug_amd64", 
-            "displayName": "Debug AMD64", 
+            "name": "debug_amd64",
+            "displayName": "Debug AMD64",
             "description": "Debug build for AMD64 architecture",
             "inherits": "debug_base"
         },
@@ -52,13 +53,13 @@
         },
         {
             "name": "release_android",
-            "displayName": "libKLUG Release Android",
+            "displayName": "Release AARCH64",
             "description": "Configures a Release-Build for AARCH64",
             "inherits": "release_base",
             "cacheVariables": {
                 "ANDROID_PLATFORM": "34",
                 "ANDROID_STL": "c++_shared",
-                "CMAKE_TOOLCHAIN_FILE": "$env{ANDROID_SDK_ROOT}/ndk/27.3.13750724/build/cmake/android.toolchain.cmake"
+                "CMAKE_TOOLCHAIN_FILE": "$env{ANDROID_NDK_ROOT}/build/cmake/android.toolchain.cmake"
             }
         }
     ]

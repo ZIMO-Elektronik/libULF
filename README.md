@@ -22,7 +22,7 @@ Additionally, a udev-rule is needed to add any ZIMO interface to the plugdev gro
 
 ```sh
 ## Add udev-rule
-sudo echo 'SUBSYSTEM=="usb", ATTR{idVendor}=="1fc9", ATTR{idProduct}=="81c1", MODE="0660", GROUP="plugdev"' | sudo tee /etc udev/rules.d/99-myusb.rules
+sudo echo 'SUBSYSTEM=="usb", ATTR{idVendor}=="1fc9", ATTR{idProduct}=="81c1", MODE="0660", GROUP="plugdev"' | sudo tee/etc udev/rules.d/99-myusb.rules
 
 ## Trigger reload of rules
 sudo udevadm control --reload-rules
