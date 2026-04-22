@@ -18,10 +18,11 @@ project(
 
 set(TARGET KLUG)
 
-add_library(${TARGET} SHARED src/new_port.cpp src/internal/transmission.cpp
-                             src/internal/connection.cpp)
-# add_executable( ${TARGET} test.cpp src/new_port.cpp
-# src/internal/transmission.cpp src/internal/connection.cpp)
+set(SOURCE_FILES src/new_port.cpp src/internal/transmission.cpp
+                 src/internal/connection.cpp)
+
+# add_library(${TARGET} SHARED ${SOURCE_FILES})
+add_executable(${TARGET} test.cpp src/new_port.cpp ${SOURCE_FILES})
 
 if(ANDROID)
   target_sources(${TARGET} PUBLIC src/android_wrapper.cpp)
