@@ -1,0 +1,66 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 25,
+        "patch": 0
+    },
+    "include": [],
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "displayName": "Base Preset",
+            "description": "Base Preset providing base config",
+            "binaryDir": "${sourceDir}/build",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_PARALLEL_LEVEL": "16",
+                "CPM_ZTL_SOURCE": "${sourceDir}/../ZTL"
+            }
+        },
+        {
+            "name": "debug_base",
+            "hidden": true,
+            "displayName": "Debug Base Preset",
+            "description": "Debug Base Preset providing base config for DEBUG builds",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "release_base",
+            "hidden": true,
+            "displayName": "Release Base Preset",
+            "description": "Release Base Preset providing base config for RELEASE builds",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "debug_amd64",
+            "displayName": "Debug AMD64",
+            "description": "Debug build for AMD64 architecture",
+            "inherits": "debug_base"
+        },
+        {
+            "name": "release_amd64",
+            "displayName": "Release AMD64",
+            "description": "Release build for AMD64 architecture",
+            "inherits": "release_base"
+        },
+        {
+            "name": "release_android",
+            "displayName": "Release AARCH64",
+            "description": "Configures a Release-Build for AARCH64",
+            "inherits": "release_base",
+            "cacheVariables": {
+                "ANDROID_PLATFORM": "34",
+                "ANDROID_STL": "c++_shared",
+                "CMAKE_TOOLCHAIN_FILE": "$env{ANDROID_NDK_ROOT}/build/cmake/android.toolchain.cmake"
+            }
+        }
+    ]
+}
