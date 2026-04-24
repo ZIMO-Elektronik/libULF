@@ -19,7 +19,7 @@ project(
 set(TARGET KLUG)
 
 set(SOURCE_FILES src/new_port.cpp src/internal/transmission.cpp
-                 src/internal/connection.cpp src/susiv2.cpp src/com.cpp src/internal/com_transmission.cpp src/internal/mdu_ein_transmission.cpp src/internal/susiv2_transmission.cpp)
+  src/internal/connection.cpp src/susiv2.cpp src/com.cpp src/internal/com_transmission.cpp src/internal/mdu_ein_transmission.cpp src/internal/susiv2_transmission.cpp src/bridge/bridge.cpp src/bridge/internal/bridge.cpp src/bridge/internal/bridge_com.cpp src/bridge/internal/bridge_context.cpp src/bridge/internal/bridge_susiv2.cpp)
 
 # add_library(${TARGET} SHARED ${SOURCE_FILES})
 add_executable(${TARGET} test.cpp src/new_port.cpp ${SOURCE_FILES})
@@ -54,4 +54,4 @@ endif()
 
 find_library(log-lib log)
 target_link_libraries(${TARGET} $<$<BOOL:${log-lib}>:${log-lib}> usb-1.0
-                      ULF::MDU_EIN ULF::SUSIV2)
+  ULF::MDU_EIN ULF::SUSIV2)

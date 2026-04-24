@@ -12,7 +12,7 @@
 #include "new_port.hpp"
 #include "susiv2.hpp"
 
-int main(int argc, char** argv) {
+int test() {
   init();
   if (!open_klug()) {
     libusb_exit(nullptr);
@@ -55,4 +55,10 @@ int main(int argc, char** argv) {
   com_reset(&result);
 
   close_klug();
+}
+
+int test_bridge() {}
+
+int main(int argc, char** argv) {
+  return test(); 
 }
