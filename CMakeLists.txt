@@ -19,7 +19,7 @@ project(
 set(TARGET KLUG)
 
 set(SOURCE_FILES src/new_port.cpp src/internal/transmission.cpp
-                 src/internal/connection.cpp)
+                 src/internal/connection.cpp src/susiv2.cpp src/com.cpp src/internal/com_transmission.cpp src/internal/mdu_ein_transmission.cpp src/internal/susiv2_transmission.cpp)
 
 # add_library(${TARGET} SHARED ${SOURCE_FILES})
 add_executable(${TARGET} test.cpp src/new_port.cpp ${SOURCE_FILES})

@@ -5,26 +5,33 @@
 #include <string>
 #include <vector>
 
-namespace transmission {
+namespace transmission
+{
 
-struct Transmission {
-  Transmission(std::string payload, std::size_t timeout);
-  Transmission(std::span<uint8_t> payload, std::size_t timeout);
+  struct Transmission
+  {
+    Transmission(std::string payload, std::size_t timeout);
+    Transmission(std::span<const uint8_t> payload, std::size_t timeout);
 
-  int execute();
+    int execute();
 
-  std::span<uint8_t> result();
+    std::span<uint8_t> result();
 
-protected:
-  int transmit();
-  int receive();
+    /// \todo Replace with pure virtual
+    virtual bool evaluate() { return true; }
 
-  // virtual bool evaluate() = 0;
-  // virtual void notify() = 0;
+  protected:
+    int transmit();
+    int receive();
 
-  std::vector<uint8_t> _payload;
-  std::vector<uint8_t> _response;
-  std::size_t _timeout;
-};
+    // virtual bool evaluate() = 0;
+    // virtual void notify() = 0;
+
+    std::vector<uint8_t> _payload;
+    std::vector<uint8_t> _response;
+    std::size_t _timeout;
+
+    void flush();
+  };
 
 } // namespace transmission
