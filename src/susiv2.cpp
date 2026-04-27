@@ -15,6 +15,7 @@
  */
 int susiv2_features(bool* result) {
   transmission::SUSIV2Transmission transmission{
+    conn,
     ulf::susiv2::packet2frame<std::vector<uint8_t>>(
       zusi::make_features_packet()),
     2000uz};
@@ -41,6 +42,7 @@ int susiv2_features(bool* result) {
  */
 int susiv2_cv_read(uint32_t cv, uint8_t* value) {
   transmission::SUSIV2Transmission transmission{
+    conn,
     ulf::susiv2::packet2frame<std::vector<uint8_t>>(
       zusi::make_cv_read_packet(0, cv - 1)),
     2000uz};

@@ -9,6 +9,10 @@ void bridge_destroy(bridge_handle handle) {
   delete reinterpret_cast<bridge::Bridge*>(handle);
 }
 
+int bridge_init(bridge_handle handle) {
+  return reinterpret_cast<bridge::Bridge*>(handle)->init();
+}
+
 int bridge_open(bridge_handle handle, uint16_t vid, uint16_t pid) {
   return reinterpret_cast<bridge::Bridge*>(handle)->open(vid, pid);
 }
@@ -31,4 +35,8 @@ int bridge_release(bridge_handle handle) {
 
 void bridge_close(bridge_handle handle) {
   return reinterpret_cast<bridge::Bridge*>(handle)->close();
+}
+
+int bridge_com_ping(bridge_handle handle, char* buffer, std::size_t length) {
+  return reinterpret_cast<bridge::Bridge*>(handle)->com().ping(buffer, length);
 }

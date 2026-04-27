@@ -3,12 +3,15 @@
 
 namespace transmission {
 
-SUSIV2Transmission::SUSIV2Transmission(std::string payload, std::size_t timeout)
-  : Transmission{payload, timeout} {}
-  
-SUSIV2Transmission::SUSIV2Transmission(std::span<const uint8_t> payload,
+SUSIV2Transmission::SUSIV2Transmission(Connection& conn,
+                                       std::string payload,
                                        std::size_t timeout)
-  : Transmission{payload, timeout} {}
+  : Transmission{conn, payload, timeout} {}
+
+SUSIV2Transmission::SUSIV2Transmission(Connection& conn,
+                                       std::span<uint8_t const> payload,
+                                       std::size_t timeout)
+  : Transmission{conn, payload, timeout} {}
 
 /**
  * Evaluate SUSIV2 response
@@ -19,8 +22,7 @@ SUSIV2Transmission::SUSIV2Transmission(std::span<const uint8_t> payload,
  */
 bool SUSIV2Transmission::evaluate() {
   if (_response.size() < 1uz || _response.size() > 6uz) return false;
-  if (_response.front() != ulf::susiv2::ack)
-    return false;
+  if (_response.front() != ulf::susiv2::ack) return false;
   return true;
 }
 

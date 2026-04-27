@@ -4,34 +4,37 @@
 #include <span>
 #include <string>
 #include <vector>
+#include "connection.hpp"
 
-namespace transmission
-{
+namespace transmission {
 
-  struct Transmission
-  {
-    Transmission(std::string payload, std::size_t timeout);
-    Transmission(std::span<const uint8_t> payload, std::size_t timeout);
+struct Transmission {
+  Transmission(Connection& conn, std::string payload, std::size_t timeout);
+  Transmission(Connection& conn,
+               std::span<uint8_t const> payload,
+               std::size_t timeout);
 
-    int execute();
+  int execute();
 
-    std::span<uint8_t> result();
+  std::span<uint8_t> result();
 
-    /// \todo Replace with pure virtual
-    virtual bool evaluate() { return true; }
+  /// \todo Replace with pure virtual
+  virtual bool evaluate() { return true; }
 
-  protected:
-    int transmit();
-    int receive();
+protected:
+  int transmit();
+  int receive();
 
-    // virtual bool evaluate() = 0;
-    // virtual void notify() = 0;
+  // virtual bool evaluate() = 0;
+  // virtual void notify() = 0;
 
-    std::vector<uint8_t> _payload;
-    std::vector<uint8_t> _response;
-    std::size_t _timeout;
+  std::vector<uint8_t> _payload;
+  std::vector<uint8_t> _response;
+  std::size_t _timeout;
 
-    void flush();
-  };
+  Connection& _conn;
 
-} // namespace transmission
+  void flush();
+};
+
+}  // namespace transmission

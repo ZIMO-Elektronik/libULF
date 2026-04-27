@@ -2,6 +2,8 @@
 
 namespace bridge {
 
+int Bridge::init() { return libusb_init(nullptr); }
+
 int Bridge::open(uint16_t vid, uint16_t pid) {
   return _context.connection.open(vid, pid);
 }
@@ -15,5 +17,7 @@ int Bridge::claim() { return _context.connection.claim(); }
 int Bridge::release() { return _context.connection.release(); }
 
 void Bridge::close() { return _context.connection.close(); }
+
+COM& Bridge::com() { return _com; }
 
 }  // namespace bridge

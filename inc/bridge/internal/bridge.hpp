@@ -11,25 +11,27 @@ namespace bridge {
 
 struct Bridge {
 
-  void loop(); // Loop for worker thread
+  void loop();  // Loop for worker thread
 
-  int open(uint16_t vid = 0x1FC9u, uint16_t pid = 0x81C1u); 
+  int init();
+
+  int open(uint16_t vid = 0x1FC9u, uint16_t pid = 0x81C1u);
   int openFd(int Fd);
 
-  int config(); 
+  int config();
   int claim();
 
-  int release(); 
+  int release();
   void close();
 
   COM& com();
   SUSIV2& susiv2();
+
 private:
-  Context _context; 
+  Context _context;
 
-
-  COM _com; 
-  SUSIV2 _susiv2; 
+  COM _com{_context};
+  SUSIV2 _susiv2{};
 };
 
 }  // namespace bridge

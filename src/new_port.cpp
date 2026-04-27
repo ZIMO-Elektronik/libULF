@@ -22,49 +22,42 @@ int init() {
 
 bool open_klug() {
   auto rc{conn.open()};
-  if (rc != LIBUSB_SUCCESS)
-    return false;
+  if (rc != LIBUSB_SUCCESS) return false;
 
   rc = conn.config();
-  if (rc != LIBUSB_SUCCESS)
-    return false;
+  if (rc != LIBUSB_SUCCESS) return false;
 
   return conn.claim() == LIBUSB_SUCCESS;
 }
 
 int openWithFd(int Fd) {
   auto rc{conn.openFd(Fd)};
-  if (rc != LIBUSB_SUCCESS)
-    return rc;
+  if (rc != LIBUSB_SUCCESS) return rc;
 
   rc = conn.config();
-  if (rc != LIBUSB_SUCCESS)
-    return rc;
+  if (rc != LIBUSB_SUCCESS) return rc;
 
   return conn.claim();
 }
 
 bool close_klug() {
-  if (!conn.release())
-    return false;
+  if (!conn.release()) return false;
   conn.close();
   return true;
 }
 
-const char *ping_klug() {
-  transmission::Transmission transmission("PING\r", 0);
+char const* ping_klug() {
+  transmission::Transmission transmission(conn, "PING\r", 0);
 
   transmission.execute();
 
   auto const result{transmission.result()};
 
-  for (int i{0}; i < result.size(); i++) {
-    in_data[i] = result[i];
-  }
+  for (int i{0}; i < result.size(); i++) { in_data[i] = result[i]; }
 
   LOGD("Result: {}",
-       std::string_view(std::bit_cast<const char *>(in_data.data()),
+       std::string_view(std::bit_cast<char const*>(in_data.data()),
                         result.size()));
 
-  return std::bit_cast<const char *>(in_data.data());
+  return std::bit_cast<char const*>(in_data.data());
 }

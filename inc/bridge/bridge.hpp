@@ -11,15 +11,16 @@ extern "C" {
 typedef struct bridge_instance* bridge_handle;
 
 /** ---------------------------------------------------
- *  Bridge  
+ *  Bridge
  *  ---------------------------------------------------
- */ 
+ */
 
 // Lifetime
 bridge_handle bridge_create(void);
 void bridge_destroy(bridge_handle handle);
 
 // Connection Specifics
+int bridge_init(bridge_handle handle);
 int bridge_open(bridge_handle handle,
                 uint16_t vid = 0x1FC9u,
                 uint16_t pid = 0x81C1u);
@@ -32,7 +33,9 @@ void bridge_close(bridge_handle handle);
 /** ---------------------------------------------------
  *  Bridge COM
  *  ---------------------------------------------------
- */ 
+ */
+
+int bridge_com_ping(bridge_handle handle, char* buffer, std::size_t length);
 
 #ifdef __cplusplus
 }

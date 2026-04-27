@@ -12,6 +12,8 @@
 #include "new_port.hpp"
 #include "susiv2.hpp"
 
+#include "bridge/bridge.hpp"
+
 int test() {
   init();
   if (!open_klug()) {
@@ -43,7 +45,7 @@ int test() {
     com_reset(&result);
     abort();
   }
-  
+
   uint8_t value{};
   if (susiv2_cv_read(8u, &value) != 0) {
     LOGE("Could not read Cv");
@@ -55,10 +57,60 @@ int test() {
   com_reset(&result);
 
   close_klug();
+  return 0;
 }
 
-int test_bridge() {}
+int test_bridge() {
+  auto handle{bridge_create()};
+  bridge_init(handle);
 
-int main(int argc, char** argv) {
-  return test(); 
+  enum class step {
+    open,
+    config,
+    claim,
+    done,
+  } s{step::open};
+
+  // Open and configure
+  while (s != step::done) {
+    int rc{0};
+    switch (s) {
+      case step::open:
+        rc = bridge_open(handle);
+        s = step::config;
+        break;
+      case step::config:
+        rc = bridge_configure(handle);
+        s = step::claim;
+        break;
+      case step::claim:
+        rc = bridge_claim(handle);
+        s = step::done;
+        break;
+      default: break;
+    }
+    if (rc != LIBUSB_SUCCESS) {
+      bridge_destroy(handle);
+      libusb_exit(nullptr);
+      abort();
+    }
+  }
+
+  // ping
+  char buffer[64u];
+  if (bridge_com_ping(handle, buffer, 64u) != 0) abort();
+
+  std::string ping{buffer};
+
+  LOGD("Result: {}", ping);
+
+  bridge_release(handle);
+  bridge_close(handle);
+  bridge_destroy(handle);
+
+  libusb_exit(nullptr);
+  return 0;
 }
+
+int main(int argc, char** argv) { return test_bridge(); }
+// int main(int argc, char** argv) { return test(); }
