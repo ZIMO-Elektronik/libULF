@@ -6,7 +6,7 @@ namespace bridge {
 
 COM::COM(Context& ctx, Worker& worker) : _ctx{ctx}, _worker{worker} {}
 
-int COM::ping(char* buffer, std::size_t length) {
+int COM::ping(char* buffer, size_t length) {
   transmission::COMTransmission transmission{
     _ctx.connection, _ctx.cb, "PING\r", 2000u};
   auto rc{transmission.execute()};

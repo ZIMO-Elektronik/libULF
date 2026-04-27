@@ -3,17 +3,22 @@
 #define LOG_TAG "NativeKLUG"
 
 #ifdef ANDROID
-#include <android/log.h>
+#  include <android/log.h>
+#  include <iostream>
 
-#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
-#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#  define LOGD(...)                                                            \
+    __android_log_print(                                                       \
+      ANDROID_LOG_DEBUG, LOG_TAG, "%s", std::format(__VA_ARGS__).c_str())
+#  define LOGE(...)                                                            \
+    __android_log_print(                                                       \
+      ANDROID_LOG_ERROR, LOG_TAG, "%s", std::format(__VA_ARGS__).c_str())
 
 #else
-#include <iostream>
+#  include <iostream>
 
-#define LOGD(...)                                                              \
-  std::cout << "[DEBUG] " << std::format(__VA_ARGS__) << std::endl;
-#define LOGE(...)                                                              \
-  std::cout << "[ERROR] " << std::format(__VA_ARGS__) << std::endl;
+#  define LOGD(...)                                                            \
+    std::cout << "[DEBUG] " << std::format(__VA_ARGS__) << std::endl;
+#  define LOGE(...)                                                            \
+    std::cout << "[ERROR] " << std::format(__VA_ARGS__) << std::endl;
 
 #endif

@@ -34,11 +34,12 @@ set(SOURCE_FILES
     src/bridge/internal/bridge_susiv2.cpp
     src/bridge/internal/bridge_worker.cpp)
 
-# add_library(${TARGET} SHARED ${SOURCE_FILES})
-add_executable(${TARGET} test.cpp src/new_port.cpp ${SOURCE_FILES})
+add_library(${TARGET} SHARED ${SOURCE_FILES})
+# add_executable(e_${TARGET} test.cpp src/new_port.cpp ${SOURCE_FILES})
 
 if(ANDROID)
-  target_sources(${TARGET} PUBLIC src/android_wrapper.cpp)
+  target_sources(${TARGET} PUBLIC src/android_wrapper.cpp
+                                  src/bridge/android_bridge.cpp)
 endif()
 
 target_compile_features(${TARGET} PUBLIC cxx_std_23)
@@ -62,7 +63,7 @@ if(NOT TARGET ULF::MDU_EIN)
 endif()
 
 if(NOT TARGET ULF::SUSIV2)
-  cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2@0.3.2")
+  cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2#packet2frame")
 endif()
 
 find_library(log-lib log)

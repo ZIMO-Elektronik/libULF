@@ -2,7 +2,14 @@
 
 namespace bridge {
 
-int Bridge::init() { return libusb_init(nullptr); }
+int Bridge::init() {
+#ifdef ANDROID
+  // We cant search devices on Android
+  libusb_set_option(NULL, LIBUSB_OPTION_WEAK_AUTHORITY);
+  libusb_set_option(nullptr, LIBUSB_OPTION_NO_DEVICE_DISCOVERY);
+#endif
+  return libusb_init(nullptr);
+}
 
 void Bridge::registerCB(bridge_callback cb) { _ctx.cb = cb; }
 

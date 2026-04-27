@@ -1,6 +1,7 @@
 #pragma once
 
 #include <condition_variable>
+#include <thread>
 #include "bridge_context.hpp"
 #include "internal/transmission.hpp"
 

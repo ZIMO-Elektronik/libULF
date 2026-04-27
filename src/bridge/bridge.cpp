@@ -25,7 +25,7 @@ int bridge_openFd(bridge_handle handle, int Fd) {
   return reinterpret_cast<bridge::Bridge*>(handle)->openFd(Fd);
 }
 
-int bridge_configure(bridge_handle handle) {
+int bridge_config(bridge_handle handle) {
   return reinterpret_cast<bridge::Bridge*>(handle)->config();
 }
 
@@ -41,7 +41,7 @@ void bridge_close(bridge_handle handle) {
   return reinterpret_cast<bridge::Bridge*>(handle)->close();
 }
 
-int bridge_com_ping(bridge_handle handle, char* buffer, std::size_t length) {
+int bridge_com_ping(bridge_handle handle, char* buffer, size_t length) {
   return reinterpret_cast<bridge::Bridge*>(handle)->com().ping(buffer, length);
 }
 
