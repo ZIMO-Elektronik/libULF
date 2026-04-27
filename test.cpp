@@ -13,6 +13,23 @@
 #include "susiv2.hpp"
 
 #include "bridge/bridge.hpp"
+#include "callback.hpp"
+
+#include <condition_variable>
+#include <mutex>
+
+std::condition_variable c_v;
+std::mutex mut;
+bool cont{false};
+
+void cb(result_t r) {
+  LOGD("Got result");
+
+  if (r.type == result_type::string) { LOGD("Response: {}", r.data.string); }
+
+  cont = true;
+  c_v.notify_one();
+}
 
 int test() {
   init();
@@ -63,6 +80,7 @@ int test() {
 int test_bridge() {
   auto handle{bridge_create()};
   bridge_init(handle);
+  bridge_register_cb(handle, cb);
 
   enum class step {
     open,
@@ -98,11 +116,13 @@ int test_bridge() {
 
   // ping
   char buffer[64u];
-  if (bridge_com_ping(handle, buffer, 64u) != 0) abort();
+  std::unique_lock<std::mutex> lock(mut);
+  if (bridge_com_async_ping(handle) != 0) abort();
+  c_v.wait(lock, [] { return cont; });
 
-  std::string ping{buffer};
-
-  LOGD("Result: {}", ping);
+  // std::string ping{buffer};
+  //
+  // LOGD("Result: {}", ping);
 
   bridge_release(handle);
   bridge_close(handle);

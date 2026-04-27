@@ -19,6 +19,9 @@ struct Transmission {
   std::span<uint8_t> result();
 
   /// \todo Replace with pure virtual
+  virtual void push() {}
+
+  /// \todo Replace with pure virtual
   virtual bool evaluate() { return true; }
 
 protected:

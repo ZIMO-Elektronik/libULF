@@ -7,6 +7,8 @@ extern "C" {
 #  include <stdint.h>
 #endif
 
+#include "callback.hpp"
+
 // Opaque poninter as handle
 typedef struct bridge_instance* bridge_handle;
 
@@ -18,6 +20,9 @@ typedef struct bridge_instance* bridge_handle;
 // Lifetime
 bridge_handle bridge_create(void);
 void bridge_destroy(bridge_handle handle);
+
+// Callback
+void bridge_register_cb(bridge_handle handle, bridge_callback cb);
 
 // Connection Specifics
 int bridge_init(bridge_handle handle);
@@ -36,6 +41,7 @@ void bridge_close(bridge_handle handle);
  */
 
 int bridge_com_ping(bridge_handle handle, char* buffer, std::size_t length);
+int bridge_com_async_ping(bridge_handle handle);
 
 #ifdef __cplusplus
 }

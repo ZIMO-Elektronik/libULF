@@ -7,22 +7,24 @@ extern "C" {
 typedef enum {
   status,
   cv,
+  string,
   error,
   libusb_error,
-} type;
+} result_type;
 
 typedef struct {
-  type result_type;
+  result_type type;
   union {
-    bool success;
+    int success;
     int value;
+    char const* string;
     int error;
     int libusb_error;
   } data;
-} result;
+} result_t;
 
 // Callback definition
-typedef void (*bridge_callback)(result r);
+typedef void (*bridge_callback)(result_t r);
 
 // Callback registration
 /// \todo Write registration

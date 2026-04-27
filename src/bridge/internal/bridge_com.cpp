@@ -4,10 +4,11 @@
 
 namespace bridge {
 
-COM::COM(Context& ctx) : _ctx{ctx} {}
+COM::COM(Context& ctx, Worker& worker) : _ctx{ctx}, _worker{worker} {}
 
 int COM::ping(char* buffer, std::size_t length) {
-  transmission::COMTransmission transmission{_ctx.connection, "PING\r", 2000u};
+  transmission::COMTransmission transmission{
+    _ctx.connection, _ctx.cb, "PING\r", 2000u};
   auto rc{transmission.execute()};
   if (rc != 0) return rc;
 
@@ -18,6 +19,13 @@ int COM::ping(char* buffer, std::size_t length) {
 
   std::ranges::copy(result, buffer);
   return 0;
+}
+
+int COM::async_ping() {
+  return _worker.emplace<transmission::COMTransmission>(
+           _ctx.connection, _ctx.cb, "PING\r", 2000u)
+           ? 0
+           : 1;
 }
 
 }  // namespace bridge

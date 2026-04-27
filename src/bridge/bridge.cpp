@@ -9,6 +9,10 @@ void bridge_destroy(bridge_handle handle) {
   delete reinterpret_cast<bridge::Bridge*>(handle);
 }
 
+void bridge_register_cb(bridge_handle handle, bridge_callback cb) {
+  reinterpret_cast<bridge::Bridge*>(handle)->registerCB(cb);
+}
+
 int bridge_init(bridge_handle handle) {
   return reinterpret_cast<bridge::Bridge*>(handle)->init();
 }
@@ -39,4 +43,8 @@ void bridge_close(bridge_handle handle) {
 
 int bridge_com_ping(bridge_handle handle, char* buffer, std::size_t length) {
   return reinterpret_cast<bridge::Bridge*>(handle)->com().ping(buffer, length);
+}
+
+int bridge_com_async_ping(bridge_handle handle) {
+  return reinterpret_cast<bridge::Bridge*>(handle)->com().async_ping();
 }

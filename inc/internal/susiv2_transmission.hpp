@@ -13,6 +13,8 @@ struct SUSIV2Transmission : public Transmission {
                      std::span<uint8_t const> payload,
                      std::size_t timeout);
 
+  virtual void push() override {}
+
   virtual bool evaluate() override;
 };
 
