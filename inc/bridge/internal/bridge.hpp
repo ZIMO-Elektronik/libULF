@@ -15,6 +15,7 @@ struct Bridge {
   int init();
 
   void registerCB(bridge_callback cb);
+  result_t result();
 
   int open(uint16_t vid = 0x1FC9u, uint16_t pid = 0x81C1u);
   int openFd(int Fd);

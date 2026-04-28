@@ -4,6 +4,7 @@
 #include <span>
 #include <string>
 #include <vector>
+#include "callback.hpp"
 #include "connection.hpp"
 
 namespace transmission {
@@ -19,10 +20,7 @@ struct Transmission {
   std::span<uint8_t> result();
 
   /// \todo Replace with pure virtual
-  virtual void push() {}
-
-  /// \todo Replace with pure virtual
-  virtual bool evaluate() { return true; }
+  virtual result_t evaluate() { return {}; }
 
 protected:
   int transmit();

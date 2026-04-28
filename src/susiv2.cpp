@@ -22,8 +22,6 @@ int susiv2_features(bool* result) {
   auto rc{transmission.execute()};
   if (rc != 0) return rc;
 
-  if (!transmission.evaluate()) return 1;  // Garbage
-
   /// \todo maybe check crc8 before sending
   auto const re{transmission.result()};
   *result = re[0];
@@ -48,8 +46,6 @@ int susiv2_cv_read(uint32_t cv, uint8_t* value) {
     2000uz};
   auto rc{transmission.execute()};
   if (rc != 0) return rc;
-
-  if (!transmission.evaluate()) return 1;  // Garbage
 
   /// \todo maybe check crc8 before sending
   auto const result{transmission.result()};

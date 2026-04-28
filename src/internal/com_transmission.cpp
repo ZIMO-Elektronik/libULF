@@ -2,29 +2,32 @@
 #include "callback.hpp"
 #include "internal/logging.hpp"
 
+std::array<char, 64> tmp_buffer;
+
 namespace transmission {
 COMTransmission::COMTransmission(Connection& conn,
-                                 bridge_callback cb,
                                  std::string payload,
                                  std::size_t timeout)
-  : Transmission{conn, payload, timeout}, _cb{cb} {}
+  : Transmission{conn, payload, timeout} {}
 COMTransmission::COMTransmission(Connection& conn,
-                                 bridge_callback cb,
                                  std::span<uint8_t const> payload,
                                  std::size_t timeout)
-  : Transmission{conn, payload, timeout}, _cb{cb} {}
+  : Transmission{conn, payload, timeout} {}
 
-void COMTransmission::push() {
+result_t COMTransmission::evaluate() {
   using std::operator""sv;
   result_t r{};
-  LOGD("Pushing result");
+  LOGD("Creating result");
 
   std::string_view str{std::bit_cast<char const*>(_payload.data()),
                        _payload.size()};
   if (str == "PING\r"sv) {
     // Ping results in a string
     r.type = result_type::string;
-    r.data.string = reinterpret_cast<char const*>(_response.data());
+    std::fill(tmp_buffer.begin(), tmp_buffer.end(), 0);
+    std::copy(_response.begin(), _response.end(), tmp_buffer.begin());
+
+    r.data.string = reinterpret_cast<char const*>(tmp_buffer.data());
   } else {
     // Everything else is just bool
     std::string_view re{std::bit_cast<char const*>(_response.data()),
@@ -32,13 +35,8 @@ void COMTransmission::push() {
     r.type = result_type::status;
     r.data.success = (re == "OK\r"sv) ? 0 : 1;
   }
-  if (_cb) _cb(r);
 
-  return;
-}
-
-bool COMTransmission::evaluate() {
-  return this->_response.back() == std::bit_cast<uint8_t>('\r');
+  return r;
 }
 
 }  // namespace transmission

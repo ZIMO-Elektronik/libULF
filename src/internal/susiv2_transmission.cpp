@@ -20,10 +20,11 @@ SUSIV2Transmission::SUSIV2Transmission(Connection& conn,
  * \return false  Invalid
  * \todo refactor
  */
-bool SUSIV2Transmission::evaluate() {
-  if (_response.size() < 1uz || _response.size() > 6uz) return false;
-  if (_response.front() != ulf::susiv2::ack) return false;
-  return true;
+result_t SUSIV2Transmission::evaluate() {
+  return {};
+  // if (_response.size() < 1uz || _response.size() > 6uz) return false;
+  // if (_response.front() != ulf::susiv2::ack) return false;
+  // return true;
 }
 
 }  // namespace transmission

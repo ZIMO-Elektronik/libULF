@@ -20,7 +20,10 @@ struct Worker {
     // Check for existing transmission
     if (_t) { return false; }
 
+    // Prepare transmission and result
     _t = std::make_unique<T>(std::forward<Args>(args)...);
+    std::construct_at(&_promise);
+    std::construct_at(&_ctx.result, _promise.get_future());
 
     // Notify worker thread
     lock.unlock();
@@ -29,15 +32,16 @@ struct Worker {
   }
 
   // Thread loop
-  int loop();
+  void loop();
 
 private:
-  Context& _ctx;
+  Context& _ctx;  ///< Bridge context
 
-  std::thread _thread;
-  std::mutex _mut_t;
-  std::condition_variable _cv;
-  std::unique_ptr<transmission::Transmission> _t;
+  std::thread _thread;                             ///< Thread
+  std::promise<result_t> _promise;                 ///< Promise of result
+  std::mutex _mut_t;                               ///< Transmission mutex
+  std::condition_variable _cv;                     ///< Wait condition
+  std::unique_ptr<transmission::Transmission> _t;  ///< Current transmission
 
   bool exit;
 };

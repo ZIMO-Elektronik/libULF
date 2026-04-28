@@ -98,7 +98,7 @@ int test_bridge() {
         s = step::config;
         break;
       case step::config:
-        rc = bridge_configure(handle);
+        rc = bridge_config(handle);
         s = step::claim;
         break;
       case step::claim:
@@ -118,7 +118,10 @@ int test_bridge() {
   char buffer[64u];
   std::unique_lock<std::mutex> lock(mut);
   if (bridge_com_async_ping(handle) != 0) abort();
-  c_v.wait(lock, [] { return cont; });
+  // c_v.wait(lock, [] { return cont; });
+
+  auto const r = bridge_result(handle);
+  if (r.type == result_type::string) LOGD("Result: {}", r.data.string);
 
   // std::string ping{buffer};
   //

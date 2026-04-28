@@ -21,8 +21,9 @@ typedef struct bridge_instance* bridge_handle;
 bridge_handle bridge_create(void);
 void bridge_destroy(bridge_handle handle);
 
-// Callback
+// Callback and result
 void bridge_register_cb(bridge_handle handle, bridge_callback cb);
+result_t bridge_result(bridge_handle handle);
 
 // Connection Specifics
 int bridge_init(bridge_handle handle);

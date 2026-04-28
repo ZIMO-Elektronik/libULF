@@ -13,6 +13,11 @@ int Bridge::init() {
 
 void Bridge::registerCB(bridge_callback cb) { _ctx.cb = cb; }
 
+result_t Bridge::result() {
+  _ctx.result.wait();
+  return _ctx.result.get();
+}
+
 int Bridge::open(uint16_t vid, uint16_t pid) {
   return _ctx.connection.open(vid, pid);
 }

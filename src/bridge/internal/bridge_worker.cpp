@@ -1,4 +1,5 @@
 #include "bridge/internal/bridge_worker.hpp"
+#include <future>
 #include <thread>
 
 namespace bridge {
@@ -15,7 +16,7 @@ Worker::~Worker() {
   if (_thread.joinable()) _thread.join();
 }
 
-int Worker::loop() {
+void Worker::loop() {
   // Loop till death
   while (true) {
     {
@@ -25,10 +26,14 @@ int Worker::loop() {
     if (exit) break;
 
     _t->execute();
-    _t->push();
+    auto r{_t->evaluate()};
+    _promise.set_value(r);
+
+    // Push result to cb
+    if (_ctx.cb) _ctx.cb(r);
+
     _t.reset();
   }
-  return 0;
 }
 
 }  // namespace bridge

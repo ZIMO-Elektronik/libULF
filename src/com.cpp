@@ -11,11 +11,9 @@
  * \retval LIBUSB_SUCCESS Success
  */
 int com_ping(char* buffer, std::size_t length) {
-  transmission::COMTransmission transmission{conn, nullptr, "PING\r", 2000u};
+  transmission::COMTransmission transmission{conn, "PING\r", 2000u};
   auto rc{transmission.execute()};
   if (rc != 0) return rc;
-
-  if (!transmission.evaluate()) return 1;  // Garbage
 
   auto const result{transmission.result()};
   if (result.size() > length) return 1;  // We dont have enough space in buffer
@@ -33,11 +31,9 @@ int com_ping(char* buffer, std::size_t length) {
  * \retval LIBUSB_SUCCESS Success
  */
 int com_reset(bool* success) {
-  transmission::COMTransmission transmission{conn, nullptr, "RESET\r", 2000u};
+  transmission::COMTransmission transmission{conn, "RESET\r", 2000u};
   auto rc{transmission.execute()};
   if (rc != 0) return rc;
-
-  if (!transmission.evaluate()) return 1;  // Garbage
 
   std::string const result{
     std::bit_cast<std::span<char>>(transmission.result()).data()};
@@ -54,11 +50,9 @@ int com_reset(bool* success) {
  * \retval LIBUSB_SUCCESS Success
  */
 int com_susiv2(bool* success) {
-  transmission::COMTransmission transmission{conn, nullptr, "SUSIV2\r", 5000u};
+  transmission::COMTransmission transmission{conn, "SUSIV2\r", 5000u};
   auto rc{transmission.execute()};
   if (rc != 0) return rc;
-
-  if (!transmission.evaluate()) return 1;  // Garbage
 
   std::string const result{
     std::bit_cast<std::span<char>>(transmission.result()).data()};

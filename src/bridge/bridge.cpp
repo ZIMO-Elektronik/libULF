@@ -13,6 +13,10 @@ void bridge_register_cb(bridge_handle handle, bridge_callback cb) {
   reinterpret_cast<bridge::Bridge*>(handle)->registerCB(cb);
 }
 
+result_t bridge_result(bridge_handle handle) {
+  return reinterpret_cast<bridge::Bridge*>(handle)->result();
+}
+
 int bridge_init(bridge_handle handle) {
   return reinterpret_cast<bridge::Bridge*>(handle)->init();
 }
