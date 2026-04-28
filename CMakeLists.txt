@@ -45,6 +45,9 @@ endif()
 target_compile_features(${TARGET} PUBLIC cxx_std_23)
 target_include_directories(${TARGET} PRIVATE inc)
 
+target_compile_definitions(${TARGET} PRIVATE JNI_CLASS_PATH=${JNI_CLASS_PATH}
+                                             JNI_RESULT_PATH=${JNI_RESULT_PATH})
+
 if(NOT TARGET usb-1.0)
   cpmaddpackage(
     NAME

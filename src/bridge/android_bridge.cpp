@@ -3,13 +3,21 @@
 
 #include "bridge/bridge.hpp"
 
+#ifndef JNI_CLASS_PATH
+static_assert(false, "Must name a JNI class");
+#endif
+
+#ifndef JNI_RESULT_PATH
+static_assert(false, "Must name a Result class");
+#endif
+
 #define JNI_METHOD_PREFIX Java_com_example_test_1libklug_NativeLib_
 
 #define JNI_CONCAT2(a, b) a##b
 #define JNI_CONCAT(a, b) JNI_CONCAT2(a, b)
 
 #define JNI_METHOD(return_type, name, ...)                                     \
-  JNIEXPORT return_type JNICALL JNI_CONCAT(JNI_METHOD_PREFIX, name)(           \
+  JNIEXPORT return_type JNICALL JNI_CONCAT(JNI_CLASS_PATH, name)(              \
     [[maybe_unused]] JNIEnv * env,                                             \
     [[maybe_unused]] jobject thiz,                                             \
     ##__VA_ARGS__)
@@ -30,7 +38,9 @@ JNI_METHOD(jobject, bridge_1result, jlong handle) {
   auto const r{bridge_result(reinterpret_cast<bridge_handle>(handle))};
 
   if (r.type == result_type::string) {
-    jclass c = env->FindClass("com/example/test_libklug/NativeResult$String");
+    // jclass c =
+    // env->FindClass("com/example/test_libklug/NativeResult$String");
+    jclass c = env->FindClass(JNI_RESULT_PATH "$String");
     jmethodID init = env->GetMethodID(c, "<init>", "(Ljava/lang/String;)V");
     return env->NewObject(c, init, env->NewStringUTF(r.data.string));
   }
