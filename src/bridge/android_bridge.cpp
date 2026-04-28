@@ -26,6 +26,18 @@ JNI_METHOD(void, bridge_1register_1cb, jlong handle, jobject cb) {
   return;  // bridge_register_cb(cb);
 }
 
+JNI_METHOD(jobject, bridge_1result, jlong handle) {
+  auto const r{bridge_result(reinterpret_cast<bridge_handle>(handle))};
+
+  if (r.type == result_type::string) {
+    jclass c = env->FindClass("com/example/test_libklug/NativeResult$String");
+    jmethodID init = env->GetMethodID(c, "<init>", "(Ljava/lang/String;)V");
+    return env->NewObject(c, init, env->NewStringUTF(r.data.string));
+  }
+
+  return nullptr;
+}
+
 JNI_METHOD(jint, bridge_1init, jlong handle) {
   return bridge_init(reinterpret_cast<bridge_handle>(handle));
 }
@@ -62,5 +74,9 @@ JNI_METHOD(jstring, bridge_1com_1ping, jlong handle) {
     reinterpret_cast<bridge_handle>(handle), buffer.data(), buffer.size());
 
   return env->NewStringUTF(buffer.data());
+}
+
+JNI_METHOD(jint, bridge_1com_1async_1ping, jlong handle) {
+  return bridge_com_async_ping(reinterpret_cast<bridge_handle>(handle));
 }
 }
