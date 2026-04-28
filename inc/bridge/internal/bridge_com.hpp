@@ -9,9 +9,7 @@ namespace bridge {
 struct COM {
   COM(Context& ctx, Worker& worker);
 
-  int ping(char* buffer, std::size_t length);
-
-  int async_ping();
+  int ping();
 
 private:
   Context& _ctx;

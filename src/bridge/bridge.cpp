@@ -45,10 +45,6 @@ void bridge_close(bridge_handle handle) {
   return reinterpret_cast<bridge::Bridge*>(handle)->close();
 }
 
-int bridge_com_ping(bridge_handle handle, char* buffer, size_t length) {
-  return reinterpret_cast<bridge::Bridge*>(handle)->com().ping(buffer, length);
-}
-
-int bridge_com_async_ping(bridge_handle handle) {
-  return reinterpret_cast<bridge::Bridge*>(handle)->com().async_ping();
+int bridge_com_ping(bridge_handle handle) {
+  return reinterpret_cast<bridge::Bridge*>(handle)->com().ping();
 }

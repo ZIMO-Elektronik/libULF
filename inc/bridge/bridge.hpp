@@ -41,8 +41,7 @@ void bridge_close(bridge_handle handle);
  *  ---------------------------------------------------
  */
 
-int bridge_com_ping(bridge_handle handle, char* buffer, size_t length);
-int bridge_com_async_ping(bridge_handle handle);
+int bridge_com_ping(bridge_handle handle);
 
 #ifdef __cplusplus
 }

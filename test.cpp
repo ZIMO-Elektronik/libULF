@@ -117,7 +117,7 @@ int test_bridge() {
   // ping
   char buffer[64u];
   std::unique_lock<std::mutex> lock(mut);
-  if (bridge_com_async_ping(handle) != 0) abort();
+  if (bridge_com_ping(handle) != 0) abort();
   // c_v.wait(lock, [] { return cont; });
 
   auto const r = bridge_result(handle);
