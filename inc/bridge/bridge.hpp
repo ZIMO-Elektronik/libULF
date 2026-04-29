@@ -42,6 +42,16 @@ void bridge_close(bridge_handle handle);
  */
 
 int bridge_com_ping(bridge_handle handle);
+int bridge_com_reset(bridge_handle handle);
+int bridge_com_susiv2(bridge_handle handle);
+
+/** ---------------------------------------------------
+ *  Bridge SUSIV2
+ *  ---------------------------------------------------
+ */
+
+int bridge_susiv2_cv_read(bridge_handle handle, uint16_t cv);
+int bridge_susiv2_features(bridge_handle handle);
 
 #ifdef __cplusplus
 }

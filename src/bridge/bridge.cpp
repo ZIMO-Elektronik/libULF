@@ -48,3 +48,19 @@ void bridge_close(bridge_handle handle) {
 int bridge_com_ping(bridge_handle handle) {
   return reinterpret_cast<bridge::Bridge*>(handle)->com().ping();
 }
+
+int bridge_com_reset(bridge_handle handle) {
+  return reinterpret_cast<bridge::Bridge*>(handle)->com().reset();
+}
+
+int bridge_com_susiv2(bridge_handle handle) {
+  return reinterpret_cast<bridge::Bridge*>(handle)->com().susiv2();
+}
+
+int bridge_susiv2_cv_read(bridge_handle handle, uint16_t cv) {
+  return reinterpret_cast<bridge::Bridge*>(handle)->susiv2().cvRead(cv);
+}
+
+int bridge_susiv2_features(bridge_handle handle) {
+  return reinterpret_cast<bridge::Bridge*>(handle)->susiv2().features();
+}

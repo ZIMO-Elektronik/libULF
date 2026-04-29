@@ -35,7 +35,7 @@ private:
   Worker _worker{_ctx};
 
   COM _com{_ctx, _worker};
-  SUSIV2 _susiv2{};
+  SUSIV2 _susiv2{_ctx, _worker};
 };
 
 }  // namespace bridge

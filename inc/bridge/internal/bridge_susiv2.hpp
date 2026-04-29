@@ -8,9 +8,9 @@ namespace bridge {
 struct SUSIV2 {
   SUSIV2(Context& ctx, Worker& worker);
 
-  int cvRead(uint16_t cv);
-  int cvWrite(uint16_t cv, uint8_t value);
-  int features();
+  bool cvRead(uint16_t cv);
+  bool cvWrite(uint16_t cv, uint8_t value);
+  bool features();
 
 private:
   Context& _ctx;

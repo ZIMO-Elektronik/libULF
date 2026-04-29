@@ -34,4 +34,6 @@ void Bridge::close() { return _ctx.connection.close(); }
 
 COM& Bridge::com() { return _com; }
 
+SUSIV2& Bridge::susiv2() { return _susiv2; }
+
 }  // namespace bridge

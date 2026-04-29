@@ -9,7 +9,9 @@ namespace bridge {
 struct COM {
   COM(Context& ctx, Worker& worker);
 
-  int ping();
+  bool ping();
+  bool reset();
+  bool susiv2();
 
 private:
   Context& _ctx;

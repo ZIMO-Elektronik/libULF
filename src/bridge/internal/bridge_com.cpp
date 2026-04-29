@@ -6,11 +6,19 @@ namespace bridge {
 
 COM::COM(Context& ctx, Worker& worker) : _ctx{ctx}, _worker{worker} {}
 
-int COM::ping() {
+bool COM::ping() {
   return _worker.emplace<transmission::COMTransmission>(
-           _ctx.connection, "PING\r", 2000u)
-           ? 0
-           : 1;
+    _ctx.connection, "PING\r", 2000u);
+}
+
+bool COM::reset() {
+  return _worker.emplace<transmission::COMTransmission>(
+    _ctx.connection, "RESET\r", 2000u);
+}
+
+bool COM::susiv2() {
+  return _worker.emplace<transmission::COMTransmission>(
+    _ctx.connection, "SUSIV2\r", 4000u);
 }
 
 }  // namespace bridge
