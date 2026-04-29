@@ -12,6 +12,7 @@ struct COM {
   bool ping();
   bool reset();
   bool susiv2();
+  bool mdu_ein();
 
 private:
   Context& _ctx;

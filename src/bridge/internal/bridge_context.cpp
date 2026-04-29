@@ -4,10 +4,10 @@ namespace bridge {
 
 bool Context::transmission(transmission::TransmissionBase* t) {
   mut_transmission.lock();
-  bool result{!_transmission};
-  if (result) _transmission = t;
+  bool r{!_transmission};
+  if (r) _transmission = t;
   mut_transmission.unlock();
-  return result;
+  return r;
 }
 
 transmission::TransmissionBase* Context::transmission() {

@@ -21,4 +21,9 @@ bool COM::susiv2() {
     _ctx.connection, "SUSIV2\r", 4000u);
 }
 
+bool COM::mdu_ein() {
+  return _worker.emplace<transmission::com::Base>(
+    _ctx.connection, "MDU_EIN\r", 4000u);
+}
+
 }  // namespace bridge

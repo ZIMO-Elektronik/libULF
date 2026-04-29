@@ -15,8 +15,9 @@ struct TransmissionBase : ITransmission {
   TransmissionBase(Connection& conn,
                    std::span<uint8_t const> payload,
                    std::size_t timeout);
+  virtual ~TransmissionBase() = default;
 
-  virtual int execute();
+  virtual int execute() override;
 
 protected:
   int transmit();

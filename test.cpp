@@ -15,6 +15,8 @@
 #include <condition_variable>
 #include <mutex>
 
+#include <libusb.h>
+
 std::condition_variable c_v;
 std::mutex mut;
 bool cont{false};
@@ -68,15 +70,25 @@ int test_bridge() {
   // ping
   char buffer[64u];
   std::unique_lock<std::mutex> lock(mut);
-  if (bridge_com_ping(handle) != 0) abort();
+  if (!bridge_com_ping(handle)) abort();
   // c_v.wait(lock, [] { return cont; });
 
-  auto const r = bridge_result(handle);
+  auto r = bridge_result(handle);
   if (r.type == result_type::string) LOGD("Result: {}", r.data.string);
 
-  // std::string ping{buffer};
-  //
-  // LOGD("Result: {}", ping);
+  bridge_com_mdu_ein(handle);
+  bridge_result(handle);
+  bridge_mdu_ein_enter_dcc_zpp(handle);
+  bridge_result(handle);
+  bridge_mdu_ein_cv_read(handle, 7u);
+
+  r = bridge_result(handle);
+  if (r.type == result_type::cv) {
+    LOGD("Cv 7 is {} ", r.data.value);
+  } else LOGE("FUGG");
+
+  bridge_com_reset(handle);
+  bridge_result(handle);
 
   bridge_release(handle);
   bridge_close(handle);

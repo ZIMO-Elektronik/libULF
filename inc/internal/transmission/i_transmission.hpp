@@ -5,6 +5,8 @@
 namespace transmission {
 
 struct ITransmission {
+  virtual ~ITransmission() = default;
+
   virtual int execute() = 0;
 
   virtual result_t evaluate() = 0;

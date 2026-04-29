@@ -8,13 +8,13 @@ namespace bridge {
 struct MDU_EIN {
   MDU_EIN(Context& ctx, Worker& worker);
 
-  int enterMDU();
-  int enterDCCZSU(uint32_t sn, bool done);
-  int enterDCCZPP(uint32_t id = 0, uint32_t sn = 0, bool done = false);
+  bool enterMDU();
+  bool enterDCCZSU(uint32_t id = 0uz, uint32_t sn = 0uz, bool done = false);
+  bool enterDCCZPP(uint32_t sn = 0uz, bool done = false);
 
-  int cvRead(uint16_t cv);
-  int cvWrite(uint16_t cv, uint8_t value);
-  int ping(uint32_t id = 0, uint32_t sn = 0);
+  bool cvRead(uint16_t cv);
+  bool cvWrite(uint16_t cv, uint8_t value);
+  bool ping(uint32_t sn = 0, uint32_t id = 0);
 
 private:
   Context& _ctx;

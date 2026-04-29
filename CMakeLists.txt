@@ -23,20 +23,22 @@ set(SOURCE_FILES
     src/internal/transmission/transmission_base.cpp
     src/internal/transmission/com/base.cpp
     src/internal/transmission/mdu_ein/base.cpp
+    src/internal/transmission/mdu_ein/cv_read.cpp
+    src/internal/transmission/mdu_ein/ping.cpp
     src/internal/transmission/susiv2/base.cpp
     src/bridge/bridge.cpp
     src/bridge/internal/bridge.cpp
     src/bridge/internal/bridge_com.cpp
     src/bridge/internal/bridge_context.cpp
     src/bridge/internal/bridge_susiv2.cpp
+    src/bridge/internal/bridge_mdu_ein.cpp
     src/bridge/internal/bridge_worker.cpp)
 
-add_library(${TARGET} SHARED ${SOURCE_FILES})
-# add_executable(${TARGET} test.cpp ${SOURCE_FILES})
+# add_library(${TARGET} SHARED ${SOURCE_FILES})
+add_executable(${TARGET} test.cpp ${SOURCE_FILES})
 
 if(ANDROID)
-  target_sources(${TARGET} PUBLIC src/android_wrapper.cpp
-                                  src/bridge/android_bridge.cpp)
+  target_sources(${TARGET} PUBLIC src/bridge/android_bridge.cpp)
 endif()
 
 target_compile_features(${TARGET} PUBLIC cxx_std_23)
