@@ -1,20 +1,18 @@
-#include "internal/com_transmission.hpp"
+#include "internal/transmission/com/base.hpp"
 #include "callback.hpp"
 #include "internal/logging.hpp"
 
 std::array<char, 64> tmp_buffer;
 
-namespace transmission {
-COMTransmission::COMTransmission(Connection& conn,
-                                 std::string payload,
-                                 std::size_t timeout)
-  : Transmission{conn, payload, timeout} {}
-COMTransmission::COMTransmission(Connection& conn,
-                                 std::span<uint8_t const> payload,
-                                 std::size_t timeout)
-  : Transmission{conn, payload, timeout} {}
+namespace transmission::com {
+Base::Base(Connection& conn, std::string payload, std::size_t timeout)
+  : TransmissionBase{conn, payload, timeout} {}
+Base::Base(Connection& conn,
+           std::span<uint8_t const> payload,
+           std::size_t timeout)
+  : TransmissionBase{conn, payload, timeout} {}
 
-result_t COMTransmission::evaluate() {
+result_t Base::evaluate() {
   using std::operator""sv;
   result_t r{};
   LOGD("Creating result");
@@ -39,4 +37,4 @@ result_t COMTransmission::evaluate() {
   return r;
 }
 
-}  // namespace transmission
+}  // namespace transmission::com

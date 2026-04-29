@@ -19,14 +19,11 @@ project(
 set(TARGET KLUG)
 
 set(SOURCE_FILES
-    src/new_port.cpp
-    src/internal/transmission.cpp
     src/internal/connection.cpp
-    src/susiv2.cpp
-    src/com.cpp
-    src/internal/com_transmission.cpp
-    src/internal/mdu_ein_transmission.cpp
-    src/internal/susiv2_transmission.cpp
+    src/internal/transmission/transmission_base.cpp
+    src/internal/transmission/com/base.cpp
+    src/internal/transmission/mdu_ein/base.cpp
+    src/internal/transmission/susiv2/base.cpp
     src/bridge/bridge.cpp
     src/bridge/internal/bridge.cpp
     src/bridge/internal/bridge_com.cpp
@@ -35,7 +32,7 @@ set(SOURCE_FILES
     src/bridge/internal/bridge_worker.cpp)
 
 add_library(${TARGET} SHARED ${SOURCE_FILES})
-# add_executable(${TARGET} test.cpp src/new_port.cpp ${SOURCE_FILES})
+# add_executable(${TARGET} test.cpp ${SOURCE_FILES})
 
 if(ANDROID)
   target_sources(${TARGET} PUBLIC src/android_wrapper.cpp

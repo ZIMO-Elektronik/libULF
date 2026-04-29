@@ -36,4 +36,6 @@ COM& Bridge::com() { return _com; }
 
 SUSIV2& Bridge::susiv2() { return _susiv2; }
 
+MDU_EIN& Bridge::mdu_ein() { return _mdu_ein; }
+
 }  // namespace bridge

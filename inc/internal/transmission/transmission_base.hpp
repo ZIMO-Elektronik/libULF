@@ -5,22 +5,18 @@
 #include <string>
 #include <vector>
 #include "callback.hpp"
-#include "connection.hpp"
+#include "i_transmission.hpp"
+#include "internal/connection.hpp"
 
 namespace transmission {
 
-struct Transmission {
-  Transmission(Connection& conn, std::string payload, std::size_t timeout);
-  Transmission(Connection& conn,
-               std::span<uint8_t const> payload,
-               std::size_t timeout);
+struct TransmissionBase : ITransmission {
+  TransmissionBase(Connection& conn, std::string payload, std::size_t timeout);
+  TransmissionBase(Connection& conn,
+                   std::span<uint8_t const> payload,
+                   std::size_t timeout);
 
-  int execute();
-
-  std::span<uint8_t> result();
-
-  /// \todo Replace with pure virtual
-  virtual result_t evaluate() { return {}; }
+  virtual int execute();
 
 protected:
   int transmit();

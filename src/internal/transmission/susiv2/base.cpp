@@ -1,17 +1,15 @@
-#include "internal/susiv2_transmission.hpp"
+#include "internal/transmission/susiv2/base.hpp"
 #include <ulf/susiv2.hpp>
 
-namespace transmission {
+namespace transmission::susiv2 {
 
-SUSIV2Transmission::SUSIV2Transmission(Connection& conn,
-                                       std::string payload,
-                                       std::size_t timeout)
-  : Transmission{conn, payload, timeout} {}
+Base::Base(Connection& conn, std::string payload, std::size_t timeout)
+  : TransmissionBase{conn, payload, timeout} {}
 
-SUSIV2Transmission::SUSIV2Transmission(Connection& conn,
-                                       std::span<uint8_t const> payload,
-                                       std::size_t timeout)
-  : Transmission{conn, payload, timeout} {}
+Base::Base(Connection& conn,
+           std::span<uint8_t const> payload,
+           std::size_t timeout)
+  : TransmissionBase{conn, payload, timeout} {}
 
 /**
  * Evaluate SUSIV2 response
@@ -20,7 +18,7 @@ SUSIV2Transmission::SUSIV2Transmission(Connection& conn,
  * \return false  Invalid
  * \todo refactor
  */
-result_t SUSIV2Transmission::evaluate() {
+result_t Base::evaluate() {
   result_t r{};
   if (_response.size() < 1uz || _response.size() > 6uz ||
       _response.front() != ulf::susiv2::ack) {
@@ -45,4 +43,4 @@ result_t SUSIV2Transmission::evaluate() {
   return r;
 }
 
-}  // namespace transmission
+}  // namespace transmission::susiv2

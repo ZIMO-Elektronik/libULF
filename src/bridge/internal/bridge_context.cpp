@@ -2,7 +2,7 @@
 
 namespace bridge {
 
-bool Context::transmission(transmission::Transmission* t) {
+bool Context::transmission(transmission::TransmissionBase* t) {
   mut_transmission.lock();
   bool result{!_transmission};
   if (result) _transmission = t;
@@ -10,6 +10,8 @@ bool Context::transmission(transmission::Transmission* t) {
   return result;
 }
 
-transmission::Transmission* Context::transmission() { return _transmission; }
+transmission::TransmissionBase* Context::transmission() {
+  return _transmission;
+}
 
 }  // namespace bridge

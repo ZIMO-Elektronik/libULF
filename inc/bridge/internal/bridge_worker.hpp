@@ -3,7 +3,7 @@
 #include <condition_variable>
 #include <thread>
 #include "bridge_context.hpp"
-#include "internal/transmission.hpp"
+#include "internal/transmission/transmission_base.hpp"
 
 namespace bridge {
 
@@ -12,7 +12,7 @@ struct Worker {
   ~Worker();
 
   template<typename T, typename... Args>
-  requires std::derived_from<T, transmission::Transmission> &&
+  requires std::derived_from<T, transmission::ITransmission> &&
            std::constructible_from<T, Args...>
   bool emplace(Args&&... args) {
     std::unique_lock<std::mutex> lock(_mut_t);
@@ -37,11 +37,11 @@ struct Worker {
 private:
   Context& _ctx;  ///< Bridge context
 
-  std::thread _thread;                             ///< Thread
-  std::promise<result_t> _promise;                 ///< Promise of result
-  std::mutex _mut_t;                               ///< Transmission mutex
-  std::condition_variable _cv;                     ///< Wait condition
-  std::unique_ptr<transmission::Transmission> _t;  ///< Current transmission
+  std::thread _thread;                              ///< Thread
+  std::promise<result_t> _promise;                  ///< Promise of result
+  std::mutex _mut_t;                                ///< Transmission mutex
+  std::condition_variable _cv;                      ///< Wait condition
+  std::unique_ptr<transmission::ITransmission> _t;  ///< Current transmission
 
   bool exit;
 };

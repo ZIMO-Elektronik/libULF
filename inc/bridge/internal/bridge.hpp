@@ -28,6 +28,7 @@ struct Bridge {
 
   COM& com();
   SUSIV2& susiv2();
+  MDU_EIN& mdu_ein();
 
 private:
   Context _ctx;
@@ -36,6 +37,7 @@ private:
 
   COM _com{_ctx, _worker};
   SUSIV2 _susiv2{_ctx, _worker};
+  MDU_EIN _mdu_ein{_ctx, _worker};
 };
 
 }  // namespace bridge

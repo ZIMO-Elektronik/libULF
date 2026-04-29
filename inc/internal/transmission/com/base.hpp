@@ -1,0 +1,15 @@
+#pragma once
+
+#include "callback.hpp"
+#include "internal/transmission/transmission_base.hpp"
+
+namespace transmission::com {
+
+struct Base : public TransmissionBase {
+  Base(Connection& conn, std::string payload, std::size_t timeout);
+  Base(Connection& conn, std::span<uint8_t const> payload, std::size_t timeout);
+
+  virtual result_t evaluate() override;
+};
+
+}  // namespace transmission::com
