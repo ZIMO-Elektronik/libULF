@@ -16,7 +16,9 @@
             "generator": "Ninja",
             "cacheVariables": {
                 "CMAKE_BUILD_PARALLEL_LEVEL": "16",
-                "CPM_ZTL_SOURCE": "${sourceDir}/../ZTL"
+                "CPM_ZTL_SOURCE": "${sourceDir}/../ZTL",
+                "CPM_ULF_SUSIV2_SOURCE": "${sourceDir}/../ULF_SUSIV2", 
+                "CPM_ZUSI_SOURCE": "${sourceDir}/../ZUSI"
             }
         },
         {

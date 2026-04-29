@@ -7,10 +7,10 @@
  */
 
 #include "internal/connection.hpp"
-#include "internal/logging.hpp"
 #include <cassert>
 #include <cstdint>
 #include <vector>
+#include "internal/logging.hpp"
 
 /**
  * \brief Open connection
@@ -26,7 +26,8 @@
 int Connection::open(uint16_t vid, uint16_t pid) {
   if (_handle) {
     LOGE("Attempted to open device {:04x}:{:04x}, but a device exists already ",
-         vid, pid);
+         vid,
+         pid);
     return LIBUSB_ERROR_OTHER;
   }
   _handle = libusb_open_device_with_vid_pid(nullptr, vid, pid);
@@ -59,9 +60,12 @@ int Connection::openFd(int Fd) {
   }
   auto rc{libusb_wrap_sys_device(nullptr, (intptr_t)Fd, &_handle)};
   if (rc != LIBUSB_SUCCESS) {
-    LOGE("Unable to open device with descriptor ID {}, [{}]", Fd,
+    LOGE("Unable to open device with descriptor ID {}, [{}]",
+         Fd,
          libusb_error_name(rc));
   }
+
+  LOGD("Wrapped sys device");
   return rc;
 }
 
@@ -81,9 +85,9 @@ int Connection::config() {
   }
 
   // Populate endpoints
-  libusb_config_descriptor *config{};
+  libusb_config_descriptor* config{};
   auto rc{
-      libusb_get_active_config_descriptor(libusb_get_device(_handle), &config)};
+    libusb_get_active_config_descriptor(libusb_get_device(_handle), &config)};
   if (rc != LIBUSB_SUCCESS) {
     LOGE("Unable to retrieve config descriptor. Error: {}",
          libusb_error_name(rc));
@@ -94,17 +98,17 @@ int Connection::config() {
 
   /// \todo Redo this section
   for (int i = 0; i < config->bNumInterfaces; i++) {
-    const struct libusb_interface_descriptor *inter_desc =
-        &config->interface[i].altsetting[0];
+    const struct libusb_interface_descriptor* inter_desc =
+      &config->interface[i].altsetting[0];
 
     for (int k = 0; k < inter_desc->bNumEndpoints; k++) {
-      const struct libusb_endpoint_descriptor *ep = &inter_desc->endpoint[k];
+      const struct libusb_endpoint_descriptor* ep = &inter_desc->endpoint[k];
 
       // Nur Bulk-Endpunkte beachten
       if ((ep->bmAttributes & 0x03) == LIBUSB_TRANSFER_TYPE_BULK) {
         if ((ep->bEndpointAddress & 0x80) == LIBUSB_ENDPOINT_OUT) {
           tx_eps.push_back(ep->bEndpointAddress);
-          _interface = i; // Interface merken für claim_interface
+          _interface = i;  // Interface merken für claim_interface
         } else {
           rx_eps.push_back(ep->bEndpointAddress);
         }
@@ -144,6 +148,8 @@ int Connection::claim() {
     return LIBUSB_ERROR_OTHER;
   }
 
+  LOGD("TX_EP - {} RX_EP - {} Interface {}", tx_ep(), rx_ep(), interface());
+
   auto rc{libusb_kernel_driver_active(_handle, _interface)};
   if (rc == 1) {
     LOGD("Kernel driver attached, attempting to detach");
@@ -154,11 +160,16 @@ int Connection::claim() {
       return rc;
     }
     LOGD("Detached kernel driver from interface {}", _interface);
+  } else {
+    LOGD("libusb returned {} on driver check", rc);
   }
+
+  libusb_detach_kernel_driver(_handle, _interface);
 
   rc = libusb_claim_interface(_handle, _interface);
   if (rc != LIBUSB_SUCCESS) {
-    LOGE("Unable to claim interface {}. Error: {}", _interface,
+    LOGE("Unable to claim interface {}. Error: {}",
+         _interface,
          libusb_error_name(rc));
     return rc;
   }
@@ -212,7 +223,7 @@ void Connection::close() {
  *
  * \return libusb_device_handle* Handle
  */
-libusb_device_handle *Connection::handle() { return _handle; }
+libusb_device_handle* Connection::handle() { return _handle; }
 
 /**
  * \brief TX-EP getter
