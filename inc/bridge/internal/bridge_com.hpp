@@ -6,6 +6,10 @@
 
 namespace bridge {
 
+/**
+ * Bridge for the ULF_COM protocol
+ *
+ */
 struct COM {
   COM(Context& ctx, Worker& worker);
 
@@ -15,8 +19,8 @@ struct COM {
   bool mdu_ein();
 
 private:
-  Context& _ctx;
-  Worker& _worker;
+  Context& _ctx;    ///< Bridge context
+  Worker& _worker;  ///< Worker
 };
 
 }  // namespace bridge

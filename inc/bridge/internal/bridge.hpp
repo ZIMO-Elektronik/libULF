@@ -11,6 +11,31 @@
 
 namespace bridge {
 
+/**
+ * Bridge composit class
+ *
+ * \details Combosit class consisting of the protocol bridges. Used to keep
+ * transfers in a controllable context
+ *
+ * \details This class is an attempt to provide all necessary ULF_COM update and
+ * soundload protocols behind a singular interface. As a concept, all
+ * transmissions run asynchronous via the \ref Bridge::Worker object. The result
+ * can either be waited upon using \ref Bridge::result, or get it delivered when
+ * registering a callback with \ref Bridge::registerCB.
+ *
+ * \note The bridge needs to be fully connected and configured to be usable. Two
+ * open bridges result in UB, since the ULF_COM transmissions are synchronous by
+ * design.
+ *
+ * \note To use, either \ref Bridge::open a device (or \ref Bridge::openFd on
+ * e.g. Android). Afterwards, \ref Bridge::config and \ref Bridge::claim
+ *
+ * \warning It is imperative, that the bridge is fully released before the
+ * object is deleted. Use \ref Bridge::release and \ref Bridge::close
+ *
+ * \todo Maybe the process of opening, connecting and closing could be provided
+ * with AIO methods like `connect` and `disconnect`
+ */
 struct Bridge {
   int init();
 
@@ -33,15 +58,15 @@ struct Bridge {
   ZPP& zpp();
 
 private:
-  Context _ctx;
+  Context _ctx;  ///< Bridge context
 
-  Worker _worker{_ctx};
+  Worker _worker{_ctx};  ///< Worker
 
-  COM _com{_ctx, _worker};
-  SUSIV2 _susiv2{_ctx, _worker};
-  MDU_EIN _mdu_ein{_ctx, _worker};
+  COM _com{_ctx, _worker};          ///< COM bridge
+  SUSIV2 _susiv2{_ctx, _worker};    ///< SUSIV2 bridge
+  MDU_EIN _mdu_ein{_ctx, _worker};  ///< MDU_EIN bridge
 
-  ZPP _zpp{};
+  ZPP _zpp{};  ///< ZPP bridge
 };
 
 }  // namespace bridge

@@ -5,6 +5,10 @@
 
 namespace bridge {
 
+/**
+ * Bridge for the MDU_EIN protocol
+ *
+ */
 struct MDU_EIN {
   MDU_EIN(Context& ctx, Worker& worker);
 
@@ -17,8 +21,8 @@ struct MDU_EIN {
   bool ping(uint32_t sn = 0, uint32_t id = 0);
 
 private:
-  Context& _ctx;
-  Worker& _worker;
+  Context& _ctx;    ///< Bridge context
+  Worker& _worker;  ///< Worker
 };
 
 }  // namespace bridge

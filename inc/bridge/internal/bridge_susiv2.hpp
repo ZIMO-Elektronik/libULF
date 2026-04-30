@@ -5,6 +5,10 @@
 
 namespace bridge {
 
+/**
+ * Bridge for the SUSIV2 protocol
+ *
+ */
 struct SUSIV2 {
   SUSIV2(Context& ctx, Worker& worker);
 
@@ -13,8 +17,8 @@ struct SUSIV2 {
   bool features();
 
 private:
-  Context& _ctx;
-  Worker& _worker;
+  Context& _ctx;    ///< Bridge context
+  Worker& _worker;  ///< Worker
 };
 
 }  // namespace bridge

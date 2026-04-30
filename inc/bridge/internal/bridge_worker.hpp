@@ -7,10 +7,33 @@
 
 namespace bridge {
 
+/**
+ * Bridge worker
+ *
+ * \details Used to make transmissions async.
+ *
+ * \note Thread is created in CTor and joined in DTor without user intervention
+ *
+ * \note Only ONE transmission can be running at a time.
+ *
+ * \todo Currently, close to no error handling is present.
+ *
+ */
 struct Worker {
   Worker(Context& ctx);
   ~Worker();
 
+  /**
+   * Emplace a transmission
+   *
+   * \tparam T      Type of transmission
+   * \tparam Args   Arg list for CTor
+   *
+   * \param args    Transmission CTor args
+   * \return bool
+   * \retval true   Transmission emplaced
+   * \retval false  Busy with other transmission
+   */
   template<typename T, typename... Args>
   requires std::derived_from<T, transmission::ITransmission> &&
            std::constructible_from<T, Args...>
