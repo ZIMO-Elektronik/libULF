@@ -39,7 +39,7 @@ bool MDU_EIN::enterDCCZPP(uint32_t sn, bool done) {
   return _worker.emplace<transmission::mdu_ein::Base>(
     _ctx.connection,
     ulf::mdu_ein::special2mdu_ein(
-      ulf::mdu_ein::Command::Entry, 1u, std::span<uint8_t, 16u>{payload}),
+      ulf::mdu_ein::Command::Entry, 2u, std::span<uint8_t, 16u>{payload}),
     2000u);
 }
 

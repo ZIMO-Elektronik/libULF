@@ -80,11 +80,13 @@ int test_bridge() {
   bridge_result(handle);
   bridge_mdu_ein_enter_dcc_zpp(handle);
   bridge_result(handle);
-  bridge_mdu_ein_cv_read(handle, 7u);
+  bridge_mdu_ein_ping(handle);
+  bridge_result(handle);
+  bridge_mdu_ein_cv_read(handle, 8u);
 
   r = bridge_result(handle);
   if (r.type == result_type::cv) {
-    LOGD("Cv 7 is {} ", r.data.value);
+    LOGD("Cv 8 is {} ", r.data.value);
   } else LOGE("FUGG");
 
   bridge_com_reset(handle);
