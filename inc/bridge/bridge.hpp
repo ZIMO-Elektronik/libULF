@@ -9,8 +9,9 @@ extern "C" {
 
 #include "callback.hpp"
 
-// Opaque poninter as handle
+// Opaque poninters as handle
 typedef struct bridge_instance* bridge_handle;
+typedef struct zpp_instance* zpp_handle;
 
 /** ---------------------------------------------------
  *  Bridge
@@ -64,6 +65,16 @@ int bridge_mdu_ein_enter_dcc_zsu(bridge_handle handle);
 int bridge_mdu_ein_enter_dcc_zpp(bridge_handle handle);
 int bridge_mdu_ein_cv_read(bridge_handle handle, uint16_t cv);
 int bridge_mdu_ein_ping(bridge_handle handle);
+
+/** ---------------------------------------------------
+ *  Bridge ZPP
+ *  ---------------------------------------------------
+ */
+
+zpp_handle
+bridge_zpp_read(bridge_handle b_handle, char16_t const* c, size_t length);
+void bridge_zpp_release(bridge_handle b_handle, zpp_handle handle);
+unsigned int bridge_zpp_blocks(bridge_handle b_handle, zpp_handle handle);
 
 #ifdef __cplusplus
 }

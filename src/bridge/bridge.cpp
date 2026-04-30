@@ -108,3 +108,33 @@ int bridge_mdu_ein_cv_read(bridge_handle handle, uint16_t cv) {
 int bridge_mdu_ein_ping(bridge_handle handle) {
   return reinterpret_cast<bridge::Bridge*>(handle)->mdu_ein().ping();
 }
+
+/** ---------------------------------------------------
+ *  Bridge ZPP
+ *  ---------------------------------------------------
+ */
+
+/// \todo maybe, it is unnecessary to let this run over bridge since ZPP could
+/// be a static class
+zpp_handle
+bridge_zpp_read(bridge_handle b_handle, char16_t const* c, size_t length) {
+  std::u16string_view s(c, length);
+
+  return reinterpret_cast<zpp_handle>(
+    reinterpret_cast<bridge::Bridge*>(b_handle)->zpp().read(
+      std::filesystem::path{s}));
+}
+
+/// \todo maybe, it is unnecessary to let this run over bridge since ZPP could
+/// be a static class
+void bridge_zpp_release(bridge_handle b_handle, zpp_handle handle) {
+  return reinterpret_cast<bridge::Bridge*>(b_handle)->zpp().release(
+    reinterpret_cast<zpp::File*>(handle));
+}
+
+/// \todo maybe, it is unnecessary to let this run over bridge since ZPP could
+/// be a static class
+unsigned int bridge_zpp_blocks(bridge_handle b_handle, zpp_handle handle) {
+  return reinterpret_cast<bridge::Bridge*>(b_handle)->zpp().blocks(
+    reinterpret_cast<zpp::File*>(handle));
+}
