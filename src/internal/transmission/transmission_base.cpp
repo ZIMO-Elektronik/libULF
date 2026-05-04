@@ -1,19 +1,30 @@
+/**
+ * Transmission Base
+ *
+ * \file    src/internal/transmission/transmission_base.cpp
+ * \author  Jonas Gahlert
+ * \date    04.05.2026
+ */
 
-
-#include "internal/transmission.hpp"
+#include "internal/transmission/transmission_base.hpp"
+#include <libusb.h>
+#include <ranges>
+#include <string>
 #include "internal/connection.hpp"
 #include "internal/logging.hpp"
 
-#include <ranges>
-#include <string>
-
-#include <libusb.h>
-
 namespace transmission {
 
-Transmission::Transmission(Connection& conn,
-                           std::string payload,
-                           std::size_t timeout)
+/**
+ * CTor
+ *
+ * \param conn    Connection
+ * \param payload Payload
+ * \param timeout Timeout
+ */
+TransmissionBase::TransmissionBase(Connection& conn,
+                                   std::string payload,
+                                   std::size_t timeout)
   : _timeout{timeout}, _conn{conn} {
   _response.reserve(64u);
   for (auto const it : payload) {
@@ -21,21 +32,42 @@ Transmission::Transmission(Connection& conn,
   }
 }
 
-Transmission::Transmission(Connection& conn,
-                           std::span<uint8_t const> payload,
-                           std::size_t timeout)
+/**
+ * CTor
+ *
+ * \param conn    Connection
+ * \param payload Payload
+ * \param timeout Timeout
+ */
+TransmissionBase::TransmissionBase(Connection& conn,
+                                   std::span<uint8_t const> payload,
+                                   std::size_t timeout)
   : _timeout{timeout}, _conn{conn} {
   _response.reserve(64u);
   std::ranges::copy(payload, std::back_inserter(_payload));
 }
 
-int Transmission::execute() {
+/**
+ * Execute transmission
+ *
+ * \return int 0
+ *
+ * \todo Refactor to return error if unsuccessful
+ */
+int TransmissionBase::execute() {
   this->transmit();
   this->receive();
   return 0;
 }
 
-int Transmission::transmit() {
+/**
+ * Transmit payload
+ *
+ * \return int
+ * \retval LIBUSB_ERROR   Error
+ * \retval LIBUSB_SUCCESS Success
+ */
+int TransmissionBase::transmit() {
 
   int transferred{0};
   flush();
@@ -60,7 +92,14 @@ int Transmission::transmit() {
   return rc;
 }
 
-int Transmission::receive() {
+/**
+ * Receive response
+ *
+ * \return int
+ * \retval LIBUSB_ERROR   Error
+ * \retval LIBUSB_SUCCESS SUCCESS
+ */
+int TransmissionBase::receive() {
   int transferred{0};
 
   std::array<uint8_t, 64u> data;
@@ -83,9 +122,11 @@ int Transmission::receive() {
   return rc;
 }
 
-std::span<uint8_t> Transmission::result() { return {_response}; }
-
-void Transmission::flush() {
+/**
+ * Flush RX Buffer
+ *
+ */
+void TransmissionBase::flush() {
   std::array<uint8_t, 64u> data;
   while (libusb_bulk_transfer(_conn.handle(),
                               _conn.rx_ep(),

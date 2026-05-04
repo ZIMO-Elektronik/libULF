@@ -1,3 +1,11 @@
+/**
+ * Callback
+ *
+ * \file callback.hpp
+ * \author Jonas Gahlert
+ * \date 04.05.2026
+ */
+
 #pragma once
 
 #include "result.hpp"
@@ -6,7 +14,13 @@
 extern "C" {
 #endif
 
-// Callback definition
+/**
+ * Callback
+ *
+ * \todo This should be replaced by a functor, so we can handle platform
+ * sepcific stuff (like jni)
+ *
+ */
 typedef void (*bridge_callback)(result_t r);
 
 // Callback registration

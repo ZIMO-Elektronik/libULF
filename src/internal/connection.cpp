@@ -1,9 +1,9 @@
 /**
- * \brief Connection
+ * Connection
  *
  * \file    src/internal/connection.cpp
- * \author  Jonas Gahlert (you@domain.com)
- * \date    2026-04-22
+ * \author  Jonas Gahlert
+}* \date    21.04.2026
  */
 
 #include "internal/connection.hpp"
@@ -13,7 +13,7 @@
 #include "internal/logging.hpp"
 
 /**
- * \brief Open connection
+ * Open connection
  *
  * \warning DO NOT CALL THIS ON ANDROID
  *
@@ -41,7 +41,7 @@ int Connection::open(uint16_t vid, uint16_t pid) {
 }
 
 /**
- * \brief Open connection from file descriptor
+ * Open connection from file descriptor
  *
  * \note This exists mainly for Android, as the devices need to be opened from
  * Java / Kotlin side
@@ -70,7 +70,7 @@ int Connection::openFd(int Fd) {
 }
 
 /**
- * \brief Config connection
+ * Config connection
  *
  * \note Configures internals
  *
@@ -136,7 +136,7 @@ int Connection::config() {
 }
 
 /**
- * \brief Claim Interface
+ * Claim Interface
  *
  * \return int
  * \retval LIBUSB_ERROR   Error
@@ -179,7 +179,7 @@ int Connection::claim() {
 }
 
 /**
- * \brief Release Interface
+ * Release Interface
  *
  * \return int
  * \retval LIBUSB_ERROR   Error
@@ -201,7 +201,7 @@ int Connection::release() {
 }
 
 /**
- * \brief Close device
+ * Close device
  *
  * \warning On Android, the device should be opened and closed from Java /
  * Kotlin
@@ -219,28 +219,28 @@ void Connection::close() {
 }
 
 /**
- * \brief Handle getter
+ * Handle getter
  *
  * \return libusb_device_handle* Handle
  */
 libusb_device_handle* Connection::handle() { return _handle; }
 
 /**
- * \brief TX-EP getter
+ * TX-EP getter
  *
  * \return uint8_t TX-EP
  */
 uint8_t Connection::tx_ep() { return _tx_ep; }
 
 /**
- * \brief RX-EP getter
+ * RX-EP getter
  *
  * \return uint8_t RX-EP
  */
 uint8_t Connection::rx_ep() { return _rx_ep; }
 
 /**
- * \brief Interface getter
+ * Interface getter
  *
  * \return int Interface
  */
