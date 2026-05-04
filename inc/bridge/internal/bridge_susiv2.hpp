@@ -8,8 +8,10 @@
 
 #pragma once
 
+#include <zpp/zpp.hpp>
 #include "bridge_context.hpp"
 #include "bridge_worker.hpp"
+#include "bridge_zpp.hpp"
 
 namespace bridge {
 
@@ -18,15 +20,22 @@ namespace bridge {
  *
  */
 struct SUSIV2 {
-  SUSIV2(Context& ctx, Worker& worker);
+  SUSIV2(Context& ctx, Worker& worker, ZPP& zpp);
 
   bool cvRead(uint16_t cv);
   bool cvWrite(uint16_t cv, uint8_t value);
+  bool zppErase();
+  bool zppWrite(uint32_t address, std::span<uint8_t const> block);
+  bool zppWrite(zpp::File* file, uint32_t index);
   bool features();
+  bool exit(bool reboot, bool cv8_reset);
+  bool zppLcDcQuery(uint32_t dev_code);
+  bool zppLcDcQuery(zpp::File* file);
 
 private:
   Context& _ctx;    ///< Bridge context
   Worker& _worker;  ///< Worker
+  ZPP& _zpp;        ///< ZPP bridge
 };
 
 }  // namespace bridge

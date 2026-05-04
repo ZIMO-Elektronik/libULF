@@ -54,16 +54,19 @@ unsigned int ZPP::cvs(zpp::File* file) { return file->cvs.size(); }
  *
  * \param file  ZPP file
  * \param block Block index
- * \return std::span<uint8_t> flash block (unpadded)
+ * \return std::pair<uint32_t, std::span<uint8_t>> addressed flash block
+ * (unpadded)
  */
-std::span<uint8_t> ZPP::block(zpp::File* file, unsigned int block) {
+std::pair<uint32_t, std::span<uint8_t>> ZPP::block(zpp::File* file,
+                                                   unsigned int block) {
   assert(file);
   assert(block <= blocks(file));
 
   unsigned long const remaining{file->flash.size() - (block * _blockSize)};
 
-  return std::span<uint8_t>{file->flash}.subspan(
-    block * _blockSize, std::min(_blockSize, remaining));
+  return {block * _blockSize,
+          std::span<uint8_t>{file->flash}.subspan(
+            block * _blockSize, std::min(_blockSize, remaining))};
 }
 
 /**

@@ -67,14 +67,13 @@ struct Bridge {
 
 private:
   Context _ctx;  ///< Bridge context
+  ZPP _zpp{};    ///< ZPP bridge
 
   Worker _worker{_ctx};  ///< Worker
 
-  COM _com{_ctx, _worker};          ///< COM bridge
-  SUSIV2 _susiv2{_ctx, _worker};    ///< SUSIV2 bridge
-  MDU_EIN _mdu_ein{_ctx, _worker};  ///< MDU_EIN bridge
-
-  ZPP _zpp{};  ///< ZPP bridge
+  COM _com{_ctx, _worker};              ///< COM bridge
+  SUSIV2 _susiv2{_ctx, _worker, _zpp};  ///< SUSIV2 bridge
+  MDU_EIN _mdu_ein{_ctx, _worker};      ///< MDU_EIN bridge
 };
 
 }  // namespace bridge

@@ -88,8 +88,34 @@ int bridge_susiv2_cv_read(bridge_handle handle, uint16_t cv) {
   return reinterpret_cast<bridge::Bridge*>(handle)->susiv2().cvRead(cv);
 }
 
+int bridge_susiv2_cv_write(bridge_handle handle, uint16_t cv, uint8_t value) {
+  return reinterpret_cast<bridge::Bridge*>(handle)->susiv2().cvWrite(cv, value);
+}
+
+int bridge_susiv2_zpp_erase(bridge_handle handle) {
+  return reinterpret_cast<bridge::Bridge*>(handle)->susiv2().zppErase();
+}
+
+int bridge_susiv2_zpp_write(bridge_handle handle,
+                            zpp_handle file_handle,
+                            uint32_t index) {
+  return reinterpret_cast<bridge::Bridge*>(handle)->susiv2().zppWrite(
+    reinterpret_cast<zpp::File*>(file_handle), index);
+}
+
 int bridge_susiv2_features(bridge_handle handle) {
   return reinterpret_cast<bridge::Bridge*>(handle)->susiv2().features();
+}
+
+int bridge_susiv2_exit(bridge_handle handle, int reboot, int cv8_reset) {
+  return reinterpret_cast<bridge::Bridge*>(handle)->susiv2().exit(
+    reboot == 0 ? false : true, cv8_reset == 0 ? false : true);
+}
+
+int bridge_susiv2_zpp_lc_dc_query(bridge_handle handle,
+                                  zpp_handle file_handle) {
+  return reinterpret_cast<bridge::Bridge*>(handle)->susiv2().zppLcDcQuery(
+    reinterpret_cast<zpp::File*>(file_handle));
 }
 
 /** ---------------------------------------------------

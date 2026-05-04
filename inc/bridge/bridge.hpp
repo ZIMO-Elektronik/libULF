@@ -61,7 +61,14 @@ int bridge_com_mdu_ein(bridge_handle handle);
  */
 
 int bridge_susiv2_cv_read(bridge_handle handle, uint16_t cv);
+int bridge_susiv2_cv_write(bridge_handle handle, uint16_t cv, uint8_t value);
+int bridge_susiv2_zpp_erase(bridge_handle handle);
+int bridge_susiv2_zpp_write(bridge_handle handle,
+                            zpp_handle file_handle,
+                            uint32_t index);
 int bridge_susiv2_features(bridge_handle handle);
+int bridge_susiv2_exit(bridge_handle handle, int reboot, int cv8_reset);
+int bridge_susiv2_zpp_lc_dc_query(bridge_handle handle, zpp_handle file_handle);
 
 /** ---------------------------------------------------
  *  Bridge MDU_EIN
