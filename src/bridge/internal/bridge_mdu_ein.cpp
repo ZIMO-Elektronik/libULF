@@ -1,3 +1,11 @@
+/**
+ * Internal MDU_EIN bridge
+ *
+ * \file    src/bridge/internal/bridge_mdu_ein.cpp
+ * \author  Jonas Gahlert
+ * \date    04.05.2026
+ */
+
 #include "bridge/internal/bridge_mdu_ein.hpp"
 #include <ulf/mdu_ein.hpp>
 #include "internal/transmission/mdu_ein/base.hpp"
@@ -6,8 +14,20 @@
 
 namespace bridge {
 
+/**
+ * CTor
+ *
+ * \param ctx     Context
+ * \param worker  Worker
+ */
 MDU_EIN::MDU_EIN(Context& ctx, Worker& worker) : _ctx{ctx}, _worker{worker} {}
 
+/**
+ * MDU entry (async)
+ *
+ * \return true   Success
+ * \return false  Busy
+ */
 bool MDU_EIN::enterMDU() {
   std::array<uint8_t, 16u> payload;
   return _worker.emplace<transmission::mdu_ein::Base>(
@@ -16,6 +36,15 @@ bool MDU_EIN::enterMDU() {
     2000u);
 }
 
+/**
+ * DCC ZSU entry (async)
+ *
+ * \param id    Decoder ID
+ * \param sn    Decoder SN
+ * \param done  true, if entry is done
+ * \return true   Success
+ * \return false  Busy
+ */
 bool MDU_EIN::enterDCCZSU(uint32_t id, uint32_t sn, bool done) {
   std::vector<uint8_t> payload{};
   auto it{std::back_inserter(payload)};
@@ -30,6 +59,14 @@ bool MDU_EIN::enterDCCZSU(uint32_t id, uint32_t sn, bool done) {
     2000u);
 }
 
+/**
+ * DCC ZPP entry (async)
+ *
+ * \param sn    Decoder SN
+ * \param done  True, if entry is done
+ * \return true   Success
+ * \return false  Busy
+ */
 bool MDU_EIN::enterDCCZPP(uint32_t sn, bool done) {
   std::vector<uint8_t> payload{};
   auto it{std::back_inserter(payload)};
@@ -43,12 +80,37 @@ bool MDU_EIN::enterDCCZPP(uint32_t sn, bool done) {
     2000u);
 }
 
+/**
+ * Cv Read (async)
+ *
+ * \param cv  Cv address
+ * \return true   Success
+ * \return false  Busy
+ */
 bool MDU_EIN::cvRead(uint16_t cv) {
   return _worker.emplace<transmission::mdu_ein::CvRead>(_ctx.connection, cv);
 }
 
+/**
+ * Cv Write (async)
+ *
+ * \param cv    Cv address
+ * \param value Cv value
+ * \return true   Success
+ * \return false  Busy
+ *
+ * \todo Implement
+ */
 bool MDU_EIN::cvWrite(uint16_t cv, uint8_t value) { return false; }
 
+/**
+ * Ping (async)
+ *
+ * \param sn  Decoder SN
+ * \param id  Decoder ID
+ * \return true   Success
+ * \return false  Busy
+ */
 bool MDU_EIN::ping(uint32_t sn, uint32_t id) {
   return _worker.emplace<transmission::mdu_ein::Ping>(
     _ctx.connection,

@@ -1,3 +1,11 @@
+/**
+ * Internal SUSIV2 bridge
+ *
+ * \file    inc/bridge/internal/bridge_susiv2.hpp
+ * \author  Jonas Gahlert
+ * \date    04.05.2026
+ */
+
 #pragma once
 
 #include "bridge_context.hpp"

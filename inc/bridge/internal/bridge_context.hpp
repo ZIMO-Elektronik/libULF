@@ -1,3 +1,11 @@
+/**
+ * Internal bridge context
+ *
+ * \file    inc/bridge/internal/bridge_context.hpp
+ * \author  Jonas Gahlert
+ * \date    04.05.2026
+ */
+
 #pragma once
 
 #include <future>

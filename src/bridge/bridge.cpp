@@ -1,3 +1,11 @@
+/**
+ * Bridge interface
+ *
+ * \file    src/bridge/bridge.cpp
+ * \author  Jonas Gahlert
+ * \date    04.05.2026
+ */
+
 #include "bridge/bridge.hpp"
 #include "bridge/internal/bridge.hpp"
 

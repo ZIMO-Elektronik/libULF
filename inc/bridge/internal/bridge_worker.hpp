@@ -1,3 +1,11 @@
+/**
+ * Internal bridge worker
+ *
+ * \file    inc/bridge/internal/bridge_worker.hpp
+ * \author  Jonas Gahlert
+ * \date    04.05.2026
+ */
+
 #pragma once
 
 #include <condition_variable>

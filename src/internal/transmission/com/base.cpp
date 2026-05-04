@@ -1,3 +1,11 @@
+/**
+ * ULF_COM Base transmission
+ *
+ * \file    src/internal/transmission/com/base.cpp
+ * \author  Jonas Gahlert
+ * \date    04.05.2026
+ */
+
 #include "internal/transmission/com/base.hpp"
 #include "callback.hpp"
 #include "internal/logging.hpp"
@@ -5,13 +13,34 @@
 std::array<char, 64> tmp_buffer;
 
 namespace transmission::com {
+
+/**
+ * CTor
+ *
+ * \param conn    Connection
+ * \param payload Payload
+ * \param timeout Timeout
+ */
 Base::Base(Connection& conn, std::string payload, std::size_t timeout)
   : TransmissionBase{conn, payload, timeout} {}
+
+/**
+ * CTor
+ *
+ * \param conn    Connection
+ * \param payload Payload
+ * \param timeout Timeout
+ */
 Base::Base(Connection& conn,
            std::span<uint8_t const> payload,
            std::size_t timeout)
   : TransmissionBase{conn, payload, timeout} {}
 
+/**
+ * Evaluate
+ *
+ * \return result_t Result
+ */
 result_t Base::evaluate() {
   using std::operator""sv;
   result_t r{};

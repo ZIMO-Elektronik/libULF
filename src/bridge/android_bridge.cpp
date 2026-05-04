@@ -1,3 +1,11 @@
+/**
+ * JNI bridge (for android)
+ *
+ * \file    src/bridge/android_bridge.cpp
+ * \author  Jonas Gahlert
+ * \date    04.05.2026
+ */
+
 #include <jni.h>
 #include <array>
 

@@ -1,12 +1,33 @@
+/**
+ * MDU_EIN Cv Read
+ *
+ * \file    src/internal/transmission/mdu_ein/cv_read.cpp
+ * \author  Jonas Gahlert
+ * \date    04.05.2026
+ */
+
 #include "internal/transmission/mdu_ein/cv_read.hpp"
 #include <ulf/mdu_ein.hpp>
 #include "internal/transmission/mdu_ein/base.hpp"
 
 namespace transmission::mdu_ein {
 
-CvRead::CvRead(Connection& conn, uint16_t cv) : _conn{conn}, _cv{cv}, _value{0u} {}
+/**
+ * CTor
+ *
+ * \param conn  Connection
+ * \param cv    Cv address
+ */
+CvRead::CvRead(Connection& conn, uint16_t cv)
+  : _conn{conn}, _cv{cv}, _value{0u} {}
 
-/// \todo refactor this (hard)
+/**
+ * Execute
+ *
+ * \return int 0
+ *
+ * \todo Refactor
+ */
 int CvRead::execute() {
   for (uint8_t i{0}; i < sizeof(_value) * 8u; i++) {
     Base t{_conn,
@@ -24,6 +45,11 @@ int CvRead::execute() {
   return 0;
 }
 
+/**
+ * Evaluate Cv Read
+ *
+ * \return result_t Result
+ */
 result_t CvRead::evaluate() {
   result_t r{.type = result_type::cv};
   r.data.value = _value;

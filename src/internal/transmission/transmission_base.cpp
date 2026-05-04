@@ -1,16 +1,27 @@
-
+/**
+ * Transmission Base
+ *
+ * \file    src/internal/transmission/transmission_base.cpp
+ * \author  Jonas Gahlert
+ * \date    04.05.2026
+ */
 
 #include "internal/transmission/transmission_base.hpp"
+#include <libusb.h>
+#include <ranges>
+#include <string>
 #include "internal/connection.hpp"
 #include "internal/logging.hpp"
 
-#include <ranges>
-#include <string>
-
-#include <libusb.h>
-
 namespace transmission {
 
+/**
+ * CTor
+ *
+ * \param conn    Connection
+ * \param payload Payload
+ * \param timeout Timeout
+ */
 TransmissionBase::TransmissionBase(Connection& conn,
                                    std::string payload,
                                    std::size_t timeout)
@@ -21,6 +32,13 @@ TransmissionBase::TransmissionBase(Connection& conn,
   }
 }
 
+/**
+ * CTor
+ *
+ * \param conn    Connection
+ * \param payload Payload
+ * \param timeout Timeout
+ */
 TransmissionBase::TransmissionBase(Connection& conn,
                                    std::span<uint8_t const> payload,
                                    std::size_t timeout)
@@ -29,12 +47,26 @@ TransmissionBase::TransmissionBase(Connection& conn,
   std::ranges::copy(payload, std::back_inserter(_payload));
 }
 
+/**
+ * Execute transmission
+ *
+ * \return int 0
+ *
+ * \todo Refactor to return error if unsuccessful
+ */
 int TransmissionBase::execute() {
   this->transmit();
   this->receive();
   return 0;
 }
 
+/**
+ * Transmit payload
+ *
+ * \return int
+ * \retval LIBUSB_ERROR   Error
+ * \retval LIBUSB_SUCCESS Success
+ */
 int TransmissionBase::transmit() {
 
   int transferred{0};
@@ -60,6 +92,13 @@ int TransmissionBase::transmit() {
   return rc;
 }
 
+/**
+ * Receive response
+ *
+ * \return int
+ * \retval LIBUSB_ERROR   Error
+ * \retval LIBUSB_SUCCESS SUCCESS
+ */
 int TransmissionBase::receive() {
   int transferred{0};
 
@@ -83,6 +122,10 @@ int TransmissionBase::receive() {
   return rc;
 }
 
+/**
+ * Flush RX Buffer
+ *
+ */
 void TransmissionBase::flush() {
   std::array<uint8_t, 64u> data;
   while (libusb_bulk_transfer(_conn.handle(),

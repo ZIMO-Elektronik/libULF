@@ -1,3 +1,11 @@
+/**
+ * Internal bridge config
+ *
+ * \file    inc/bridge/internal/bridge.hpp
+ * \author  Jonas Gahlert
+ * \date    04.05.2026
+ */
+
 #pragma once
 
 #include "bridge_com.hpp"

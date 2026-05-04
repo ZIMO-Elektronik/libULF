@@ -1,3 +1,11 @@
+/**
+ * Internal MDU_EIN bridge
+ *
+ * \file inc/bridge/internal/bridge_mdu_ein.hpp
+ * \author Jonas Gahlert
+ * \date 04.05.2026
+ */
+
 #pragma once
 
 #include "bridge_context.hpp"

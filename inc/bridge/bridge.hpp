@@ -1,3 +1,11 @@
+/**
+ * Bridge C interface
+ *
+ * \file    inc/bridge/bridge.hpp
+ * \author  Jonas Gahlert
+ * \date    04.05.2026
+ */
+
 #pragma once
 
 #include <cstddef>
