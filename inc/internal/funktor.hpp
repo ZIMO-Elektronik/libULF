@@ -1,17 +1,32 @@
+/**
+ * Funktor
+ *
+ * \file    inc/internal/funktor.hpp
+ * \author  Jonas Gahlert
+ * \date    05.05.2026
+ */
+
 #pragma once
 
 #include "callback.hpp"
+#include "i_funktor.hpp"
 
 namespace internal {
 
-struct Funktor {
+/**
+ * Funktor
+ *
+ * \note Standard funktor with attached callback
+ *
+ */
+struct Funktor : public IFunktor {
   Funktor(bridge_callback cb);
-  virtual ~Funktor();
+  virtual ~Funktor() = default;
 
-  void operator()(result_t r);
+  virtual void operator()(result_t const& r) override;
 
 private:
-  bridge_callback _cb;
+  bridge_callback _cb; ///< Callback
 };
 
-}  // namespace internal
+} // namespace internal

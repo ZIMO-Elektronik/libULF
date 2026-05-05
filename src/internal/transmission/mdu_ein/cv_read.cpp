@@ -56,4 +56,4 @@ result_t CvRead::evaluate() {
   return r;
 }
 
-}  // namespace transmission::mdu_ein
+} // namespace transmission::mdu_ein

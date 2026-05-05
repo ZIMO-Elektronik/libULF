@@ -42,28 +42,20 @@ Base::Base(Connection& conn,
  */
 result_t Base::evaluate() {
   result_t r{};
-  if (_response.size() < 1uz || _response.size() > 6uz ||
-      _response.front() != ulf::susiv2::ack) {
+  if (!valid()) {
     r.type = result_type::error;
     r.data.error = -1;
   } else {
-    /// \todo Move switch case into seperate transmission classes
-    auto const cmd{static_cast<zusi::Command>(_payload[5uz])};
-    switch (cmd) {
-      case zusi::Command::CvRead: {
-        r.type = result_type::cv;
-        r.data.value = _response[1u];
-        break;
-      }
-      default: {
-        r.type = result_type::status;
-        r.data.success = 0u;
-        break;
-      }
-    }
+    r.type = result_type::status;
+    r.data.success = 0u;
   }
 
   return r;
 }
 
-}  // namespace transmission::susiv2
+bool Base::valid() {
+  return _response.size() >= 1uz && _response.size() <= 6uz &&
+         _response.front() == ulf::susiv2::ack;
+}
+
+} // namespace transmission::susiv2

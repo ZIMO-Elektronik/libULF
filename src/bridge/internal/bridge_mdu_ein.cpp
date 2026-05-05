@@ -118,4 +118,4 @@ bool MDU_EIN::ping(uint32_t sn, uint32_t id) {
     2000u);
 }
 
-}  // namespace bridge
+} // namespace bridge

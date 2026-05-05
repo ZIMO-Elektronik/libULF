@@ -26,6 +26,9 @@ struct Base : public TransmissionBase {
   virtual ~Base() = default;
 
   virtual result_t evaluate() override;
+
+protected:
+  bool valid();
 };
 
 }  // namespace transmission::susiv2

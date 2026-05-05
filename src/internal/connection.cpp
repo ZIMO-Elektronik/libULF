@@ -108,7 +108,7 @@ int Connection::config() {
       if ((ep->bmAttributes & 0x03) == LIBUSB_TRANSFER_TYPE_BULK) {
         if ((ep->bEndpointAddress & 0x80) == LIBUSB_ENDPOINT_OUT) {
           tx_eps.push_back(ep->bEndpointAddress);
-          _interface = i;  // Interface merken für claim_interface
+          _interface = i; // Interface merken für claim_interface
         } else {
           rx_eps.push_back(ep->bEndpointAddress);
         }

@@ -36,4 +36,4 @@ transmission::TransmissionBase* Context::transmission() {
   return _transmission;
 }
 
-}  // namespace bridge
+} // namespace bridge

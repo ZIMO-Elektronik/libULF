@@ -61,10 +61,10 @@ void Worker::loop() {
     _promise.set_value(r);
 
     // Push result to cb
-    if (_ctx.cb) _ctx.cb(r);
+    if (_ctx.cb) (*_ctx.cb)(r);
 
     _t.reset();
   }
 }
 
-}  // namespace bridge
+} // namespace bridge

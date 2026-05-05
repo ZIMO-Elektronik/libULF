@@ -12,6 +12,7 @@
 #include <mutex>
 #include "callback.hpp"
 #include "internal/connection.hpp"
+#include "internal/i_funktor.hpp"
 #include "internal/transmission/transmission_base.hpp"
 
 namespace bridge {
@@ -26,17 +27,17 @@ namespace bridge {
  */
 struct Context {
 
-  Connection connection;  ///< Libusb connection info
+  Connection connection; ///< Libusb connection info
 
   bool valid() const;
   bool transmission(transmission::TransmissionBase* t);
   transmission::TransmissionBase* transmission();
-  bridge_callback cb;            ///< Callback
-  std::future<result_t> result;  ///< Last result
+  std::unique_ptr<internal::IFunktor> cb; ///< Callback
+  std::future<result_t> result;           ///< Last result
 
 private:
-  std::mutex mut_transmission;                    ///< Transmission mutex
-  transmission::TransmissionBase* _transmission;  ///< Current transmission
+  std::mutex mut_transmission;                   ///< Transmission mutex
+  transmission::TransmissionBase* _transmission; ///< Current transmission
 };
 
-}  // namespace bridge
+} // namespace bridge

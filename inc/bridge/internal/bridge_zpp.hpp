@@ -9,6 +9,7 @@
 #pragma once
 
 #include <zpp/zpp.hpp>
+#include <span>
 
 namespace bridge {
 
@@ -19,7 +20,8 @@ struct ZPP {
   unsigned int blocks(zpp::File* file);
   unsigned int cvs(zpp::File* file);
 
-  std::span<uint8_t> block(zpp::File* file, unsigned int block);
+  std::pair<uint32_t, std::span<uint8_t>> block(zpp::File* file,
+                                                unsigned int block);
 
   std::string_view author(zpp::File* file);
   std::string_view email(zpp::File* file);
