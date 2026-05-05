@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bridge/bridge.hpp>
+#include <libklug/bridge/bridge.hpp>
 
 namespace setup {
 

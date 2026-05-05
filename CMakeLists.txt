@@ -20,23 +20,23 @@ project(
 set(TARGET KLUG)
 
 set(SOURCE_FILES
-    src/internal/connection.cpp
-    src/internal/funktor.cpp
-    src/internal/transmission/transmission_base.cpp
-    src/internal/transmission/com/base.cpp
-    src/internal/transmission/mdu_ein/base.cpp
-    src/internal/transmission/mdu_ein/cv_read.cpp
-    src/internal/transmission/mdu_ein/ping.cpp
-    src/internal/transmission/susiv2/base.cpp
-    src/internal/transmission/susiv2/cv_read.cpp
-    src/bridge/bridge.cpp
-    src/bridge/internal/bridge.cpp
-    src/bridge/internal/bridge_com.cpp
-    src/bridge/internal/bridge_context.cpp
-    src/bridge/internal/bridge_susiv2.cpp
-    src/bridge/internal/bridge_mdu_ein.cpp
-    src/bridge/internal/bridge_worker.cpp
-    src/bridge/internal/bridge_zpp.cpp)
+    src/libklug/internal/connection.cpp
+    src/libklug/internal/funktor.cpp
+    src/libklug/internal/transmission/transmission_base.cpp
+    src/libklug/internal/transmission/com/base.cpp
+    src/libklug/internal/transmission/mdu_ein/base.cpp
+    src/libklug/internal/transmission/mdu_ein/cv_read.cpp
+    src/libklug/internal/transmission/mdu_ein/ping.cpp
+    src/libklug/internal/transmission/susiv2/base.cpp
+    src/libklug/internal/transmission/susiv2/cv_read.cpp
+    src/libklug/bridge/bridge.cpp
+    src/libklug/bridge/internal/bridge.cpp
+    src/libklug/bridge/internal/bridge_com.cpp
+    src/libklug/bridge/internal/bridge_context.cpp
+    src/libklug/bridge/internal/bridge_susiv2.cpp
+    src/libklug/bridge/internal/bridge_mdu_ein.cpp
+    src/libklug/bridge/internal/bridge_worker.cpp
+    src/libklug/bridge/internal/bridge_zpp.cpp)
 
 add_library(${TARGET} SHARED ${SOURCE_FILES})
 # add_executable(${TARGET} test.cpp ${SOURCE_FILES})
@@ -44,12 +44,13 @@ add_library(${TARGET} SHARED ${SOURCE_FILES})
 if(ANDROID)
   target_sources(
     ${TARGET}
-    PUBLIC src/bridge/android_bridge.cpp src/internal/android_funktor.cpp
-           src/android_result.cpp src/internal/jni_context.cpp)
+    PUBLIC src/libklug/bridge/android_bridge.cpp
+           src/libklug/internal/android_funktor.cpp
+           src/libklug/android_result.cpp src/libklug/internal/jni_context.cpp)
 endif()
 
 target_compile_features(${TARGET} PUBLIC cxx_std_23)
-target_include_directories(${TARGET} PUBLIC inc)
+target_include_directories(${TARGET} PUBLIC inc/)
 
 target_compile_definitions(${TARGET} PRIVATE JNI_CLASS_PATH=${JNI_CLASS_PATH}
                                              JNI_RESULT_PATH=${JNI_RESULT_PATH})
