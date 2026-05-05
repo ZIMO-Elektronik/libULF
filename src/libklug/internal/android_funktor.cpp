@@ -1,10 +1,9 @@
-#include "internal/android_funktor.hpp"
-
+#include "libklug/internal/platform/android/android_funktor.hpp"
 #include <cassert>
 #include <mutex>
-#include "android_result.hpp"
-#include "bridge/jni_defines.hpp"
-#include "internal/logging.hpp"
+#include "libklug/internal/logging.hpp"
+#include "libklug/internal/platform/android/jni_defines.hpp"
+#include "libklug/internal/platform/android/android_result.hpp"
 
 namespace internal {
 

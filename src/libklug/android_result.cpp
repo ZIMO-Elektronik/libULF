@@ -1,6 +1,6 @@
-#include "android_result.hpp"
-#include "internal/jni_context.hpp"
-#include "internal/logging.hpp"
+#include "libklug/internal/platform/android/android_result.hpp"
+#include "libklug/internal/logging.hpp"
+#include "libklug/internal/platform/android/jni_context.hpp"
 
 jobject dispatch(JNIEnv* env, result_t const& r) {
   switch (r.type) {

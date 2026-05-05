@@ -29,14 +29,14 @@ set(SOURCE_FILES
     src/libklug/internal/transmission/mdu_ein/ping.cpp
     src/libklug/internal/transmission/susiv2/base.cpp
     src/libklug/internal/transmission/susiv2/cv_read.cpp
-    src/libklug/bridge/bridge.cpp
     src/libklug/bridge/internal/bridge.cpp
     src/libklug/bridge/internal/bridge_com.cpp
     src/libklug/bridge/internal/bridge_context.cpp
     src/libklug/bridge/internal/bridge_susiv2.cpp
     src/libklug/bridge/internal/bridge_mdu_ein.cpp
     src/libklug/bridge/internal/bridge_worker.cpp
-    src/libklug/bridge/internal/bridge_zpp.cpp)
+    src/libklug/bridge/internal/bridge_zpp.cpp
+    src/libklug/libklug.cpp)
 
 add_library(${TARGET} SHARED ${SOURCE_FILES})
 # add_executable(${TARGET} test.cpp ${SOURCE_FILES})
@@ -44,8 +44,7 @@ add_library(${TARGET} SHARED ${SOURCE_FILES})
 if(ANDROID)
   target_sources(
     ${TARGET}
-    PUBLIC src/libklug/bridge/android_bridge.cpp
-           src/libklug/internal/android_funktor.cpp
+    PUBLIC src/libklug/libklug_jni.cpp src/libklug/internal/android_funktor.cpp
            src/libklug/android_result.cpp src/libklug/internal/jni_context.cpp)
 endif()
 

@@ -18,7 +18,7 @@ extern "C" {
 #include "callback.hpp"
 
 // Opaque poninters as handle
-typedef struct bridge_instance* bridge_handle;
+typedef struct libklug_instance* libklug_handle;
 typedef struct zpp_instance* zpp_handle;
 
 /** ---------------------------------------------------
@@ -27,59 +27,60 @@ typedef struct zpp_instance* zpp_handle;
  */
 
 // Lifetime
-bridge_handle bridge_create(void);
-void bridge_destroy(bridge_handle handle);
+libklug_handle libklug_create(void);
+void libklug_destroy(libklug_handle handle);
 
 // Callback and result
-void bridge_register_cb(bridge_handle handle, bridge_callback cb);
-result_t bridge_result(bridge_handle handle);
+void libklug_register_cb(libklug_handle handle, bridge_callback cb);
+result_t libklug_result(libklug_handle handle);
 
 // Connection Specifics
-int bridge_init(bridge_handle handle);
-int bridge_open(bridge_handle handle,
-                uint16_t vid = 0x1FC9u,
-                uint16_t pid = 0x81C1u);
-int bridge_openFd(bridge_handle handle, int Fd);
-int bridge_config(bridge_handle handle);
-int bridge_claim(bridge_handle handle);
-int bridge_release(bridge_handle handle);
-void bridge_close(bridge_handle handle);
+int libklug_init(libklug_handle handle);
+int libklug_open(libklug_handle handle,
+                 uint16_t vid = 0x1FC9u,
+                 uint16_t pid = 0x81C1u);
+int libklug_openFd(libklug_handle handle, int Fd);
+int libklug_config(libklug_handle handle);
+int libklug_claim(libklug_handle handle);
+int libklug_release(libklug_handle handle);
+void libklug_close(libklug_handle handle);
 
 /** ---------------------------------------------------
  *  Bridge COM
  *  ---------------------------------------------------
  */
 
-int bridge_com_ping(bridge_handle handle);
-int bridge_com_reset(bridge_handle handle);
-int bridge_com_susiv2(bridge_handle handle);
-int bridge_com_mdu_ein(bridge_handle handle);
+int libklug_com_ping(libklug_handle handle);
+int libklug_com_reset(libklug_handle handle);
+int libklug_com_susiv2(libklug_handle handle);
+int libklug_com_mdu_ein(libklug_handle handle);
 
 /** ---------------------------------------------------
  *  Bridge SUSIV2
  *  ---------------------------------------------------
  */
 
-int bridge_susiv2_cv_read(bridge_handle handle, uint16_t cv);
-int bridge_susiv2_cv_write(bridge_handle handle, uint16_t cv, uint8_t value);
-int bridge_susiv2_zpp_erase(bridge_handle handle);
-int bridge_susiv2_zpp_write(bridge_handle handle,
-                            zpp_handle file_handle,
-                            uint32_t index);
-int bridge_susiv2_features(bridge_handle handle);
-int bridge_susiv2_exit(bridge_handle handle, int reboot, int cv8_reset);
-int bridge_susiv2_zpp_lc_dc_query(bridge_handle handle, zpp_handle file_handle);
+int libklug_susiv2_cv_read(libklug_handle handle, uint16_t cv);
+int libklug_susiv2_cv_write(libklug_handle handle, uint16_t cv, uint8_t value);
+int libklug_susiv2_zpp_erase(libklug_handle handle);
+int libklug_susiv2_zpp_write(libklug_handle handle,
+                             zpp_handle file_handle,
+                             uint32_t index);
+int libklug_susiv2_features(libklug_handle handle);
+int libklug_susiv2_exit(libklug_handle handle, int reboot, int cv8_reset);
+int libklug_susiv2_zpp_lc_dc_query(libklug_handle handle,
+                                   zpp_handle file_handle);
 
 /** ---------------------------------------------------
  *  Bridge MDU_EIN
  *  ---------------------------------------------------
  */
 
-int bridge_mdu_ein_enter_mdu(bridge_handle handle);
-int bridge_mdu_ein_enter_dcc_zsu(bridge_handle handle);
-int bridge_mdu_ein_enter_dcc_zpp(bridge_handle handle);
-int bridge_mdu_ein_cv_read(bridge_handle handle, uint16_t cv);
-int bridge_mdu_ein_ping(bridge_handle handle);
+int libklug_mdu_ein_enter_mdu(libklug_handle handle);
+int libklug_mdu_ein_enter_dcc_zsu(libklug_handle handle);
+int libklug_mdu_ein_enter_dcc_zpp(libklug_handle handle);
+int libklug_mdu_ein_cv_read(libklug_handle handle, uint16_t cv);
+int libklug_mdu_ein_ping(libklug_handle handle);
 
 /** ---------------------------------------------------
  *  Bridge ZPP
@@ -87,9 +88,9 @@ int bridge_mdu_ein_ping(bridge_handle handle);
  */
 
 zpp_handle
-bridge_zpp_read(bridge_handle b_handle, char16_t const* c, size_t length);
-void bridge_zpp_release(bridge_handle b_handle, zpp_handle handle);
-unsigned int bridge_zpp_blocks(bridge_handle b_handle, zpp_handle handle);
+libklug_zpp_read(libklug_handle b_handle, char16_t const* c, size_t length);
+void libklug_zpp_release(libklug_handle b_handle, zpp_handle handle);
+unsigned int libklug_zpp_blocks(libklug_handle b_handle, zpp_handle handle);
 
 #ifdef __cplusplus
 }

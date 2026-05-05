@@ -6,9 +6,9 @@
  * \date    05.05.2026
  */
 
-#include "internal/jni_context.hpp"
-#include "bridge/jni_defines.hpp"
-#include "internal/logging.hpp"
+#include "libklug/internal/platform/android/jni_context.hpp"
+#include "libklug/internal/logging.hpp"
+#include "libklug/internal/platform/android/jni_defines.hpp"
 
 namespace internal {
 

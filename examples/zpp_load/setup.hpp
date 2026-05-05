@@ -1,11 +1,11 @@
 #pragma once
 
-#include <libklug/bridge/bridge.hpp>
+#include <libklug/libklug.h>
 
 namespace setup {
 
-bridge_handle connect();
+libklug_handle connect();
 
-void disconnect(bridge_handle handle);
+void disconnect(libklug_handle handle);
 
 } // namespace setup

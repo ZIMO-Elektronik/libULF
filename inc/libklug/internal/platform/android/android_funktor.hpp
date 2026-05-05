@@ -11,8 +11,7 @@
 #include <jni.h>
 #include <optional>
 #include <thread>
-#include "callback.hpp"
-#include "i_funktor.hpp"
+#include "libklug/internal/i_funktor.hpp"
 
 namespace internal {
 
