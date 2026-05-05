@@ -63,4 +63,4 @@ bool Base::valid() {
            _response[3] != ulf::mdu_ein::end);
 }
 
-}  // namespace transmission::mdu_ein
+} // namespace transmission::mdu_ein

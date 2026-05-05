@@ -16,6 +16,7 @@
 #include "bridge_zpp.hpp"
 #include "bridge_zsu.hpp"
 #include "callback.hpp"
+#include "internal/i_funktor.hpp"
 
 namespace bridge {
 
@@ -47,7 +48,8 @@ namespace bridge {
 struct Bridge {
   int init();
 
-  void registerCB(bridge_callback cb);
+  void registerCB(std::unique_ptr<internal::IFunktor> cb);
+  void deregisterCB();
   result_t result();
 
   int open(uint16_t vid = 0x1FC9u, uint16_t pid = 0x81C1u);
@@ -66,14 +68,14 @@ struct Bridge {
   ZPP& zpp();
 
 private:
-  Context _ctx;  ///< Bridge context
-  ZPP _zpp{};    ///< ZPP bridge
+  Context _ctx; ///< Bridge context
+  ZPP _zpp{};   ///< ZPP bridge
 
-  Worker _worker{_ctx};  ///< Worker
+  Worker _worker{_ctx}; ///< Worker
 
-  COM _com{_ctx, _worker};              ///< COM bridge
-  SUSIV2 _susiv2{_ctx, _worker, _zpp};  ///< SUSIV2 bridge
-  MDU_EIN _mdu_ein{_ctx, _worker};      ///< MDU_EIN bridge
+  COM _com{_ctx, _worker};             ///< COM bridge
+  SUSIV2 _susiv2{_ctx, _worker, _zpp}; ///< SUSIV2 bridge
+  MDU_EIN _mdu_ein{_ctx, _worker};     ///< MDU_EIN bridge
 };
 
-}  // namespace bridge
+} // namespace bridge

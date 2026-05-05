@@ -127,13 +127,14 @@ int TransmissionBase::receive() {
  *
  */
 void TransmissionBase::flush() {
+  return;
   std::array<uint8_t, 64u> data;
   while (libusb_bulk_transfer(_conn.handle(),
                               _conn.rx_ep(),
                               std::bit_cast<unsigned char*>(data.data()),
                               data.size(),
                               nullptr,
-                              10) == 0);
+                              1) == 0);
 }
 
-}  // namespace transmission
+} // namespace transmission

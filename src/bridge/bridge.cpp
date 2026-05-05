@@ -8,6 +8,7 @@
 
 #include "bridge/bridge.hpp"
 #include "bridge/internal/bridge.hpp"
+#include "internal/funktor.hpp"
 
 /** ---------------------------------------------------
  *  Bridge
@@ -23,7 +24,8 @@ void bridge_destroy(bridge_handle handle) {
 }
 
 void bridge_register_cb(bridge_handle handle, bridge_callback cb) {
-  reinterpret_cast<bridge::Bridge*>(handle)->registerCB(cb);
+  reinterpret_cast<bridge::Bridge*>(handle)->registerCB(
+    std::make_unique<internal::Funktor>(cb));
 }
 
 result_t bridge_result(bridge_handle handle) {

@@ -9,6 +9,7 @@
 #pragma once
 
 #include <zpp/zpp.hpp>
+#include <span>
 
 namespace bridge {
 

@@ -58,4 +58,4 @@ bool Base::valid() {
          _response.front() == ulf::susiv2::ack;
 }
 
-}  // namespace transmission::susiv2
+} // namespace transmission::susiv2

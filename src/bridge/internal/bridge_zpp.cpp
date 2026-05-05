@@ -91,4 +91,4 @@ std::string_view ZPP::email(zpp::File* file) {
   return file->email;
 }
 
-}  // namespace bridge
+} // namespace bridge

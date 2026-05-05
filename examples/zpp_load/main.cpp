@@ -81,7 +81,9 @@ int main() {
     std::cout.flush();
   }
 
-  bridge_susiv2_exit(handle, 1, 0);
+  std::cout << std::endl;
+
+  bridge_susiv2_exit(handle, 1, 1);
   r = bridge_result(handle);
   if (r.type != result_type::status) abort();
 

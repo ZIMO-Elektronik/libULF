@@ -9,28 +9,26 @@
 #include <jni.h>
 #include <array>
 
+#include "android_result.hpp"
 #include "bridge/bridge.hpp"
-
-#ifndef JNI_CLASS_PATH
-static_assert(false, "Must name a JNI class");
-#endif
-
-#ifndef JNI_RESULT_PATH
-static_assert(false, "Must name a Result class");
-#endif
-
-#define JNI_METHOD_PREFIX Java_com_example_test_1libklug_NativeLib_
-
-#define JNI_CONCAT2(a, b) a##b
-#define JNI_CONCAT(a, b) JNI_CONCAT2(a, b)
-
-#define JNI_METHOD(return_type, name, ...)                                     \
-  JNIEXPORT return_type JNICALL JNI_CONCAT(JNI_CLASS_PATH, name)(              \
-    [[maybe_unused]] JNIEnv * env,                                             \
-    [[maybe_unused]] jobject thiz,                                             \
-    ##__VA_ARGS__)
+#include "bridge/internal/bridge.hpp"
+#include "bridge/jni_defines.hpp"
+#include "internal/android_funktor.hpp"
+#include "internal/jni_context.hpp"
 
 extern "C" {
+
+/**
+ * Overload JNI OnLoad to create class context
+ *
+ * \param vm JVM
+ * \param reserved IDFK
+ * \return jint JNI_VERSION_1_6
+ */
+jint JNI_OnLoad(JavaVM* vm, void* reserved) {
+  std::construct_at(&internal::jni_ctx, vm);
+  return JNI_VERSION_1_6;
+}
 
 /** ---------------------------------------------------
  *  Bridge
@@ -44,30 +42,17 @@ JNI_METHOD(void, bridge_1destroy, jlong handle) {
 }
 
 JNI_METHOD(void, bridge_1register_1cb, jlong handle, jobject cb) {
-  return;  // bridge_register_cb(cb);
+  return reinterpret_cast<bridge::Bridge*>(handle)->registerCB(
+    std::make_unique<internal::AndroidFunktor>(env, thiz, cb));
+}
+
+JNI_METHOD(void, bridge_1deregister_1cb, jlong handle) {
+  return reinterpret_cast<bridge::Bridge*>(handle)->deregisterCB();
 }
 
 JNI_METHOD(jobject, bridge_1result, jlong handle) {
   auto const r{bridge_result(reinterpret_cast<bridge_handle>(handle))};
-
-  switch (r.type) {
-    case result_type::string: {
-      jclass c = env->FindClass(JNI_RESULT_PATH "$String");
-      jmethodID init = env->GetMethodID(c, "<init>", "(Ljava/lang/String;)V");
-      return env->NewObject(c, init, env->NewStringUTF(r.data.string));
-    }
-    case result_type::cv: {
-      jclass c = env->FindClass(JNI_RESULT_PATH "$Cv");
-      jmethodID init = env->GetMethodID(c, "<init>", "(I)V");
-      return env->NewObject(c, init, r.data.value);
-    }
-    case result_type::status: {
-      jclass c = env->FindClass(JNI_RESULT_PATH "$Status");
-      jmethodID init = env->GetMethodID(c, "<init>", "(I)V");
-      return env->NewObject(c, init, r.data.success);
-    }
-    default: return nullptr;
-  }
+  return dispatch(env, r);
 }
 
 JNI_METHOD(jint, bridge_1init, jlong handle) {

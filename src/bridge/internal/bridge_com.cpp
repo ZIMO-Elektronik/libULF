@@ -64,4 +64,4 @@ bool COM::mdu_ein() {
     _ctx.connection, "MDU_EIN\r", 4000u);
 }
 
-}  // namespace bridge
+} // namespace bridge

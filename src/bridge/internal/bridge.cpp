@@ -34,7 +34,18 @@ int Bridge::init() {
  *
  * \todo Replace raw cb with funktor
  */
-void Bridge::registerCB(bridge_callback cb) { _ctx.cb = cb; }
+void Bridge::registerCB(std::unique_ptr<internal::IFunktor> cb) {
+  _ctx.cb = std::move(cb);
+}
+
+/**
+ * Deregister callback
+ *
+ * \todo Not thread safe, does it neet to be?
+ */
+void Bridge::deregisterCB() {
+  if (_ctx.cb) _ctx.cb.reset();
+}
 
 /**
  * Wait and get result
@@ -139,4 +150,4 @@ MDU_EIN& Bridge::mdu_ein() { return _mdu_ein; }
  */
 ZPP& Bridge::zpp() { return _zpp; }
 
-}  // namespace bridge
+} // namespace bridge

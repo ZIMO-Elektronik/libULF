@@ -52,4 +52,4 @@ result_t Ping::evaluate() {
   return r;
 }
 
-}  // namespace transmission::mdu_ein
+} // namespace transmission::mdu_ein

@@ -21,6 +21,7 @@ set(TARGET KLUG)
 
 set(SOURCE_FILES
     src/internal/connection.cpp
+    src/internal/funktor.cpp
     src/internal/transmission/transmission_base.cpp
     src/internal/transmission/com/base.cpp
     src/internal/transmission/mdu_ein/base.cpp
@@ -41,7 +42,10 @@ add_library(${TARGET} SHARED ${SOURCE_FILES})
 # add_executable(${TARGET} test.cpp ${SOURCE_FILES})
 
 if(ANDROID)
-  target_sources(${TARGET} PUBLIC src/bridge/android_bridge.cpp)
+  target_sources(
+    ${TARGET}
+    PUBLIC src/bridge/android_bridge.cpp src/internal/android_funktor.cpp
+           src/android_result.cpp src/internal/jni_context.cpp)
 endif()
 
 target_compile_features(${TARGET} PUBLIC cxx_std_23)
@@ -96,5 +100,5 @@ if(PROJECT_IS_TOP_LEVEL)
     "https://github.com/ZIMO-Elektronik/.github/raw/master/data/.clang-format"
     ${CMAKE_CURRENT_LIST_DIR}/.clang-format)
   file(GLOB_RECURSE SRC include/*.*pp src/*.*pp tests/*.*pp)
-  add_clang_format_target(ZUSIFormat OPTIONS -i FILES ${SRC})
+  add_clang_format_target(KLUGFormat OPTIONS -i FILES ${SRC})
 endif()

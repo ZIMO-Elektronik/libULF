@@ -66,4 +66,4 @@ result_t Base::evaluate() {
   return r;
 }
 
-}  // namespace transmission::com
+} // namespace transmission::com
