@@ -1,25 +1,25 @@
 /**
- * Funktor Interface
+ * Functor Interface
  *
- * \file    inc/internal/i_funktor.hpp
+ * \file    inc/libklug/callback/i_functor.hpp
  * \author  Jonas Gahlert
  * \date    05.05.2026
  */
 
 #pragma once
 
-#include "libklug/callback.hpp"
+#include "callback.h"
 
 namespace internal {
 
 /**
- * Funktor Interface
+ * Functor Interface
  *
  * \note This interface should allow to handle platform specifics when handling
  * callbacks
  */
-struct IFunktor {
-  virtual ~IFunktor() = default;
+struct IFunctor {
+  virtual ~IFunctor() = default;
 
   virtual void operator()(result_t const& r) = 0;
 };

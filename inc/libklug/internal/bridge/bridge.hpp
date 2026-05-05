@@ -15,8 +15,8 @@
 #include "bridge_worker.hpp"
 #include "bridge_zpp.hpp"
 #include "bridge_zsu.hpp"
-#include "libklug/callback.hpp"
-#include "libklug/internal/i_funktor.hpp"
+#include "libklug/callback/callback.h"
+#include "libklug/callback/i_functor.hpp"
 
 namespace bridge {
 
@@ -48,7 +48,7 @@ namespace bridge {
 struct Bridge {
   int init();
 
-  void registerCB(std::unique_ptr<internal::IFunktor> cb);
+  void registerCB(std::unique_ptr<internal::IFunctor> cb);
   void deregisterCB();
   result_t result();
 

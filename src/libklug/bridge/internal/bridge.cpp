@@ -34,7 +34,7 @@ int Bridge::init() {
  *
  * \todo Replace raw cb with funktor
  */
-void Bridge::registerCB(std::unique_ptr<internal::IFunktor> cb) {
+void Bridge::registerCB(std::unique_ptr<internal::IFunctor> cb) {
   _ctx.cb = std::move(cb);
 }
 

@@ -7,7 +7,6 @@
  */
 
 #include "libklug/internal/transmission/com/base.hpp"
-#include "libklug/callback.hpp"
 #include "libklug/internal/logging.hpp"
 
 std::array<char, 64> tmp_buffer;

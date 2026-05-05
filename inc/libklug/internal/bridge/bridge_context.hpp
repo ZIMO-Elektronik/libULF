@@ -10,9 +10,8 @@
 
 #include <future>
 #include <mutex>
-#include "libklug/callback.hpp"
+#include "libklug/callback/i_functor.hpp"
 #include "libklug/internal/connection.hpp"
-#include "libklug/internal/i_funktor.hpp"
 #include "libklug/internal/transmission/transmission_base.hpp"
 
 namespace bridge {
@@ -32,7 +31,7 @@ struct Context {
   bool valid() const;
   bool transmission(transmission::TransmissionBase* t);
   transmission::TransmissionBase* transmission();
-  std::unique_ptr<internal::IFunktor> cb; ///< Callback
+  std::unique_ptr<internal::IFunctor> cb; ///< Callback
   std::future<result_t> result;           ///< Last result
 
 private:

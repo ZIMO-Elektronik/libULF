@@ -21,7 +21,7 @@ set(TARGET KLUG)
 
 set(SOURCE_FILES
     src/libklug/internal/connection.cpp
-    src/libklug/internal/funktor.cpp
+    src/libklug/internal/functor.cpp
     src/libklug/internal/transmission/transmission_base.cpp
     src/libklug/internal/transmission/com/base.cpp
     src/libklug/internal/transmission/mdu_ein/base.cpp

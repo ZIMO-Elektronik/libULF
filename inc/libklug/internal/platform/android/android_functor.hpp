@@ -1,7 +1,7 @@
 /**
- * Android Funktor
+ * Android Functor
  *
- * \file    inc/internal/android_funktor.hpp
+ * \file    inc/libklug/internal/platform/android/android_functor.hpp
  * \author  Jonas Gahlert
  * \date    05.05.2026
  */
@@ -11,20 +11,20 @@
 #include <jni.h>
 #include <optional>
 #include <thread>
-#include "libklug/internal/i_funktor.hpp"
+#include "libklug/internal/i_functor.hpp"
 
 namespace internal {
 
 /**
- * AndroidFunktor
+ * AndroidFunctor
  *
  * \note Funktor for android, since a thread calling a callback via JNI needs to
  * be attached to the JVM
  *
  */
-struct AndroidFunktor : public IFunktor {
-  AndroidFunktor(JNIEnv* env, jobject instannce, jobject cb);
-  virtual ~AndroidFunktor();
+struct AndroidFunctor : public IFunktor {
+  AndroidFunctor(JNIEnv* env, jobject instannce, jobject cb);
+  virtual ~AndroidFunctor();
 
   virtual void operator()(result_t const& r) override;
 

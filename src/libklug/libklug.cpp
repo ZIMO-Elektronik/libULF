@@ -7,7 +7,7 @@
  */
 
 #include "libklug/libklug.h"
-#include "libklug/internal/funktor.hpp"
+#include "libklug/callback/functor.hpp"
 #include "libklug/libklug.hpp"
 
 bridge::Bridge* to_bridge(libklug_handle handle) { return to_bridge(handle); }
@@ -24,7 +24,7 @@ libklug_handle libklug_create(void) {
 void libklug_destroy(libklug_handle handle) { delete to_bridge(handle); }
 
 void libklug_register_cb(libklug_handle handle, bridge_callback cb) {
-  to_bridge(handle)->registerCB(std::make_unique<internal::Funktor>(cb));
+  to_bridge(handle)->registerCB(std::make_unique<internal::Functor>(cb));
 }
 
 result_t libklug_result(libklug_handle handle) {

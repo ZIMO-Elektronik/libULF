@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include "libklug/callback.hpp"
 #include "libklug/internal/transmission/transmission_base.hpp"
 
 namespace transmission::com {

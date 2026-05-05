@@ -1,14 +1,14 @@
 /**
  * Callback
  *
- * \file callback.hpp
- * \author Jonas Gahlert
- * \date 04.05.2026
+ * \file    callback.h
+ * \author  Jonas Gahlert
+ * \date    04.05.2026
  */
 
 #pragma once
 
-#include "result.hpp"
+#include "libklug/result.hpp"
 
 #ifdef __cplusplus
 extern "C" {

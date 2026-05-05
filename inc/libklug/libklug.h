@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-#include "callback.hpp"
+#include "callback/callback.h"
 
 // Opaque poninters as handle
 typedef struct libklug_instance* libklug_handle;
