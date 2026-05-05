@@ -6,7 +6,7 @@
  * \date    04.05.2026
  */
 
-#include "libklug/bridge/internal/bridge_susiv2.hpp"
+#include "libklug/internal/bridge/bridge_susiv2.hpp"
 #include <ulf/susiv2.hpp>
 #include <zusi/zusi.hpp>
 #include "libklug/internal/transmission/susiv2/base.hpp"

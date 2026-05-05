@@ -6,7 +6,7 @@
  * \date    04.05.2026
  */
 
-#include "libklug/bridge/internal/bridge_mdu_ein.hpp"
+#include "libklug/internal/bridge/bridge_mdu_ein.hpp"
 #include <ulf/mdu_ein.hpp>
 #include "libklug/internal/transmission/mdu_ein/base.hpp"
 #include "libklug/internal/transmission/mdu_ein/cv_read.hpp"

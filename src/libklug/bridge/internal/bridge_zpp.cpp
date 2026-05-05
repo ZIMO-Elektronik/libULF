@@ -6,7 +6,7 @@
  * \date    04.05.2026
  */
 
-#include "libklug/bridge/internal/bridge_zpp.hpp"
+#include "libklug/internal/bridge/bridge_zpp.hpp"
 #include <cassert>
 
 namespace bridge {

@@ -6,7 +6,7 @@
  * \date    04.05.2026
  */
 
-#include "libklug/bridge/internal/bridge_com.hpp"
+#include "libklug/internal/bridge/bridge_com.hpp"
 #include <algorithm>
 #include "libklug/internal/transmission/com/base.hpp"
 

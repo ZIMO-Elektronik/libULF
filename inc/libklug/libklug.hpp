@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bridge/internal/bridge.hpp"
+#include "internal/bridge/bridge.hpp"
 
 namespace libklug {
 

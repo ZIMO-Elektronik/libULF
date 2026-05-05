@@ -6,7 +6,7 @@
  * \date    04.05.2026
  */
 
-#include "libklug/bridge/internal/bridge_context.hpp"
+#include "libklug/internal/bridge/bridge_context.hpp"
 
 namespace bridge {
 
