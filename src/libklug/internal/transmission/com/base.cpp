@@ -39,30 +39,18 @@ Base::Base(Connection& conn,
  * Evaluate
  *
  * \return result_t Result
+ * \todo Make a ping struct
  */
-result_t Base::evaluate() {
+res::Result Base::evaluate() {
   using std::operator""sv;
-  result_t r{};
-  LOGD("Creating result");
+  if (std::string_view{std::bit_cast<char const*>(_payload.data()),
+                       _payload.size()} == "PING\r"sv)
+    return res::String{reinterpret_cast<char const*>(_response.data())};
 
-  std::string_view str{std::bit_cast<char const*>(_payload.data()),
-                       _payload.size()};
-  if (str == "PING\r"sv) {
-    // Ping results in a string
-    r.type = result_type::string;
-    std::fill(tmp_buffer.begin(), tmp_buffer.end(), 0);
-    std::copy(_response.begin(), _response.end(), tmp_buffer.begin());
-
-    r.data.string = reinterpret_cast<char const*>(tmp_buffer.data());
-  } else {
-    // Everything else is just bool
-    std::string_view re{std::bit_cast<char const*>(_response.data()),
-                        _response.size()};
-    r.type = result_type::status;
-    r.data.success = (re == "OK\r"sv) ? 0 : 1;
-  }
-
-  return r;
+  // Everything else is just bool
+  return res::Status{
+    std::string_view{std::bit_cast<char const*>(_response.data()),
+                     _response.size()} == "OK\r"sv};
 }
 
 } // namespace transmission::com

@@ -23,7 +23,7 @@ struct Base : public TransmissionBase {
   Base(Connection& conn, std::span<uint8_t const> payload, std::size_t timeout);
   virtual ~Base() = default;
 
-  virtual result_t evaluate() override;
+  virtual res::Result evaluate() override;
 
 protected:
   bool valid();

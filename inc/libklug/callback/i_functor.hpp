@@ -9,6 +9,7 @@
 #pragma once
 
 #include "callback.h"
+#include "libklug/result/result.hpp"
 
 namespace internal {
 
@@ -21,7 +22,7 @@ namespace internal {
 struct IFunctor {
   virtual ~IFunctor() = default;
 
-  virtual void operator()(result_t const& r) = 0;
+  virtual void operator()(res::Result const& r) = 0;
 };
 
 } // namespace internal

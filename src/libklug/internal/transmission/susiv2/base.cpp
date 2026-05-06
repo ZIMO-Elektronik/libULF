@@ -39,18 +39,11 @@ Base::Base(Connection& conn,
  * \return true   Valid
  * \return false  Invalid
  * \todo refactor
+ * \todo Insert real error code
  */
-result_t Base::evaluate() {
-  result_t r{};
-  if (!valid()) {
-    r.type = result_type::error;
-    r.data.error = -1;
-  } else {
-    r.type = result_type::status;
-    r.data.success = 0u;
-  }
-
-  return r;
+res::Result Base::evaluate() {
+  if (!valid()) return res::Error{0};
+  return res::Status{true};
 }
 
 bool Base::valid() {

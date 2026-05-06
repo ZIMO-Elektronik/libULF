@@ -30,18 +30,13 @@ CvRead::CvRead(Connection& conn, size_t timeout, uint16_t cv)
  * Evaluate
  *
  * \return result_t Result
+ * \todo Insert real error
  */
-result_t CvRead::evaluate() {
-  if (!valid()) {
-    result_t r{.type = result_type::error};
-    r.data.error = -1;
-    return r;
-  }
+res::Result CvRead::evaluate() {
+  if (!valid()) { return res::Error{0}; }
 
   /// \todo Evaluate crc
-  result_t r{.type = result_type::cv};
-  r.data.value = _response[1u];
-  return r;
+  return res::Cv{_response[1u]};
 }
 
 } // namespace transmission::susiv2

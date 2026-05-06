@@ -7,6 +7,8 @@
  */
 
 #include "libklug/internal/transmission/mdu_ein/ping.hpp"
+#include <libklug/result/wrapper/error.hpp>
+#include <libklug/result/wrapper/status.hpp>
 #include <ulf/mdu_ein.hpp>
 
 namespace transmission::mdu_ein {
@@ -36,20 +38,13 @@ Ping::Ping(Connection& conn,
 /**
  * Evaluate Ping response
  *
- * \return result_t Result
+ * \return Result Result
+ * \todo Insert a real error code
  */
-result_t Ping::evaluate() {
-  result_t r{};
-
-  if (!valid()) {
-    r.type = result_type::error;
-    r.data.error = -1;
-  } else {
-    r.type = result_type::status;
-    r.data.success =
-      (_response[0] == ulf::mdu_ein::ack && _response[2] == ulf::mdu_ein::nak);
-  }
-  return r;
+res::Result Ping::evaluate() {
+  if (!valid()) return res::Error{0};
+  return res::Status{_response[0] == ulf::mdu_ein::ack &&
+                     _response[2] == ulf::mdu_ein::nak};
 }
 
 } // namespace transmission::mdu_ein

@@ -1,24 +1,14 @@
 /**
- * Result class
+ * Result
  *
- * \file    inc/result.hpp
+ * \file    inc/libklug/result/result.h
  * \author  Jonas Gahlert
- * \date    04.05.2026
+ * \date    06.05.2026
  */
 
 #pragma once
 
-/**
- * Result type
- *
- */
-typedef enum {
-  status,
-  cv,
-  string,
-  error,
-  libusb_error,
-} result_type;
+#include "result_type.h"
 
 /**
  * Result
@@ -33,4 +23,4 @@ typedef struct {
     int error;
     int libusb_error;
   } data;
-} result_t;
+} result;

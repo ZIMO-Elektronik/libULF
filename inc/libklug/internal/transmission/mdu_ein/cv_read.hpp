@@ -29,7 +29,7 @@ struct CvRead : public ITransmission {
 
   virtual int execute() final;
 
-  virtual result_t evaluate() final;
+  virtual res::Result evaluate() final;
 
 private:
   Connection& _conn; ///< Connection

@@ -56,7 +56,7 @@ void Bridge::deregisterCB() {
  *
  * \todo Uhm... Refactor
  */
-result_t Bridge::result() {
+res::Result Bridge::result() {
   _ctx.result.wait();
   return _ctx.result.get();
 }

@@ -50,7 +50,7 @@ struct Bridge {
 
   void registerCB(std::unique_ptr<internal::IFunctor> cb);
   void deregisterCB();
-  result_t result();
+  res::Result result();
 
   int open(uint16_t vid = 0x1FC9u, uint16_t pid = 0x81C1u);
   int openFd(int Fd);

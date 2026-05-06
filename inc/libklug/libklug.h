@@ -32,7 +32,7 @@ void libklug_destroy(libklug_handle handle);
 
 // Callback and result
 void libklug_register_cb(libklug_handle handle, bridge_callback cb);
-result_t libklug_result(libklug_handle handle);
+result libklug_result(libklug_handle handle);
 
 // Connection Specifics
 int libklug_init(libklug_handle handle);

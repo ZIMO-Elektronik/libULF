@@ -22,7 +22,7 @@ struct Ping : public Base {
   Ping(Connection& conn, std::span<uint8_t const> payload, std::size_t timeout);
   virtual ~Ping() = default;
 
-  virtual result_t evaluate() override;
+  virtual res::Result evaluate() override;
 };
 
-}  // namespace transmission::mdu_ein
+} // namespace transmission::mdu_ein

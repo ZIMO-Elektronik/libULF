@@ -10,6 +10,7 @@
 
 #include "i_functor.hpp"
 #include "libklug/callback/callback.h"
+#include "libklug/result/result.hpp"
 
 namespace internal {
 
@@ -23,7 +24,7 @@ struct Functor : public IFunctor {
   Functor(bridge_callback cb);
   virtual ~Functor() = default;
 
-  virtual void operator()(result_t const& r) override;
+  virtual void operator()(res::Result const& r) override;
 
 private:
   bridge_callback _cb; ///< Callback

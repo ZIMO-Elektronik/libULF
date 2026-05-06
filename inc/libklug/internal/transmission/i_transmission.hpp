@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "libklug/result.hpp"
+#include "libklug/result/result.hpp"
 
 namespace transmission {
 
@@ -29,7 +29,7 @@ struct ITransmission {
 
   virtual int execute() = 0;
 
-  virtual result_t evaluate() = 0;
+  virtual res::Result evaluate() = 0;
 };
 
 } // namespace transmission

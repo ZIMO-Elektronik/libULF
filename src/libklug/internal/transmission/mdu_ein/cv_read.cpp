@@ -38,9 +38,8 @@ int CvRead::execute() {
     auto const r = t.evaluate();
 
     /// \todo Implement retry for single bits
-    if (r.type != result_type::status) return -1;
-
-    _value |= !(r.data.success) << i;
+    if (!std::holds_alternative<res::Status>(r)) return -1;
+    _value |= !(std::get<res::Status>(r)) << i;
   }
   return 0;
 }
@@ -50,10 +49,6 @@ int CvRead::execute() {
  *
  * \return result_t Result
  */
-result_t CvRead::evaluate() {
-  result_t r{.type = result_type::cv};
-  r.data.value = _value;
-  return r;
-}
+res::Result CvRead::evaluate() { return res::Cv{_value}; }
 
 } // namespace transmission::mdu_ein

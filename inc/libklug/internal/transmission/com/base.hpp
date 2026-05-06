@@ -24,7 +24,7 @@ struct Base : public TransmissionBase {
 
   virtual ~Base() = default;
 
-  virtual result_t evaluate() override;
+  virtual res::Result evaluate() override;
 };
 
 } // namespace transmission::com

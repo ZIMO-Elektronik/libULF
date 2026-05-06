@@ -7,6 +7,8 @@
  */
 
 #include "libklug/internal/transmission/mdu_ein/base.hpp"
+#include <libklug/result/wrapper/error.hpp>
+#include <libklug/result/wrapper/status.hpp>
 #include <ulf/mdu_ein.hpp>
 namespace transmission::mdu_ein {
 
@@ -35,21 +37,13 @@ Base::Base(Connection& conn,
 /**
  * Evaluate
  *
- * \return result_t Result
+ * \return Result Result
+ * \todo Insert a real error code
  */
-result_t Base::evaluate() {
-  result_t r{};
-
-  if (!valid()) {
-    r.type = result_type::error;
-    r.data.error = -1;
-  } else {
-    r.type = result_type::status;
-    r.data.success =
-      (_response[0] == ulf::mdu_ein::ack && _response[2] == ulf::mdu_ein::ack);
-  }
-
-  return r;
+res::Result Base::evaluate() {
+  if (!valid()) return res::Error{0};
+  return res::Status{_response[0] == ulf::mdu_ein::ack &&
+                     _response[2] == ulf::mdu_ein::ack};
 }
 
 /**

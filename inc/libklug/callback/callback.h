@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "libklug/result.hpp"
+#include "libklug/result/result.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,7 +21,7 @@ extern "C" {
  * sepcific stuff (like jni)
  *
  */
-typedef void (*bridge_callback)(result_t r);
+typedef void (*bridge_callback)(result r);
 
 // Callback registration
 /// \todo Write registration

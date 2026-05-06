@@ -12,6 +12,7 @@
 #include <thread>
 #include "bridge_context.hpp"
 #include "libklug/internal/transmission/transmission_base.hpp"
+#include "libklug/result/result.hpp"
 
 namespace bridge {
 
@@ -69,7 +70,7 @@ private:
   Context& _ctx; ///< Bridge context
 
   std::thread _thread;                             ///< Thread
-  std::promise<result_t> _promise;                 ///< Promise of result
+  std::promise<res::Result> _promise;              ///< Promise of result
   std::mutex _mut_t;                               ///< Transmission mutex
   std::condition_variable _cv;                     ///< Wait condition
   std::unique_ptr<transmission::ITransmission> _t; ///< Current transmission
