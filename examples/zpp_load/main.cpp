@@ -1,4 +1,4 @@
-#include <bridge/bridge.hpp>
+#include <libklug/libklug.h>
 #include <chrono>
 #include <codecvt>
 #include <cstdlib>
@@ -15,24 +15,24 @@ int main() {
   std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
   std::u16string u16_path{convert.from_bytes(path)};
 
-  auto z_handle{bridge_zpp_read(handle, u16_path.data(), u16_path.size())};
+  auto z_handle{libklug_zpp_read(handle, u16_path.data(), u16_path.size())};
   if (!z_handle) abort();
 
-  long const count{bridge_zpp_blocks(handle, z_handle)};
+  long const count{libklug_zpp_blocks(handle, z_handle)};
 
   std::cout << "SUSIV2 mode" << std::endl;
-  bridge_com_susiv2(handle);
-  auto r{bridge_result(handle)};
+  libklug_com_susiv2(handle);
+  auto r{libklug_result(handle)};
   if (r.type != result_type::status) abort();
 
   std::cout << "SUSIV2 Features" << std::endl;
-  bridge_susiv2_features(handle);
-  r = bridge_result(handle);
+  libklug_susiv2_features(handle);
+  r = libklug_result(handle);
   if (r.type != result_type::status) abort();
 
   std::cout << "Erase Flash" << std::endl;
-  bridge_susiv2_zpp_erase(handle);
-  r = bridge_result(handle);
+  libklug_susiv2_zpp_erase(handle);
+  r = libklug_result(handle);
   if (r.type != result_type::status) abort();
 
   std::cout << "Progress" << std::endl;
@@ -54,7 +54,7 @@ int main() {
     std::cout << int(progress * 100.0) << " %";
 
     auto start{std::chrono::high_resolution_clock::now()};
-    bridge_susiv2_zpp_write(handle, z_handle, i);
+    libklug_susiv2_zpp_write(handle, z_handle, i);
     auto end{std::chrono::high_resolution_clock::now()};
     auto duration{
       std::chrono::duration_cast<std::chrono::microseconds>(end - start)};
@@ -63,7 +63,7 @@ int main() {
     }
 
     start = std::chrono::high_resolution_clock::now();
-    r = bridge_result(handle);
+    r = libklug_result(handle);
     end = std::chrono::high_resolution_clock::now();
     duration =
       std::chrono::duration_cast<std::chrono::microseconds>(end - start);
@@ -83,10 +83,10 @@ int main() {
 
   std::cout << std::endl;
 
-  bridge_susiv2_exit(handle, 1, 1);
-  r = bridge_result(handle);
+  libklug_susiv2_exit(handle, 1, 1);
+  r = libklug_result(handle);
   if (r.type != result_type::status) abort();
 
-  bridge_zpp_release(handle, z_handle);
+  libklug_zpp_release(handle, z_handle);
   setup::disconnect(handle);
 }
