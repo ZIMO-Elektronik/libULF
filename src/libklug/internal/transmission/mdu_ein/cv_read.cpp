@@ -35,7 +35,7 @@ res::Result CvRead::execute() {
            100u};
     auto res{t.execute()};
     // Check if execution resulted in an error
-    if (std::holds_alternative<res::Status>(res)) return res;
+    if (!std::holds_alternative<res::Status>(res)) return res;
 
     auto const r = t.evaluate();
 
