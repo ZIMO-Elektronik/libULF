@@ -42,7 +42,7 @@ Base::Base(Connection& conn,
  * \todo Insert real error code
  */
 res::Result Base::evaluate() {
-  if (!valid()) return res::Error{0};
+  if (!valid()) return res::Error{err::Error::format};
   return res::Status{true};
 }
 

@@ -37,7 +37,7 @@ struct TransmissionBase : ITransmission {
                    std::size_t timeout);
   virtual ~TransmissionBase() = default;
 
-  virtual int execute() override;
+  virtual res::Result execute() override;
 
 protected:
   int transmit();

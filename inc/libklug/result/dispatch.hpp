@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <utility>
 #include <variant>
 #include "result.h"
 #include "result.hpp"
@@ -49,7 +50,8 @@ constexpr result dispatch(Result r) {
                       },
                       [](Error e) {
                         result r{.type = result_type::error};
-                        r.data.error = e;
+                        r.data.error =
+                          std::to_underlying(static_cast<err::Error>(e));
                         return r;
                       },
                       [](LibusbError e) {

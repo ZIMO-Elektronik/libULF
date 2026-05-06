@@ -54,8 +54,8 @@ struct Worker {
 
     // Prepare transmission and result
     _t = std::make_unique<T>(std::forward<Args>(args)...);
-    std::construct_at(&_promise);
-    std::construct_at(&_ctx.result, _promise.get_future());
+    _promise = std::promise<res::Result>();
+    _ctx.result = _promise.get_future();
 
     // Notify worker thread
     lock.unlock();

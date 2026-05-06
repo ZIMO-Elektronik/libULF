@@ -28,20 +28,22 @@ CvRead::CvRead(Connection& conn, uint16_t cv)
  *
  * \todo Refactor
  */
-int CvRead::execute() {
+res::Result CvRead::execute() {
   for (uint8_t i{0}; i < sizeof(_value) * 8u; i++) {
     Base t{_conn,
            ulf::mdu_ein::bytes2mdu_ein(mdu::make_cv_read_packet(_cv, i)),
            100u};
-    t.execute();
+    auto res{t.execute()};
+    // Check if execution resulted in an error
+    if (std::holds_alternative<res::Status>(res)) return res;
 
     auto const r = t.evaluate();
 
     /// \todo Implement retry for single bits
-    if (!std::holds_alternative<res::Status>(r)) return -1;
+    if (!std::holds_alternative<res::Status>(r)) return r;
     _value |= !(std::get<res::Status>(r)) << i;
   }
-  return 0;
+  return res::Status{true};
 }
 
 /**

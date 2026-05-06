@@ -9,6 +9,7 @@
 #pragma once
 
 #include <cstdint>
+#include "libklug/error/error.hpp"
 
 namespace res {
 
@@ -20,17 +21,18 @@ namespace res {
  */
 struct Error {
   constexpr Error() = default;
-  constexpr Error(int v) : _value{v} {}
+  constexpr Error(err::Error v) : _value{v} {}
   constexpr Error(Error const& e) = default;
   constexpr ~Error() = default;
 
-  constexpr operator int() const { return _value; }
-  constexpr bool operator==(int v) const { return _value == v; }
-  constexpr void operator=(int v) { _value = v; }
+  constexpr operator err::Error() const { return _value; }
+  constexpr bool operator==(Error const&) const = default;
+  constexpr bool operator==(err::Error v) const { return _value == v; }
+  constexpr void operator=(err::Error v) { _value = v; }
   constexpr void operator=(Error const& lhs) { _value = lhs._value; }
 
 private:
-  int _value{};
+  err::Error _value{};
 };
 
 } // namespace res

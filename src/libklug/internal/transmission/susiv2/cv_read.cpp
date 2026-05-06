@@ -33,7 +33,7 @@ CvRead::CvRead(Connection& conn, size_t timeout, uint16_t cv)
  * \todo Insert real error
  */
 res::Result CvRead::evaluate() {
-  if (!valid()) { return res::Error{0}; }
+  if (!valid()) { return res::Error{err::Error::format}; }
 
   /// \todo Evaluate crc
   return res::Cv{_response[1u]};

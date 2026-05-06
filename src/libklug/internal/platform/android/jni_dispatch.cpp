@@ -7,6 +7,7 @@
  */
 
 #include "libklug/internal/platform/android/jni_dispatch.hpp"
+#include <utility>
 #include "libklug/internal/logging.hpp"
 #include "libklug/internal/platform/android/jni_context.hpp"
 #include "libklug/result/dispatch.hpp"
@@ -43,7 +44,8 @@ jobject jni_dispatch(JNIEnv* env, Result const& r) {
               [&](Error e) {
                 auto c{internal::jni_ctx.nativeResult_error};
                 jmethodID init = env->GetMethodID(c, "<init>", "(I)V");
-                return env->NewObject(c, init, e);
+                return env->NewObject(
+                  c, init, std::to_underlying(static_cast<err::Error>(e)));
               },
               [&](LibusbError e) {
                 auto c{internal::jni_ctx.nativeResult_usbError};

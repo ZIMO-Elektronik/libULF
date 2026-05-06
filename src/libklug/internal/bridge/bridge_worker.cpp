@@ -56,8 +56,11 @@ void Worker::loop() {
     }
     if (exit) break;
 
-    _t->execute();
-    auto r{_t->evaluate()};
+    auto r{_t->execute()};
+    if (std::holds_alternative<res::Status>(r)) {
+      // No transmission error, evaluate result
+      r = _t->evaluate();
+    }
     _promise.set_value(r);
 
     // Push result to cb

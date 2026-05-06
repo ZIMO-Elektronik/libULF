@@ -41,7 +41,7 @@ Base::Base(Connection& conn,
  * \todo Insert a real error code
  */
 res::Result Base::evaluate() {
-  if (!valid()) return res::Error{0};
+  if (!valid()) return res::Error{err::Error::format};
   return res::Status{_response[0] == ulf::mdu_ein::ack &&
                      _response[2] == ulf::mdu_ein::ack};
 }

@@ -87,6 +87,10 @@ int main() {
   r = libklug_result(handle);
   if (r.type != result_type::status) abort();
 
+  libklug_com_reset(handle);
+  r = libklug_result(handle);
+  if (r.type != result_type::status) abort();
+
   libklug_zpp_release(handle, z_handle);
   setup::disconnect(handle);
 }

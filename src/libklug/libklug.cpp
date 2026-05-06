@@ -11,7 +11,9 @@
 #include "libklug/libklug.hpp"
 #include "libklug/result/dispatch.hpp"
 
-bridge::Bridge* to_bridge(libklug_handle handle) { return to_bridge(handle); }
+bridge::Bridge* to_bridge(libklug_handle handle) {
+  return reinterpret_cast<bridge::Bridge*>(handle);
+}
 
 /** ---------------------------------------------------
  *  Bridge
