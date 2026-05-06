@@ -1,7 +1,7 @@
 /**
  * Functor
  *
- * \file    functor.cpp
+ * \file    src/libklug/callback/functor.cpp
  * \author  Jonas Gahlert
  * \date    05.05.2026
  */

@@ -1,7 +1,7 @@
 /**
  * MDU_EIN ping transmission
  *
- * \file    inc/internal/transmission/mdu_ein/ping.hpp
+ * \file    inc/libklug/internal/transmission/mdu_ein/ping.hpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */

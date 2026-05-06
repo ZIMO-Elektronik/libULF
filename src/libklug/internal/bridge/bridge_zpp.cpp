@@ -1,7 +1,7 @@
 /**
  * Internal ZPP bridge
  *
- * \file    src/bridge/internal/bridge_zpp.cpp
+ * \file    src/libklug/internal/bridge/bridge_zpp.cpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */

@@ -1,7 +1,7 @@
 /**
  * MDU_EIN Cv Read
  *
- * \file    src/internal/transmission/mdu_ein/cv_read.cpp
+ * \file    src/libklug/internal/transmission/mdu_ein/cv_read.cpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */

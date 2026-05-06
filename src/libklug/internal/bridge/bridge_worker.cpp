@@ -1,7 +1,7 @@
 /**
  * Internal bridge worker
  *
- * \file    src/brigdge/internal/bridge_worker.cpp
+ * \file    src/libklug/internal/bridge/bridge_worker.cpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */

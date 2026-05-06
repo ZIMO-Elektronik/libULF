@@ -1,7 +1,7 @@
 /**
  * SUSIV2 base transmission
  *
- * \file    inc/internal/transmission/susiv2/base.hpp
+ * \file    inc/libklug/internal/transmission/susiv2/base.hpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */

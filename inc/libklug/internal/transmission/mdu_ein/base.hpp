@@ -1,7 +1,7 @@
 /**
  * MDU_EIN base transmission
  *
- * \file    inc/internal/transmission/mdu_ein/base.hpp
+ * \file    inc/libklug/internal/transmission/mdu_ein/base.hpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */

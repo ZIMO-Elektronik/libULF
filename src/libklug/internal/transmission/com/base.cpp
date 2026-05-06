@@ -1,7 +1,7 @@
 /**
  * ULF_COM Base transmission
  *
- * \file    src/internal/transmission/com/base.cpp
+ * \file    src/libklug/internal/transmission/com/base.cpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */

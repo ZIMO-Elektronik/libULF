@@ -1,3 +1,11 @@
+/**
+ * Logging
+ *
+ * \file    inc/libklug/internal/logging.hpp
+ * \author  Jonas Gahlert
+ * \date    06.05.2026
+ */
+
 #pragma once
 
 #define LOG_TAG "NativeKLUG"

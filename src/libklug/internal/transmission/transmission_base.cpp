@@ -1,7 +1,7 @@
 /**
  * Transmission Base
  *
- * \file    src/internal/transmission/transmission_base.cpp
+ * \file    src/libklug/internal/transmission/transmission_base.cpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */

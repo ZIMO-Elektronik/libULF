@@ -1,9 +1,9 @@
 /**
  * Internal MDU_EIN bridge
  *
- * \file inc/bridge/internal/bridge_mdu_ein.hpp
- * \author Jonas Gahlert
- * \date 04.05.2026
+ * \file    inc/libklug/internal/bridge/bridge_mdu_ein.hpp
+ * \author  Jonas Gahlert
+ * \date    04.05.2026
  */
 
 #pragma once
@@ -29,8 +29,8 @@ struct MDU_EIN {
   bool ping(uint32_t sn = 0, uint32_t id = 0);
 
 private:
-  Context& _ctx;    ///< Bridge context
-  Worker& _worker;  ///< Worker
+  Context& _ctx;   ///< Bridge context
+  Worker& _worker; ///< Worker
 };
 
-}  // namespace bridge
+} // namespace bridge

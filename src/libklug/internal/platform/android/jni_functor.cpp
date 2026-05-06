@@ -1,3 +1,11 @@
+/**
+ * JNI Funktor
+ *
+ * \file    src/libklug/internal/platform/android/jni_functor.cpp
+ * \author  Jonas Gahlert
+ * \date    06.05.2026
+ */
+
 #include "libklug/internal/platform/android/jni_functor.hpp"
 #include <cassert>
 #include <mutex>
@@ -7,6 +15,15 @@
 
 namespace callback {
 
+/**
+ * CTor
+ *
+ * \details Starts local thread and configures JNI stuff
+ *
+ * \param env       Valid JNIEnv
+ * \param instance  Java this
+ * \param cb        Callback JObject
+ */
 AndroidFunctor::AndroidFunctor(JNIEnv* env, jobject instance, jobject cb) {
   // Get JNI environment
   auto rc{env->GetJavaVM(&_vm)};
@@ -24,6 +41,12 @@ AndroidFunctor::AndroidFunctor(JNIEnv* env, jobject instance, jobject cb) {
   _thread = std::thread(&AndroidFunctor::loop, this);
 }
 
+/**
+ * DTor
+ *
+ * \details Ends running thread
+ *
+ */
 AndroidFunctor::~AndroidFunctor() {
   // Join thread
   {
@@ -44,6 +67,10 @@ void AndroidFunctor::operator()(res::Result const& r) {
   _cv.notify_one();
 }
 
+/**
+ * Thread loop to work with JNI
+ *
+ */
 void AndroidFunctor::loop() {
   LOGD("Start Funktor thread");
   attach();
@@ -64,13 +91,28 @@ void AndroidFunctor::loop() {
   detach();
 }
 
+/**
+ * Attach Thread to JVM
+ *
+ * \return true   Success
+ * \return false  Error
+ */
 bool AndroidFunctor::attach() {
   auto e{env()};
   return _vm->AttachCurrentThread(&e, nullptr) == JNI_OK;
 }
 
+/**
+ * Detach Thread from JVM
+ *
+ */
 void AndroidFunctor::detach() { _vm->DetachCurrentThread(); }
 
+/**
+ * Call callback
+ *
+ * \param r
+ */
 void AndroidFunctor::call(res::Result const& r) {
   LOGD("Call Callback");
   auto e{env()};
@@ -78,13 +120,18 @@ void AndroidFunctor::call(res::Result const& r) {
   _r.reset();
 }
 
+/**
+ * Get fresh JNIEnv from JVM
+ *
+ * \return JNIEnv*
+ * \retval env      fresh JNIEnv
+ * \retval nullptr  Error
+ */
 JNIEnv* AndroidFunctor::env() {
   JNIEnv* env{nullptr};
   auto rc{_vm->GetEnv((void**)&env, JNI_VERSION_1_6)};
   if (rc != JNI_OK) {
     LOGE("Failed to get JNIEnv. Error {}", rc);
-    if (env) LOGD("But got JNIEnv anyway");
-    else LOGE("AND Failed to get JNIEnv.");
     return nullptr;
   }
   return env;

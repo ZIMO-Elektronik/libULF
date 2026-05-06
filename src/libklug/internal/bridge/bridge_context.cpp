@@ -1,7 +1,7 @@
 /**
  * Bridge context
  *
- * \file    src/bridge/internal/bridge_context.cpp
+ * \file    src/libklug/internal/bridge/bridge_context.cpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */

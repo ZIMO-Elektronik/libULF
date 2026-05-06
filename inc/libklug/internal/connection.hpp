@@ -1,7 +1,7 @@
 /**
  * USB connection
  *
- * \file    inc/internal/connection.hpp
+ * \file    inc/libklug/internal/connection.hpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */
@@ -34,9 +34,9 @@ struct Connection {
   int interface();
 
 private:
-  libusb_device_handle* _handle{nullptr};  ///< Device
-  uint8_t _tx_ep, _rx_ep;                  ///< Endpoints
-  int _interface;                          ///< Interface
+  libusb_device_handle* _handle{nullptr}; ///< Device
+  uint8_t _tx_ep, _rx_ep;                 ///< Endpoints
+  int _interface;                         ///< Interface
 };
 
 /**

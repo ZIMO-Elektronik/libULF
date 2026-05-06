@@ -1,7 +1,7 @@
 /**
  * Internal SUSIV2 bridge
  *
- * \file    inc/bridge/internal/bridge_susiv2.hpp
+ * \file    inc/libklug/internal/bridge/bridge_susiv2.hpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */
@@ -33,9 +33,9 @@ struct SUSIV2 {
   bool zppLcDcQuery(zpp::File* file);
 
 private:
-  Context& _ctx;    ///< Bridge context
-  Worker& _worker;  ///< Worker
-  ZPP& _zpp;        ///< ZPP bridge
+  Context& _ctx;   ///< Bridge context
+  Worker& _worker; ///< Worker
+  ZPP& _zpp;       ///< ZPP bridge
 };
 
-}  // namespace bridge
+} // namespace bridge

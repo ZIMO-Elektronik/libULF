@@ -1,7 +1,7 @@
 /**
  * Internal SUSIV2 bridge
  *
- * \file    src/bridge/internal/bridge_susiv2.cpp
+ * \file    src/libklug/internal/bridge/bridge_susiv2.cpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */

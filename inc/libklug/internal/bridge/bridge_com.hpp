@@ -1,7 +1,7 @@
 /**
  * Internal COM bridge
  *
- * \file    inc/bridge/internal/bridge_com.hpp
+ * \file    inc/libklug/internal/bridge/bridge_com.hpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */
@@ -27,8 +27,8 @@ struct COM {
   bool mdu_ein();
 
 private:
-  Context& _ctx;    ///< Bridge context
-  Worker& _worker;  ///< Worker
+  Context& _ctx;   ///< Bridge context
+  Worker& _worker; ///< Worker
 };
 
-}  // namespace bridge
+} // namespace bridge

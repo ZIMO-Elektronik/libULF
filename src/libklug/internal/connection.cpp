@@ -1,7 +1,7 @@
 /**
  * Connection
  *
- * \file    src/internal/connection.cpp
+ * \file    src/libklug/internal/connection.cpp
  * \author  Jonas Gahlert
 }* \date    21.04.2026
  */

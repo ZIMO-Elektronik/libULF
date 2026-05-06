@@ -1,7 +1,7 @@
 /**
  * Transmission interface
  *
- * \file    inc/internal/transmission/i_transmission.hpp
+ * \file    inc/libklug/internal/transmission/i_transmission.hpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */

@@ -1,7 +1,7 @@
 /**
  * SUSIV2 Cv read
  *
- * \file    inc/internal/transmission/susiv2/cv_read.hpp
+ * \file    inc/libklug/internal/transmission/susiv2/cv_read.hpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */

@@ -1,3 +1,11 @@
+/**
+ * JNI Result dispatcher
+ *
+ * \file    src/libklug/internal/platform/android/jni_dispatch.cpp
+ * \author  Jonas Gahlert
+ * \date    06.05.2026
+ */
+
 #include "libklug/internal/platform/android/jni_dispatch.hpp"
 #include "libklug/internal/logging.hpp"
 #include "libklug/internal/platform/android/jni_context.hpp"
@@ -6,6 +14,13 @@
 
 namespace res {
 
+/**
+ * JNI Result dispatch
+ *
+ * \param env Valid JNIEnv
+ * \param r   Result
+ * \return jobject Wrapped Result
+ */
 jobject jni_dispatch(JNIEnv* env, Result const& r) {
   return std::visit(
     overloads{[&](String s) {

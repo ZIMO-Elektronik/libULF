@@ -1,7 +1,7 @@
 /**
  * COM base transmission
  *
- * \file    inc/internal/transmission/com/base.hpp
+ * \file    inc/libklug/internal/transmission/com/base.hpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */

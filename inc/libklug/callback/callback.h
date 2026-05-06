@@ -1,7 +1,7 @@
 /**
  * Callback
  *
- * \file    callback.h
+ * \file    inc/libklug/callback/callback.h
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */

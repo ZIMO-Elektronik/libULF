@@ -1,7 +1,7 @@
 /**
  * Internal Bridge config
  *
- * \file    src/bridge/internal/bridge.cpp
+ * \file    src/libklug/internal/bridge/bridge.cpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */

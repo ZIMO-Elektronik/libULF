@@ -1,7 +1,7 @@
 /**
  * USB transmission base
  *
- * \file    inc/internal/transmission/transmission_base.hpp
+ * \file    inc/libklug/internal/transmission/transmission_base.hpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */

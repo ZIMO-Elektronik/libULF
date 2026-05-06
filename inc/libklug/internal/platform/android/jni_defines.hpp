@@ -1,7 +1,7 @@
 /**
  * JNI Defines
  *
- * \file    inc/bridge/jni_defines.hpp
+ * \file    inc/libklug/internal/platform/android/jni_defines.hpp
  * \author  Jonas Gahlert
  * \date    05.05.2026
  */

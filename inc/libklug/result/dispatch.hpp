@@ -1,7 +1,7 @@
 /**
  * Result dispatch
  *
- * \file    dispatch.hpp
+ * \file    inc/libklug/result/dispatch.hpp
  * \author  Jonas Gahlert
  * \date    06.05.2026
  */

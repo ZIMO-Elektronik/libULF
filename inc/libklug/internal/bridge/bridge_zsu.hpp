@@ -1,7 +1,7 @@
 /**
  * Internal ZSU Bridge
  *
- * \file    inc/bridge/internal/bridge_zsu.hpp
+ * \file    inc/libklug/internal/bridge/bridge_zsu.hpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */
@@ -21,4 +21,4 @@ struct ZSU {
   std::span<uint8_t> block(zsu::File* file, unsigned int block);
 };
 
-}  // namespace bridge
+} // namespace bridge

@@ -1,15 +1,15 @@
 /**
  * Internal ZPP bridge
  *
- * \file    inc/bridge/internal/bridge_zpp.hpp
+ * \file    inc/libklug/internal/bridge/bridge_zpp.hpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */
 
 #pragma once
 
-#include <zpp/zpp.hpp>
 #include <span>
+#include <zpp/zpp.hpp>
 
 namespace bridge {
 
@@ -30,4 +30,4 @@ private:
   unsigned long const _blockSize{256uz};
 };
 
-}  // namespace bridge
+} // namespace bridge

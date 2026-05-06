@@ -1,7 +1,7 @@
 /**
  * Internal COM bridge
  *
- * \file    src/bridge/internal/bridge_com.cpp
+ * \file    src/libklug/internal/bridge/bridge_com.cpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */
