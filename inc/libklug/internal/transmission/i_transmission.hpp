@@ -27,7 +27,7 @@ namespace transmission {
 struct ITransmission {
   virtual ~ITransmission() = default;
 
-  virtual int execute() = 0;
+  virtual res::Result execute() = 0;
 
   virtual res::Result evaluate() = 0;
 };

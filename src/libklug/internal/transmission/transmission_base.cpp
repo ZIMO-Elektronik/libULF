@@ -54,10 +54,14 @@ TransmissionBase::TransmissionBase(Connection& conn,
  *
  * \todo Refactor to return error if unsuccessful
  */
-int TransmissionBase::execute() {
-  this->transmit();
-  this->receive();
-  return 0;
+res::Result TransmissionBase::execute() {
+  auto rc{this->transmit()};
+  if (rc != LIBUSB_SUCCESS) return res::LibusbError{rc};
+
+  rc = this->receive();
+  if (rc != LIBUSB_SUCCESS) return res::LibusbError{rc};
+
+  return res::Status{true};
 }
 
 /**

@@ -27,7 +27,7 @@ struct CvRead : public ITransmission {
   CvRead(Connection& conn, uint16_t cv);
   virtual ~CvRead() = default;
 
-  virtual int execute() final;
+  virtual res::Result execute() final;
 
   virtual res::Result evaluate() final;
 
