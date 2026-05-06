@@ -9,10 +9,10 @@
 #include "libklug/callback/functor.hpp"
 #include "libklug/result/dispatch.hpp"
 
-namespace internal {
+namespace callback {
 
 Functor::Functor(bridge_callback cb) : _cb{cb} {}
 
 void Functor::operator()(res::Result const& r) { return _cb(res::dispatch(r)); }
 
-} // namespace internal
+} // namespace callback

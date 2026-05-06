@@ -25,7 +25,7 @@ libklug_handle libklug_create(void) {
 void libklug_destroy(libklug_handle handle) { delete to_bridge(handle); }
 
 void libklug_register_cb(libklug_handle handle, bridge_callback cb) {
-  to_bridge(handle)->registerCB(std::make_unique<internal::Functor>(cb));
+  to_bridge(handle)->registerCB(std::make_unique<callback::Functor>(cb));
 }
 
 result libklug_result(libklug_handle handle) {

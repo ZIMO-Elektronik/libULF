@@ -31,7 +31,7 @@ struct Context {
   bool valid() const;
   bool transmission(transmission::TransmissionBase* t);
   transmission::TransmissionBase* transmission();
-  std::unique_ptr<internal::IFunctor> cb; ///< Callback
+  std::unique_ptr<callback::IFunctor> cb; ///< Callback
   std::future<res::Result> result;        ///< Last result
 
 private:

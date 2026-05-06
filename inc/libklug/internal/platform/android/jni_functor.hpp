@@ -14,7 +14,7 @@
 #include "libklug/callback/i_functor.hpp"
 #include "libklug/result/result.hpp"
 
-namespace internal {
+namespace callback {
 
 /**
  * AndroidFunctor
@@ -50,4 +50,4 @@ private:
   std::mutex _mut_r{};             ///< Result mutex
 };
 
-} // namespace internal
+} // namespace callback

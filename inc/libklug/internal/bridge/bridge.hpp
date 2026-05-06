@@ -48,7 +48,7 @@ namespace bridge {
 struct Bridge {
   int init();
 
-  void registerCB(std::unique_ptr<internal::IFunctor> cb);
+  void registerCB(std::unique_ptr<callback::IFunctor> cb);
   void deregisterCB();
   res::Result result();
 

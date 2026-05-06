@@ -51,7 +51,7 @@ JNI_METHOD(void, bridge_1destroy, jlong handle) {
 
 JNI_METHOD(void, bridge_1register_1cb, jlong handle, jobject cb) {
   return to_bridge(handle)->registerCB(
-    std::make_unique<internal::AndroidFunctor>(env, thiz, cb));
+    std::make_unique<callback::AndroidFunctor>(env, thiz, cb));
 }
 
 JNI_METHOD(void, bridge_1deregister_1cb, jlong handle) {

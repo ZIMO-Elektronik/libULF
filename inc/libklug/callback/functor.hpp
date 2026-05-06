@@ -12,7 +12,7 @@
 #include "libklug/callback/callback.h"
 #include "libklug/result/result.hpp"
 
-namespace internal {
+namespace callback {
 
 /**
  * Funktor
@@ -30,4 +30,4 @@ private:
   bridge_callback _cb; ///< Callback
 };
 
-} // namespace internal
+} // namespace callback

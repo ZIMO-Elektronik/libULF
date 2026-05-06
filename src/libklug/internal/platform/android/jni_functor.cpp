@@ -5,7 +5,7 @@
 #include "libklug/internal/platform/android/jni_defines.hpp"
 #include "libklug/internal/platform/android/jni_dispatch.hpp"
 
-namespace internal {
+namespace callback {
 
 AndroidFunctor::AndroidFunctor(JNIEnv* env, jobject instance, jobject cb) {
   // Get JNI environment
@@ -90,4 +90,4 @@ JNIEnv* AndroidFunctor::env() {
   return env;
 }
 
-} // namespace internal
+} // namespace callback

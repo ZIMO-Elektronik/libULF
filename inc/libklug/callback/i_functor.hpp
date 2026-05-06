@@ -11,7 +11,7 @@
 #include "callback.h"
 #include "libklug/result/result.hpp"
 
-namespace internal {
+namespace callback {
 
 /**
  * Functor Interface
@@ -25,4 +25,4 @@ struct IFunctor {
   virtual void operator()(res::Result const& r) = 0;
 };
 
-} // namespace internal
+} // namespace callback
