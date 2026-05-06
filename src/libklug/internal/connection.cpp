@@ -245,3 +245,36 @@ uint8_t Connection::rx_ep() { return _rx_ep; }
  * \return int Interface
  */
 int Connection::interface() { return _interface; }
+
+/**
+ * Transmit payload
+ *
+ * \param payload Payload
+ * \param timeout Timeout
+ * \return int  Forwarded from libusb
+ */
+int Connection::_transmit(std::span<uint8_t const> payload, uint32_t timeout) {
+  return libusb_bulk_transfer(_handle,
+                              _tx_ep,
+                              std::bit_cast<unsigned char*>(payload.data()),
+                              payload.size(),
+                              nullptr,
+                              timeout);
+}
+
+/**
+ * Receive to buffer
+ *
+ * \param buffer    Buffer
+ * \param length    Buffer length
+ * \param received  Actual received
+ * \param timeout   Timeout
+ * \return int  Forwarded from libusb
+ */
+int Connection::_receive(uint8_t* buffer,
+                         uint32_t length,
+                         int* received,
+                         uint32_t timeout) {
+  return libusb_bulk_transfer(
+    _handle, _rx_ep, buffer, length, received, timeout);
+}
