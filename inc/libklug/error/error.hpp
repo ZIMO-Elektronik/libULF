@@ -10,7 +10,7 @@
 
 #include <cstdint>
 
-namespace error {
+namespace err {
 
 enum class Error : uint8_t {
   none = 0x00, ///< No error
@@ -18,4 +18,4 @@ enum class Error : uint8_t {
   format = 0x01, ///< Response format invalid
 };
 
-} // namespace error
+} // namespace err
