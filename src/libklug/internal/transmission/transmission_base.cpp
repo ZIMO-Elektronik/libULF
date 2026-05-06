@@ -22,7 +22,7 @@ namespace transmission {
  * \param payload Payload
  * \param timeout Timeout
  */
-TransmissionBase::TransmissionBase(Connection& conn,
+TransmissionBase::TransmissionBase(std::shared_ptr<Connection> conn,
                                    std::string payload,
                                    std::size_t timeout)
   : _timeout{timeout}, _conn{conn} {
@@ -39,7 +39,7 @@ TransmissionBase::TransmissionBase(Connection& conn,
  * \param payload Payload
  * \param timeout Timeout
  */
-TransmissionBase::TransmissionBase(Connection& conn,
+TransmissionBase::TransmissionBase(std::shared_ptr<Connection> conn,
                                    std::span<uint8_t const> payload,
                                    std::size_t timeout)
   : _timeout{timeout}, _conn{conn} {
@@ -74,7 +74,7 @@ res::Result TransmissionBase::execute() {
 int TransmissionBase::transmit() {
   flush();
 
-  auto rc{_conn.transmit(_payload, _timeout)};
+  auto rc{_conn->transmit(_payload, _timeout)};
 
   if (rc != 0) {
     LOGE("Transfer Error. Error: {}", libusb_error_name(rc));
@@ -94,7 +94,7 @@ int TransmissionBase::transmit() {
 int TransmissionBase::receive() {
   if (_response.size() < 64u) _response.resize(64u);
 
-  auto rc{_conn.receive(_response, _timeout)};
+  auto rc{_conn->receive(_response, _timeout)};
   if (rc != 0) {
     LOGE("Transfer Error. Error: {}", libusb_error_name(rc));
     return rc;
@@ -112,8 +112,8 @@ int TransmissionBase::receive() {
 void TransmissionBase::flush() {
   return;
   std::array<uint8_t, 64u> data;
-  while (libusb_bulk_transfer(_conn.handle(),
-                              _conn.rx_ep(),
+  while (libusb_bulk_transfer(_conn->handle(),
+                              _conn->rx_ep(),
                               std::bit_cast<unsigned char*>(data.data()),
                               data.size(),
                               nullptr,

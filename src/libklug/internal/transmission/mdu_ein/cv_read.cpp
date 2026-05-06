@@ -18,7 +18,7 @@ namespace transmission::mdu_ein {
  * \param conn  Connection
  * \param cv    Cv address
  */
-CvRead::CvRead(Connection& conn, uint16_t cv)
+CvRead::CvRead(std::shared_ptr<Connection> conn, uint16_t cv)
   : _conn{conn}, _cv{cv}, _value{0u} {}
 
 /**

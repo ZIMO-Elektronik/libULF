@@ -11,6 +11,19 @@
 namespace bridge {
 
 /**
+ * CTor
+ *
+ */
+Context::Context() : connection{std::make_shared<Connection>()} {}
+
+/**
+ * CTor
+ *
+ * \param conn Connection ptr
+ */
+Context::Context(std::shared_ptr<Connection> conn) : connection{conn} {}
+
+/**
  * Setter for transmission
  *
  * \note Only sets transmission, if no transmission is present

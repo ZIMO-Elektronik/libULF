@@ -16,18 +16,16 @@
  *
  * \note More of a fascade for libusb
  *
- * \todo Perhaps a simple `transmit` and `receive` would be nice
- *
  */
 struct Connection {
-  int open(uint16_t vid = 0x1FC9u, uint16_t pid = 0x81C1u);
-  int openFd(int Fd);
+  virtual int open(uint16_t vid = 0x1FC9u, uint16_t pid = 0x81C1u);
+  virtual int openFd(int Fd);
 
-  int config();
-  int claim();
+  virtual int config();
+  virtual int claim();
 
-  int release();
-  void close();
+  virtual int release();
+  virtual void close();
 
   /**
    * Transmit range
@@ -38,7 +36,7 @@ struct Connection {
    * \return int  Forwarded form libusb
    */
   template<std::ranges::input_range R>
-  constexpr int transmit(R const& r, uint32_t timeout) {
+  int transmit(R const& r, uint32_t timeout) {
     return _transmit({r}, timeout);
   }
 
@@ -71,11 +69,9 @@ struct Connection {
   int interface();
 
 private:
-  int _transmit(std::span<uint8_t const> payload, uint32_t timeout);
-  int _receive(uint8_t* buffer,
-               uint32_t length,
-               int* received,
-               uint32_t timeout);
+  virtual int _transmit(std::span<uint8_t const> payload, uint32_t timeout);
+  virtual int
+  _receive(uint8_t* buffer, uint32_t length, int* received, uint32_t timeout);
 
   libusb_device_handle* _handle{nullptr}; ///< Device
   uint8_t _tx_ep, _rx_ep;                 ///< Endpoints

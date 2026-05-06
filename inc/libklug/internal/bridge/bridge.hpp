@@ -46,6 +46,9 @@ namespace bridge {
  * with AIO methods like `connect` and `disconnect`
  */
 struct Bridge {
+  Bridge() = default;
+  Bridge(std::shared_ptr<Connection> conn);
+
   int init();
 
   void registerCB(std::unique_ptr<callback::IFunctor> cb);
