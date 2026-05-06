@@ -97,6 +97,7 @@ target_link_libraries(
 
 if(PROJECT_IS_TOP_LEVEL)
   add_subdirectory(examples)
+  add_subdirectory(tests)
   file(
     DOWNLOAD
     "https://github.com/ZIMO-Elektronik/.github/raw/master/data/.clang-format"
