@@ -9,10 +9,10 @@
 #include <jni.h>
 #include <array>
 
-#include "libklug/internal/platform/android/android_funktor.hpp"
-#include "libklug/internal/platform/android/android_result.hpp"
 #include "libklug/internal/platform/android/jni_context.hpp"
 #include "libklug/internal/platform/android/jni_defines.hpp"
+#include "libklug/internal/platform/android/jni_dispatch.hpp"
+#include "libklug/internal/platform/android/jni_functor.hpp"
 #include "libklug/libklug.hpp"
 #include "libklug/libklug_jni.hpp"
 
@@ -51,7 +51,7 @@ JNI_METHOD(void, bridge_1destroy, jlong handle) {
 
 JNI_METHOD(void, bridge_1register_1cb, jlong handle, jobject cb) {
   return to_bridge(handle)->registerCB(
-    std::make_unique<internal::AndroidFunktor>(env, thiz, cb));
+    std::make_unique<internal::AndroidFunctor>(env, thiz, cb));
 }
 
 JNI_METHOD(void, bridge_1deregister_1cb, jlong handle) {
@@ -59,7 +59,7 @@ JNI_METHOD(void, bridge_1deregister_1cb, jlong handle) {
 }
 
 JNI_METHOD(jobject, bridge_1result, jlong handle) {
-  return dispatch(env, to_bridge(handle)->result());
+  return res::jni_dispatch(env, to_bridge(handle)->result());
 }
 
 JNI_METHOD(jint, bridge_1init, jlong handle) {

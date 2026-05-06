@@ -45,8 +45,8 @@ if(ANDROID)
   target_sources(
     ${TARGET}
     PUBLIC src/libklug/libklug_jni.cpp
-           src/libklug/internal/platform/android/android_funktor.cpp
-           src/libklug/platform/android/android_result.cpp
+           src/libklug/internal/platform/android/jni_functor.cpp
+           src/libklug/internal/platform/android/jni_dispatch.cpp
            src/libklug/internal/platform/android/jni_context.cpp)
 endif()
 

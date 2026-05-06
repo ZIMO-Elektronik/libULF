@@ -44,8 +44,10 @@ Base::Base(Connection& conn,
 res::Result Base::evaluate() {
   using std::operator""sv;
   if (std::string_view{std::bit_cast<char const*>(_payload.data()),
-                       _payload.size()} == "PING\r"sv)
-    return res::String{reinterpret_cast<char const*>(_response.data())};
+                       _payload.size()} == "PING\r"sv) {
+    return res::String{std::string_view{
+      reinterpret_cast<char const*>(_response.data()), _response.size()}};
+  }
 
   // Everything else is just bool
   return res::Status{

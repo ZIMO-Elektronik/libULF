@@ -22,6 +22,7 @@ namespace res {
 struct String {
   String() = default;
   String(std::string v) : _value{v} {}
+  String(std::string_view v) : _value{v.data(), v.size()} {}
   String(String const& e) = default;
   ~String() = default;
 
@@ -29,6 +30,7 @@ struct String {
   bool operator==(std::string v) const { return _value == v; }
   void operator=(std::string v) { _value = v; }
   void operator=(String const& lhs) { _value = lhs._value; }
+  std::string* operator->() { return &_value; }
 
 private:
   std::string _value{};

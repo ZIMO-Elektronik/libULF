@@ -1,13 +1,13 @@
-#include "libklug/internal/platform/android/android_funktor.hpp"
+#include "libklug/internal/platform/android/jni_functor.hpp"
 #include <cassert>
 #include <mutex>
 #include "libklug/internal/logging.hpp"
 #include "libklug/internal/platform/android/jni_defines.hpp"
-#include "libklug/internal/platform/android/android_result.hpp"
+#include "libklug/internal/platform/android/jni_dispatch.hpp"
 
 namespace internal {
 
-AndroidFunktor::AndroidFunktor(JNIEnv* env, jobject instance, jobject cb) {
+AndroidFunctor::AndroidFunctor(JNIEnv* env, jobject instance, jobject cb) {
   // Get JNI environment
   auto rc{env->GetJavaVM(&_vm)};
   if (rc != JNI_OK) LOGE("Unable to get JVM. Error {}", rc);
@@ -21,10 +21,10 @@ AndroidFunktor::AndroidFunktor(JNIEnv* env, jobject instance, jobject cb) {
   _mid = env->GetMethodID(clazz, "onNativeEvent", signature.c_str());
 
   // Create thread
-  _thread = std::thread(&AndroidFunktor::loop, this);
+  _thread = std::thread(&AndroidFunctor::loop, this);
 }
 
-AndroidFunktor::~AndroidFunktor() {
+AndroidFunctor::~AndroidFunctor() {
   // Join thread
   {
     std::lock_guard<std::mutex> lock(_mut_r);
@@ -35,7 +35,7 @@ AndroidFunktor::~AndroidFunktor() {
 }
 
 /// \todo maybe don't crash the app if we have a dupe call
-void AndroidFunktor::operator()(result_t const& r) {
+void AndroidFunctor::operator()(res::Result const& r) {
   std::unique_lock<std::mutex> lock(_mut_r);
 
   if (_r) assert(false); // Duplicate calls are not allowed
@@ -44,7 +44,7 @@ void AndroidFunktor::operator()(result_t const& r) {
   _cv.notify_one();
 }
 
-void AndroidFunktor::loop() {
+void AndroidFunctor::loop() {
   LOGD("Start Funktor thread");
   attach();
   while (true) {
@@ -64,21 +64,21 @@ void AndroidFunktor::loop() {
   detach();
 }
 
-bool AndroidFunktor::attach() {
+bool AndroidFunctor::attach() {
   auto e{env()};
   return _vm->AttachCurrentThread(&e, nullptr) == JNI_OK;
 }
 
-void AndroidFunktor::detach() { _vm->DetachCurrentThread(); }
+void AndroidFunctor::detach() { _vm->DetachCurrentThread(); }
 
-void AndroidFunktor::call(result_t const& r) {
+void AndroidFunctor::call(res::Result const& r) {
   LOGD("Call Callback");
   auto e{env()};
-  if (e) e->CallVoidMethod(_cbRef, _mid, dispatch(e, r));
+  if (e) e->CallVoidMethod(_cbRef, _mid, jni_dispatch(e, r));
   _r.reset();
 }
 
-JNIEnv* AndroidFunktor::env() {
+JNIEnv* AndroidFunctor::env() {
   JNIEnv* env{nullptr};
   auto rc{_vm->GetEnv((void**)&env, JNI_VERSION_1_6)};
   if (rc != JNI_OK) {

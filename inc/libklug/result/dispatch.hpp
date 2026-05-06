@@ -34,7 +34,7 @@ constexpr result dispatch(Result r) {
   return std::visit(overloads{
                       [](String s) {
                         result r{.type = result_type::string};
-                        r.data.string = static_cast<std::string>(s).data();
+                        r.data.string = s->data();
                         return r;
                       },
                       [](Status s) {
