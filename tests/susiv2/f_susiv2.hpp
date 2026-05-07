@@ -2,4 +2,4 @@
 
 #include "../f_base.hpp"
 
-struct TestCOM : public TestBase {};
+struct TestSUSIV2 : public TestBase {};

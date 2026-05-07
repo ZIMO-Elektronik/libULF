@@ -4,7 +4,7 @@ file(GLOB_RECURSE SRC *.cpp)
 add_executable(Tests ${SRC})
 
 target_include_directories(Tests PRIVATE ${PROJECT_SOURCE_DIR}/src
-                                         ${PROJECT_SOURCE_DIR}/tests)
+  ${PROJECT_SOURCE_DIR}/tests)
 
 cpmaddpackage(URI "gh:google/googletest#main" OPTIONS "INSTALL_GTEST OFF")
 
