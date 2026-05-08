@@ -7,6 +7,9 @@
 
 namespace helper {
 
+// ---
+// Span conversion helper
+// ---
 constexpr std::span<uint8_t const> string_view2span(std::string_view const& s) {
   return {std::bit_cast<uint8_t*>(s.data()), s.size()};
 }
@@ -20,4 +23,15 @@ requires requires(T t) {
 constexpr std::span<uint8_t const> range2span(T&& t) {
   return {t.data(), t.size()};
 }
+
+// ---
+// Flash data chunk helper
+// ---
+template<std::size_t... Is>
+constexpr auto make_sequence(std::index_sequence<Is...>) {
+  return std::array<uint8_t, sizeof...(Is)>{static_cast<uint8_t>(Is)...};
+}
+
+template<std::size_t S>
+constexpr auto sequence{make_sequence(std::make_index_sequence<S>{})};
 } // namespace helper

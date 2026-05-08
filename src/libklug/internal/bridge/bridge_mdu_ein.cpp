@@ -98,10 +98,13 @@ bool MDU_EIN::cvRead(uint16_t cv) {
  * \param value Cv value
  * \return true   Success
  * \return false  Busy
- *
- * \todo Implement
  */
-bool MDU_EIN::cvWrite(uint16_t cv, uint8_t value) { return false; }
+bool MDU_EIN::cvWrite(uint16_t cv, uint8_t value) {
+  return _worker.emplace<transmission::mdu_ein::Base>(
+    _ctx.connection,
+    ulf::mdu_ein::bytes2mdu_ein(mdu::make_cv_write_packet(cv, value)),
+    2000u);
+}
 
 /**
  * Ping (async)
