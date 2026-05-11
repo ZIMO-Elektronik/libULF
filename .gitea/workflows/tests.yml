@@ -1,18 +1,18 @@
 name: tests
 
-on: 
-  push: 
+on:
+  push:
     branches: [master]
-  pull_request: 
+  pull_request:
     branches: [master]
-  
-  jobs: 
-    x86_64_linux-gnu-gcc: 
-      runs-on: ubuntu-24.04
-      steps: 
-        - uses: actions/checkout@v5.0.0
-          with: 
-            fetch-depth: 0
-        - run: cmake --preset "debug_amd64"
-        - run: cmake --build build --parallel --target Tests
-        - run: ctest --preset "test"
+
+jobs:
+  x86_64-linux-gnu-gcc:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5.0.0
+        with:
+          fetch-depth: 0
+      - run: cmake --preset debug_amd64
+      - run: cmake --build build --parallel
+      - run: ctest --preset test
