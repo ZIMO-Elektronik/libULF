@@ -10,10 +10,10 @@ using testing::InSequence;
 using testing::Return;
 
 TEST_F(TestSUSIV2, zpp_erase_payload) {
-  auto const expected{helper::range2span(
-    ulf::susiv2::packet2frame<
-      ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
-      zusi::make_zpp_erase_packet()))};
+  auto const payload{ulf::susiv2::packet2frame<
+    ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
+    zusi::make_zpp_erase_packet())};
+  auto const expected{helper::range2span(payload)};
 
   {
     InSequence i;

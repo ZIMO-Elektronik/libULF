@@ -29,7 +29,7 @@ MDU_EIN::MDU_EIN(Context& ctx, Worker& worker) : _ctx{ctx}, _worker{worker} {}
  * \return false  Busy
  */
 bool MDU_EIN::enterMDU() {
-  std::array<uint8_t, 16u> payload;
+  std::array<uint8_t, 16u> payload{};
   return _worker.emplace<transmission::mdu_ein::Base>(
     _ctx.connection,
     ulf::mdu_ein::special2mdu_ein(ulf::mdu_ein::Command::Entry, 0u, payload),

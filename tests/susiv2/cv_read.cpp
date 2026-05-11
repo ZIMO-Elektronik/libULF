@@ -12,10 +12,10 @@ using testing::Return;
 TEST_F(TestSUSIV2, cv_read_payload) {
   uint16_t const cv{7u};
 
-  auto const expected{helper::range2span(
-    ulf::susiv2::packet2frame<
-      ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
-      zusi::make_cv_read_packet(0, cv)))};
+  auto const payload{ulf::susiv2::packet2frame<
+    ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
+    zusi::make_cv_read_packet(0, cv))};
+  auto const expected{helper::range2span(payload)};
 
   {
     InSequence i;

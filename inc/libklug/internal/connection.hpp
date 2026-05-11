@@ -36,6 +36,7 @@ struct Connection {
    * \return int  Forwarded form libusb
    */
   template<std::ranges::input_range R>
+  requires std::constructible_from<std::span<uint8_t const>, R>
   int transmit(R const& r, uint32_t timeout) {
     return _transmit({r}, timeout);
   }

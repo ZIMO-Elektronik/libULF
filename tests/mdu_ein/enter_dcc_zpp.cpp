@@ -17,11 +17,6 @@ constexpr uint32_t sn{0x00FF00FFuz};
 } // namespace
 
 TEST_F(TestMDU_EIN, dcc_zpp_payload) {
-  std::array<uint8_t, 16u> payload{};
-  auto it{payload.begin()};
-  it = ulf::mdu_ein::uint32_2data(sn, it);
-  *it++ = false; // Done
-
   {
     InSequence i;
     EXPECT_CALL(
@@ -38,7 +33,7 @@ TEST_F(TestMDU_EIN, dcc_zpp_payload) {
 }
 
 TEST_F(TestMDU_EIN, dcc_zpp_esult_success) {
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(helper::mdu::receive_nak);
+  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(helper::mdu::receive_ack);
 
   lib.mdu_ein().enterDCCZPP(sn);
   auto const result{lib.result()};
@@ -48,7 +43,7 @@ TEST_F(TestMDU_EIN, dcc_zpp_esult_success) {
 }
 
 TEST_F(TestMDU_EIN, dcc_zpp_esult_no_success) {
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(helper::mdu::receive_ack);
+  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(helper::mdu::receive_nak);
 
   lib.mdu_ein().enterDCCZPP(sn);
   auto const result{lib.result()};

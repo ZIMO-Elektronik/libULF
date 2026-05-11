@@ -13,10 +13,10 @@ constexpr auto flash{helper::sequence<256u>};
 constexpr auto address{0uz};
 
 TEST_F(TestSUSIV2, zpp_write_payload) {
-  auto const expected{helper::range2span(
-    ulf::susiv2::packet2frame<
-      ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
-      zusi::make_zpp_write_packet(flash.size() - 1u, 0uz, flash)))};
+  auto const payload{ulf::susiv2::packet2frame<
+    ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
+    zusi::make_zpp_write_packet(flash.size() - 1u, 0uz, flash))};
+  auto const expected{helper::range2span(payload)};
 
   {
     InSequence i;

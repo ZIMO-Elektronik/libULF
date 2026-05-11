@@ -52,17 +52,6 @@
             "displayName": "Release AMD64",
             "description": "Release build for AMD64 architecture",
             "inherits": "release_base"
-        },
-        {
-            "name": "release_android",
-            "displayName": "Release AARCH64",
-            "description": "Configures a Release-Build for AARCH64",
-            "inherits": "release_base",
-            "cacheVariables": {
-                "ANDROID_PLATFORM": "34",
-                "ANDROID_STL": "c++_shared",
-                "CMAKE_TOOLCHAIN_FILE": "$env{ANDROID_NDK_ROOT}/build/cmake/android.toolchain.cmake"
-            }
         }
     ],
     "testPresets": [

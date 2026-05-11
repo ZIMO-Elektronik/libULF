@@ -12,10 +12,10 @@ using testing::Return;
 constexpr uint32_t developer_code{0xAA55AA55u};
 
 TEST_F(TestSUSIV2, zpp_lc_dc_query_payload) {
-  auto const expected{helper::range2span(
-    ulf::susiv2::packet2frame<
-      ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
-      zusi::make_zpp_lc_dc_query_packet(developer_code)))};
+  auto const payload{ulf::susiv2::packet2frame<
+    ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
+    zusi::make_zpp_lc_dc_query_packet(developer_code))};
+  auto const expected{helper::range2span(payload)};
 
   {
     InSequence i;

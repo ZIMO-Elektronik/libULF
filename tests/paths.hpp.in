@@ -1,0 +1,8 @@
+#pragma once
+
+#include <string>
+
+namespace paths {
+std::string const zpp_path = "@ZPP_PATH@";
+std::string const zsu_path = "@ZSU_PATH@";
+} // namespace paths

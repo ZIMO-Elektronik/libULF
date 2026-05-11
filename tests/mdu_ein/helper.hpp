@@ -30,7 +30,7 @@ constexpr ulf::mdu_ein::Special make_mdu_entry_command() {
 constexpr ulf::mdu_ein::Special
 make_dcc_zsu_entry_command(uint32_t id, uint32_t sn, bool more) {
   ulf::mdu_ein::Special s{.command = ulf::mdu_ein::Command::Entry,
-                          .subcommand = Subcommand::Entry::MDU,
+                          .subcommand = Subcommand::Entry::DCC_ZSU,
                           .payload{}};
   s.payload.resize(sizeof(id) + sizeof(sn) + sizeof(bool));
   auto it{s.payload.begin()};
@@ -43,7 +43,7 @@ make_dcc_zsu_entry_command(uint32_t id, uint32_t sn, bool more) {
 constexpr ulf::mdu_ein::Special make_dcc_zpp_entry_command(uint32_t sn,
                                                            bool more) {
   ulf::mdu_ein::Special s{.command = ulf::mdu_ein::Command::Entry,
-                          .subcommand = Subcommand::Entry::MDU,
+                          .subcommand = Subcommand::Entry::DCC_ZPP,
                           .payload{}};
   s.payload.resize(sizeof(sn) + sizeof(bool));
   auto it{s.payload.begin()};
