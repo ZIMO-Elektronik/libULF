@@ -8,6 +8,16 @@
     "include": [],
     "configurePresets": [
         {
+            "name": "libs_base",
+            "hidden": true,
+            "displayName": "Local lib locations, if applicable",
+            "cacheVariables": {
+                "CPM_ZTL_SOURCE": "${sourceDir}/../ZTL",
+                "CPM_ULF_SUSIV2_SOURCE": "${sourceDir}/../ULF_SUSIV2",
+                "CPM_ZUSI_SOURCE": "${sourceDir}/../ZUSI"
+            }
+        },
+        {
             "name": "base",
             "hidden": true,
             "displayName": "Base Preset",
@@ -15,10 +25,7 @@
             "binaryDir": "${sourceDir}/build",
             "generator": "Ninja",
             "cacheVariables": {
-                "CMAKE_BUILD_PARALLEL_LEVEL": "16",
-                "CPM_ZTL_SOURCE": "${sourceDir}/../ZTL",
-                "CPM_ULF_SUSIV2_SOURCE": "${sourceDir}/../ULF_SUSIV2",
-                "CPM_ZUSI_SOURCE": "${sourceDir}/../ZUSI"
+                "CMAKE_BUILD_PARALLEL_LEVEL": "16"
             }
         },
         {

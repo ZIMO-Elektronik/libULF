@@ -10,9 +10,9 @@ on:
     x86_64_linux-gnu-gcc: 
       runs-on: ubuntu-24.04
       steps: 
-        -uses: actions/checkout@v5.0.0
+        - uses: actions/checkout@v5.0.0
           with: 
             fetch-depth: 0
-          -run: cmake --preset "debug_amd64"
-          -run: cmake --build build --parallel --target Tests
-          -run: ctest --preset "test"
+        - run: cmake --preset "debug_amd64"
+        - run: cmake --build build --parallel --target Tests
+        - run: ctest --preset "test"
