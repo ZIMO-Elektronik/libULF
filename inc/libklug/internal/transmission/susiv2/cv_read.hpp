@@ -13,7 +13,7 @@
 namespace transmission::susiv2 {
 
 struct CvRead : public Base {
-  CvRead(Connection& conn, size_t timeout, uint16_t cv);
+  CvRead(std::shared_ptr<Connection> conn, size_t timeout, uint16_t cv);
 
   virtual ~CvRead() = default;
 

@@ -22,7 +22,7 @@ namespace transmission {
  * \param payload Payload
  * \param timeout Timeout
  */
-TransmissionBase::TransmissionBase(Connection& conn,
+TransmissionBase::TransmissionBase(std::shared_ptr<Connection> conn,
                                    std::string payload,
                                    std::size_t timeout)
   : _timeout{timeout}, _conn{conn} {
@@ -39,7 +39,7 @@ TransmissionBase::TransmissionBase(Connection& conn,
  * \param payload Payload
  * \param timeout Timeout
  */
-TransmissionBase::TransmissionBase(Connection& conn,
+TransmissionBase::TransmissionBase(std::shared_ptr<Connection> conn,
                                    std::span<uint8_t const> payload,
                                    std::size_t timeout)
   : _timeout{timeout}, _conn{conn} {
@@ -72,27 +72,15 @@ res::Result TransmissionBase::execute() {
  * \retval LIBUSB_SUCCESS Success
  */
 int TransmissionBase::transmit() {
-
-  int transferred{0};
   flush();
 
-  auto rc{libusb_bulk_transfer(_conn.handle(),
-                               _conn.tx_ep(),
-                               std::bit_cast<unsigned char*>(_payload.data()),
-                               _payload.size(),
-                               &transferred,
-                               _timeout)};
+  auto rc{_conn->transmit(_payload, _timeout)};
+
   if (rc != 0) {
     LOGE("Transfer Error. Error: {}", libusb_error_name(rc));
     return rc;
   }
 
-  if (transferred != _payload.size()) {
-    LOGE("Transferred to size mismatch. Expected {}, Actual {}",
-         _payload.size(),
-         transferred);
-    return -1;
-  }
   return rc;
 }
 
@@ -104,24 +92,15 @@ int TransmissionBase::transmit() {
  * \retval LIBUSB_SUCCESS SUCCESS
  */
 int TransmissionBase::receive() {
-  int transferred{0};
+  if (_response.size() < 64u) _response.resize(64u);
 
-  std::array<uint8_t, 64u> data;
-
-  auto rc{libusb_bulk_transfer(_conn.handle(),
-                               _conn.rx_ep(),
-                               std::bit_cast<unsigned char*>(data.data()),
-                               data.size(),
-                               &transferred,
-                               _timeout)};
+  auto rc{_conn->receive(_response, _timeout)};
   if (rc != 0) {
     LOGE("Transfer Error. Error: {}", libusb_error_name(rc));
     return rc;
   }
 
-  LOGD("Received {} Bytes", transferred);
-
-  std::ranges::copy_n(data.begin(), transferred, std::back_inserter(_response));
+  LOGD("Received {} Bytes", _response.size());
 
   return rc;
 }
@@ -133,8 +112,8 @@ int TransmissionBase::receive() {
 void TransmissionBase::flush() {
   return;
   std::array<uint8_t, 64u> data;
-  while (libusb_bulk_transfer(_conn.handle(),
-                              _conn.rx_ep(),
+  while (libusb_bulk_transfer(_conn->handle(),
+                              _conn->rx_ep(),
                               std::bit_cast<unsigned char*>(data.data()),
                               data.size(),
                               nullptr,

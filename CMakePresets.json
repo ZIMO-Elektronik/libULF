@@ -8,6 +8,16 @@
     "include": [],
     "configurePresets": [
         {
+            "name": "libs_base",
+            "hidden": true,
+            "displayName": "Local lib locations, if applicable",
+            "cacheVariables": {
+                "CPM_ZTL_SOURCE": "${sourceDir}/../ZTL",
+                "CPM_ULF_SUSIV2_SOURCE": "${sourceDir}/../ULF_SUSIV2",
+                "CPM_ZUSI_SOURCE": "${sourceDir}/../ZUSI"
+            }
+        },
+        {
             "name": "base",
             "hidden": true,
             "displayName": "Base Preset",
@@ -15,10 +25,7 @@
             "binaryDir": "${sourceDir}/build",
             "generator": "Ninja",
             "cacheVariables": {
-                "CMAKE_BUILD_PARALLEL_LEVEL": "16",
-                "CPM_ZTL_SOURCE": "${sourceDir}/../ZTL",
-                "CPM_ULF_SUSIV2_SOURCE": "${sourceDir}/../ULF_SUSIV2", 
-                "CPM_ZUSI_SOURCE": "${sourceDir}/../ZUSI"
+                "CMAKE_BUILD_PARALLEL_LEVEL": "16"
             }
         },
         {
@@ -52,16 +59,23 @@
             "displayName": "Release AMD64",
             "description": "Release build for AMD64 architecture",
             "inherits": "release_base"
-        },
+        }
+    ],
+    "testPresets": [
         {
-            "name": "release_android",
-            "displayName": "Release AARCH64",
-            "description": "Configures a Release-Build for AARCH64",
-            "inherits": "release_base",
-            "cacheVariables": {
-                "ANDROID_PLATFORM": "34",
-                "ANDROID_STL": "c++_shared",
-                "CMAKE_TOOLCHAIN_FILE": "$env{ANDROID_NDK_ROOT}/build/cmake/android.toolchain.cmake"
+            "name": "test",
+            "displayName": "libKLUG Tests",
+            "description": "Run Tests with GTest",
+            "configurePreset": "debug_amd64",
+            "output": {
+                "shortProgress": true,
+                "outputOnFailure": true,
+                "labelSummary": true
+            },
+            "execution": {
+                "jobs": 24,
+                "timeout": 10,
+                "scheduleRandom": true
             }
         }
     ]

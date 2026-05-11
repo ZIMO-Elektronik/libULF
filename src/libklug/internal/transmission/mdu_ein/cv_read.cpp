@@ -18,7 +18,7 @@ namespace transmission::mdu_ein {
  * \param conn  Connection
  * \param cv    Cv address
  */
-CvRead::CvRead(Connection& conn, uint16_t cv)
+CvRead::CvRead(std::shared_ptr<Connection> conn, uint16_t cv)
   : _conn{conn}, _cv{cv}, _value{0u} {}
 
 /**
@@ -35,7 +35,7 @@ res::Result CvRead::execute() {
            100u};
     auto res{t.execute()};
     // Check if execution resulted in an error
-    if (std::holds_alternative<res::Status>(res)) return res;
+    if (!std::holds_alternative<res::Status>(res)) return res;
 
     auto const r = t.evaluate();
 

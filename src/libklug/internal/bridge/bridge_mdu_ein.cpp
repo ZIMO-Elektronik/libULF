@@ -29,7 +29,7 @@ MDU_EIN::MDU_EIN(Context& ctx, Worker& worker) : _ctx{ctx}, _worker{worker} {}
  * \return false  Busy
  */
 bool MDU_EIN::enterMDU() {
-  std::array<uint8_t, 16u> payload;
+  std::array<uint8_t, 16u> payload{};
   return _worker.emplace<transmission::mdu_ein::Base>(
     _ctx.connection,
     ulf::mdu_ein::special2mdu_ein(ulf::mdu_ein::Command::Entry, 0u, payload),
@@ -98,10 +98,13 @@ bool MDU_EIN::cvRead(uint16_t cv) {
  * \param value Cv value
  * \return true   Success
  * \return false  Busy
- *
- * \todo Implement
  */
-bool MDU_EIN::cvWrite(uint16_t cv, uint8_t value) { return false; }
+bool MDU_EIN::cvWrite(uint16_t cv, uint8_t value) {
+  return _worker.emplace<transmission::mdu_ein::Base>(
+    _ctx.connection,
+    ulf::mdu_ein::bytes2mdu_ein(mdu::make_cv_write_packet(cv, value)),
+    2000u);
+}
 
 /**
  * Ping (async)

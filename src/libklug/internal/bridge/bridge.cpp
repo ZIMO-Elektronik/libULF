@@ -10,6 +10,8 @@
 
 namespace bridge {
 
+Bridge::Bridge(std::shared_ptr<Connection> conn) : _ctx{conn} {}
+
 /**
  * Init USB backend
  *
@@ -71,7 +73,7 @@ res::Result Bridge::result() {
  * \retval LIBUSB_SUCCESS Success
  */
 int Bridge::open(uint16_t vid, uint16_t pid) {
-  return _ctx.connection.open(vid, pid);
+  return _ctx.connection->open(vid, pid);
 }
 
 /**
@@ -84,7 +86,7 @@ int Bridge::open(uint16_t vid, uint16_t pid) {
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-int Bridge::openFd(int Fd) { return _ctx.connection.openFd(Fd); }
+int Bridge::openFd(int Fd) { return _ctx.connection->openFd(Fd); }
 
 /**
  * Configure usb device
@@ -93,7 +95,7 @@ int Bridge::openFd(int Fd) { return _ctx.connection.openFd(Fd); }
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-int Bridge::config() { return _ctx.connection.config(); }
+int Bridge::config() { return _ctx.connection->config(); }
 
 /**
  * Claim usb device
@@ -102,7 +104,7 @@ int Bridge::config() { return _ctx.connection.config(); }
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-int Bridge::claim() { return _ctx.connection.claim(); }
+int Bridge::claim() { return _ctx.connection->claim(); }
 
 /**
  * Release usb device
@@ -111,7 +113,7 @@ int Bridge::claim() { return _ctx.connection.claim(); }
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-int Bridge::release() { return _ctx.connection.release(); }
+int Bridge::release() { return _ctx.connection->release(); }
 
 /**
  * Close usb device
@@ -120,7 +122,7 @@ int Bridge::release() { return _ctx.connection.release(); }
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-void Bridge::close() { return _ctx.connection.close(); }
+void Bridge::close() { return _ctx.connection->close(); }
 
 /**
  * COM getter

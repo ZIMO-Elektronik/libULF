@@ -28,6 +28,7 @@ struct String {
 
   operator std::string() const { return _value; }
   bool operator==(std::string v) const { return _value == v; }
+  bool operator==(std::string_view v) const { return _value == v; }
   void operator=(std::string v) { _value = v; }
   void operator=(String const& lhs) { _value = lhs._value; }
   std::string* operator->() { return &_value; }

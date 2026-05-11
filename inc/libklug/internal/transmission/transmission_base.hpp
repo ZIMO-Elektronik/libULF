@@ -9,6 +9,7 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <span>
 #include <string>
 #include <vector>
@@ -31,8 +32,10 @@ namespace transmission {
  *
  */
 struct TransmissionBase : ITransmission {
-  TransmissionBase(Connection& conn, std::string payload, std::size_t timeout);
-  TransmissionBase(Connection& conn,
+  TransmissionBase(std::shared_ptr<Connection> conn,
+                   std::string payload,
+                   std::size_t timeout);
+  TransmissionBase(std::shared_ptr<Connection> conn,
                    std::span<uint8_t const> payload,
                    std::size_t timeout);
   virtual ~TransmissionBase() = default;
@@ -47,7 +50,7 @@ protected:
   std::vector<uint8_t> _response; ///< Response buffer
   std::size_t _timeout;           ///< Timeout
 
-  Connection& _conn; ///< USB Connection
+  std::shared_ptr<Connection> _conn; ///< USB Connection
   void flush();
 };
 

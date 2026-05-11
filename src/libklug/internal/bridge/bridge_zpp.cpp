@@ -60,7 +60,7 @@ unsigned int ZPP::cvs(zpp::File* file) { return file->cvs.size(); }
 std::pair<uint32_t, std::span<uint8_t>> ZPP::block(zpp::File* file,
                                                    unsigned int block) {
   assert(file);
-  assert(block <= blocks(file));
+  assert(block < blocks(file));
 
   unsigned long const remaining{file->flash.size() - (block * _blockSize)};
 
