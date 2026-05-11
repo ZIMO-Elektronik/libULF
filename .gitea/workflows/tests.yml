@@ -15,4 +15,4 @@ on:
             fetch-depth: 0
           -run: cmake --preset "debug_amd64"
           -run: cmake --build build --parallel --target Tests
-          -run: cmake --preset "test"
+          -run: ctest --preset "test"
