@@ -7,6 +7,7 @@
  */
 
 #include "libklug/internal/bridge/bridge_zsu.hpp"
+#include <algorithm>
 #include <cassert>
 
 namespace bridge {
@@ -20,7 +21,14 @@ namespace bridge {
  */
 zsu::File* ZSU::read(std::filesystem::path path) {
   try {
-    return new zsu::File(zsu::read(path));
+    auto file{zsu::read(path)};
+
+    // Pad to block size
+    std::ranges::for_each(file.firmwares, [](zsu::Firmware& fw) {
+      std::fill_n(std::back_inserter(fw.bin), fw.bin.size() % 64uz, 0u);
+    });
+
+    return new zsu::File(file);
   } catch (...) { return nullptr; }
 }
 
@@ -38,7 +46,7 @@ void ZSU::release(zsu::File* file) { return delete file; }
  * \return uint32_t Block count
  */
 uint32_t ZSU::blocks(zsu::Firmware const& firmware) {
-  return (firmware.bin.size() + _blockSize - 1uz) / _blockSize;
+  return firmware.bin.size() / _blockSize;
 }
 
 /**

@@ -7,6 +7,7 @@
  */
 
 #include "libklug/internal/bridge/bridge_zpp.hpp"
+#include <algorithm>
 #include <cassert>
 
 namespace bridge {
@@ -20,8 +21,10 @@ namespace bridge {
  */
 zpp::File* ZPP::read(std::filesystem::path path) {
   try {
-    return new zpp::File(zpp::read(path));
-  } catch (...) { return nullptr; }
+    auto file{zpp::File(zpp::read(path))};
+    std::fill_n(std::back_inserter(file.flash), file.flash.size() % 256uz, 0uz);
+    return new zpp::File(file);
+  } catch (std::exception) { return nullptr; }
 }
 
 /**
@@ -57,19 +60,17 @@ unsigned int ZPP::cvs(zpp::File* file) { return file->cvs.size(); }
  *
  * \param file  ZPP file
  * \param block Block index
- * \return std::pair<uint32_t, std::span<uint8_t>> addressed flash block
- * (unpadded)
+ * \return AddressedBlock Flash block
+ *
+ * \note Will pad last block with zeros
  */
-std::pair<uint32_t, std::span<uint8_t const>> ZPP::block(zpp::File* file,
-                                                         unsigned int block) {
+ZPP::AddressedBlock ZPP::block(zpp::File* file, unsigned int block) {
   assert(file);
   assert(block < blocks(file));
 
-  unsigned long const remaining{file->flash.size() - (block * _blockSize)};
-
   return {block * _blockSize,
-          std::span<uint8_t>{file->flash}.subspan(
-            block * _blockSize, std::min(_blockSize, remaining))};
+          std::span<uint8_t const, 256uz>{
+            file->flash.data() + block * _blockSize, _blockSize}};
 }
 
 /**

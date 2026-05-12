@@ -168,8 +168,10 @@ bool MDU_EIN::busy() {
  * \todo Implement, Library implementation of packet factory also missing
  */
 bool MDU_EIN::zppValidQuery(std::string_view id, uint32_t size) {
-  assert(false);
-  return false;
+  return _worker.emplace<transmission::mdu_ein::Base>(
+    _ctx.connection,
+    ulf::mdu_ein::bytes2mdu_ein(mdu::make_zpp_valid_query_packet(id, size)),
+    2000uz);
 }
 
 /**
@@ -190,8 +192,10 @@ bool MDU_EIN::zppValidQuery(zpp::File* file) {
  * \todo Implement, Library implementation of packet factory also missing
  */
 bool MDU_EIN::zppLcDcQuery(std::span<uint8_t const, 4uz> dev_code) {
-  assert(false);
-  return false;
+  return _worker.emplace<transmission::mdu_ein::Base>(
+    _ctx.connection,
+    ulf::mdu_ein::bytes2mdu_ein(mdu::make_zpp_lc_dc_query_packet(dev_code)),
+    2000uz);
 }
 
 /**
@@ -213,8 +217,11 @@ bool MDU_EIN::zppLcDcQuery(zpp::File* file) {
  * \todo Implement, Library implementation of packet factory also missing
  */
 bool MDU_EIN::zppErase(uint32_t start_address, uint32_t end_address) {
-  assert(false);
-  return false;
+  return _worker.emplace<transmission::mdu_ein::Base>(
+    _ctx.connection,
+    ulf::mdu_ein::bytes2mdu_ein(
+      mdu::make_zpp_erase_packet(start_address, end_address)),
+    2000uz);
 }
 
 /**
@@ -235,9 +242,12 @@ bool MDU_EIN::zppErase(zpp::File* file) {
  * \return false
  * \todo Implement, Library implementation of packet factory also missing
  */
-bool MDU_EIN::zppUpdate(uint32_t address, std::span<uint8_t const> block) {
-  assert(false);
-  return false;
+bool MDU_EIN::zppUpdate(uint32_t address,
+                        std::span<uint8_t const, 256uz> block) {
+  return _worker.emplace<transmission::mdu_ein::Base>(
+    _ctx.connection,
+    ulf::mdu_ein::bytes2mdu_ein(mdu::make_zpp_update_packet(address, block)),
+    2000uz);
 }
 
 /**

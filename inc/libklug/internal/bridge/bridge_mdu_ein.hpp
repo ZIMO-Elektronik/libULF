@@ -43,7 +43,7 @@ struct MDU_EIN {
   bool zppLcDcQuery(zpp::File* file);
   bool zppErase(uint32_t start_address, uint32_t end_address);
   bool zppErase(zpp::File* file);
-  bool zppUpdate(uint32_t address, std::span<uint8_t const> block);
+  bool zppUpdate(uint32_t address, std::span<uint8_t const, 256uz> block);
   bool zppUpdate(zpp::File* file, uint32_t index);
   bool zppUpdateEnd(uint32_t start_address, uint32_t end_address);
   bool zppUpdateEnd(zpp::File* file);

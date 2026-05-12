@@ -20,10 +20,11 @@ struct ZSU {
 
   uint32_t blocks(zsu::Firmware const& firmware);
 
-  AddressedBlock block(zsu::Firmware const& firmware, uint32_t index);
+  std::pair<uint32_t, std::span<uint8_t const, 64uz>>
+  block(zsu::Firmware const& firmware, uint32_t index);
 
 private:
-  size_t const _blockSize{64uz}; ///< Block size
+  size_t const _blockSize{64uz};
 };
 
 } // namespace bridge

@@ -1,6 +1,8 @@
 #pragma once
 
+#include <ulf/mdu_ein.hpp>
 #include "../f_base.hpp"
+#include "paths.hpp"
 
 using testing::_;
 using testing::Ge;
@@ -17,5 +19,14 @@ struct TestMDU_EIN : public TestBase {
           *rx_ed = r.size();
           return 0;
         });
+
+    zpp = zpp::read(paths::zpp_path);
+    zsu = zsu::read(paths::zsu_path);
   }
+
+  zpp::File zpp{};
+  zpp_handle zppHandle{reinterpret_cast<zpp_handle>(&zpp)};
+
+  zsu::File zsu{};
+  zsu_handle zsuHandle{reinterpret_cast<zsu_handle>(&zsu)};
 };
