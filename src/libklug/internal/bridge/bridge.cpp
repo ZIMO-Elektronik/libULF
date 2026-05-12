@@ -152,4 +152,11 @@ MDU_EIN& Bridge::mdu_ein() { return _mdu_ein; }
  */
 ZPP& Bridge::zpp() { return _zpp; }
 
+/**
+ * ZSU getter
+ *
+ * \return ZSU&
+ */
+ZSU& Bridge::zsu() { return _zsu; }
+
 } // namespace bridge
