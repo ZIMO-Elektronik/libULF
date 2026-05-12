@@ -16,9 +16,12 @@ namespace bridge {
  *
  * \param path  Path
  * \return zpp::File* ZPP file
+ * \return nullptr Error
  */
 zpp::File* ZPP::read(std::filesystem::path path) {
-  return new zpp::File(zpp::read(path));
+  try {
+    return new zpp::File(zpp::read(path));
+  } catch (...) { return nullptr; }
 }
 
 /**
@@ -57,8 +60,8 @@ unsigned int ZPP::cvs(zpp::File* file) { return file->cvs.size(); }
  * \return std::pair<uint32_t, std::span<uint8_t>> addressed flash block
  * (unpadded)
  */
-std::pair<uint32_t, std::span<uint8_t>> ZPP::block(zpp::File* file,
-                                                   unsigned int block) {
+std::pair<uint32_t, std::span<uint8_t const>> ZPP::block(zpp::File* file,
+                                                         unsigned int block) {
   assert(file);
   assert(block < blocks(file));
 

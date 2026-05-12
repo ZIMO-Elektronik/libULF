@@ -36,6 +36,7 @@ set(SOURCE_FILES
     src/libklug/internal/bridge/bridge_mdu_ein.cpp
     src/libklug/internal/bridge/bridge_worker.cpp
     src/libklug/internal/bridge/bridge_zpp.cpp
+    src/libklug/internal/bridge/bridge_zsu.cpp
     src/libklug/libklug.cpp)
 
 add_library(${TARGET} SHARED ${SOURCE_FILES})
@@ -67,6 +68,10 @@ if(NOT TARGET usb-1.0)
     OPTIONS
     BUILD_SHARED_LIBS
     ON)
+endif()
+
+if(NOT TARGET MDU::MDU)
+  cpmaddpackage("gh:ZIMO-Elektronik/MDU#builder")
 endif()
 
 if(NOT TARGET ULF::MDU_EIN)
