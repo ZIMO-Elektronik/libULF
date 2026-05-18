@@ -9,6 +9,7 @@
 #include "libklug/internal/bridge/bridge_mdu_ein.hpp"
 #include <ulf/mdu_ein.hpp>
 #include "libklug/internal/transmission/mdu_ein/base.hpp"
+#include "libklug/internal/transmission/mdu_ein/config_transfer_rate.hpp"
 #include "libklug/internal/transmission/mdu_ein/cv_read.hpp"
 #include "libklug/internal/transmission/mdu_ein/ping.hpp"
 
@@ -100,13 +101,12 @@ bool MDU_EIN::ping(uint32_t sn, uint32_t id) {
  * Config Transfer Rate (async)
  *
  * \param transfer_rate Transfer Rate
- * \return true
- * \return false
- * \todo  Impement, maybe also perform special command?
+ * \return true   Success
+ * \return false  Busy
  */
 bool MDU_EIN::configTransferRate(mdu::TransferRate transfer_rate) {
-  assert(false);
-  return false;
+  return _worker.emplace<transmission::mdu_ein::ConfigTransferRate>(
+    _ctx.connection, transfer_rate);
 }
 
 /**

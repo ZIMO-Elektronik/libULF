@@ -72,7 +72,7 @@ res::Result TransmissionBase::execute() {
  * \retval LIBUSB_SUCCESS Success
  */
 int TransmissionBase::transmit() {
-  // flush();
+  flush();
 
   auto rc{_conn->transmit(_payload, _timeout)};
 

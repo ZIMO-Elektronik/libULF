@@ -137,7 +137,11 @@ int libklug_mdu_ein_enter_dcc_zpp(libklug_handle handle) {
   return to_bridge(handle)->mdu_ein().enterDCCZPP();
 }
 
-int libklug_mdu_ein_ping(libklug_handle handle) {
+int libklug_mdu_ein_ping(libklug_handle handle, uint32_t sn, uint32_t id) {
+  return to_bridge(handle)->mdu_ein().ping(sn, id);
+}
+
+int libklug_mdu_ein_ping_all(libklug_handle handle) {
   return to_bridge(handle)->mdu_ein().ping();
 }
 
@@ -272,6 +276,15 @@ void libklug_zsu_release(libklug_handle handle, zsu_handle zsu) {
   assert(handle);
   assert(zsu);
   return to_bridge(handle)->zsu().release(reinterpret_cast<zsu::File*>(zsu));
+}
+
+firmware_iterator_handle libklug_zsu_create_firmware_iterator(zsu_handle zsu) {
+  return reinterpret_cast<firmware_iterator_handle>(
+    new FirmwareIterator(reinterpret_cast<zsu::File*>(zsu)->firmwares));
+}
+
+void libklug_zsu_destroy_firmware_iterator(firmware_iterator_handle fw) {
+  delete reinterpret_cast<FirmwareIterator*>(fw);
 }
 
 int libklug_zsu_firmware_next(firmware_iterator_handle firmware) {

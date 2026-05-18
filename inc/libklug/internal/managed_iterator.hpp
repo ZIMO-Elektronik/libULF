@@ -16,13 +16,13 @@ struct ManagedIterator {
   ManagedIterator(ManagedIterator const& lhs) = default;
 
   bool next() {
-    if (_current == _r.cend()) return false;
+    if (_current == _r.cend() || _current + 1 == _r.cend()) return false;
     _current++;
     return true;
   }
 
   bool previous() {
-    if (_current == _r.cbegin()) return false;
+    if (_current == _r.cbegin() || _current - 1 == _r.cbegin()) return false;
     _current--;
     return true;
   }

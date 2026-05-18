@@ -82,7 +82,8 @@ int libklug_mdu_ein_enter_mdu(libklug_handle handle);
 int libklug_mdu_ein_enter_dcc_zsu(libklug_handle handle);
 int libklug_mdu_ein_enter_dcc_zpp(libklug_handle handle);
 
-int libklug_mdu_ein_ping(libklug_handle handle);
+int libklug_mdu_ein_ping(libklug_handle handle, uint32_t sn, uint32_t id);
+int libklug_mdu_ein_ping_all(libklug_handle handle);
 int libklug_mdu_ein_config_transfer_rate(libklug_handle handle,
                                          uint8_t transfer_rate);
 int libklug_mdu_ein_cv_read(libklug_handle handle, uint16_t cv);
@@ -129,6 +130,11 @@ zsu_handle
 libklug_zsu_read(libklug_handle handle, char const* c, size_t length);
 void libklug_zsu_release(libklug_handle handle, zsu_handle zsu);
 
+// Lifetime of iterator
+firmware_iterator_handle libklug_zsu_create_firmware_iterator(zsu_handle zsu);
+void libklug_zsu_destroy_firmware_iterator(firmware_iterator_handle fw);
+
+// Ops with iterator
 int libklug_zsu_firmware_next(firmware_iterator_handle firmware);
 int libklug_zsu_firmware_previous(firmware_iterator_handle firmware);
 uint32_t libklug_zsu_firmware_id(firmware_iterator_handle firmware);

@@ -26,6 +26,7 @@ set(SOURCE_FILES
     src/libklug/internal/transmission/com/base.cpp
     src/libklug/internal/transmission/mdu_ein/base.cpp
     src/libklug/internal/transmission/mdu_ein/cv_read.cpp
+    src/libklug/internal/transmission/mdu_ein/config_transfer_rate.cpp
     src/libklug/internal/transmission/mdu_ein/ping.cpp
     src/libklug/internal/transmission/susiv2/base.cpp
     src/libklug/internal/transmission/susiv2/cv_read.cpp
@@ -40,7 +41,6 @@ set(SOURCE_FILES
     src/libklug/libklug.cpp)
 
 add_library(${TARGET} SHARED ${SOURCE_FILES})
-# add_executable(${TARGET} test.cpp ${SOURCE_FILES})
 
 if(ANDROID)
   target_sources(
