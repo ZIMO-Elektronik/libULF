@@ -415,7 +415,9 @@ bool MDU_EIN::zsuCRC32Start(zsu::Firmware const& firmware) {
  */
 bool MDU_EIN::zsuCRC32Result() {
   return _worker.emplace<transmission::mdu_ein::Base>(
-    _ctx.connection, mdu::make_zsu_crc32_result_packet(), 2000uz);
+    _ctx.connection,
+    ulf::mdu_ein::bytes2mdu_ein(mdu::make_zsu_crc32_result_packet()),
+    2000uz);
 }
 
 /**
@@ -426,7 +428,9 @@ bool MDU_EIN::zsuCRC32Result() {
  */
 bool MDU_EIN::zsuCRC32ResultExit() {
   return _worker.emplace<transmission::mdu_ein::Base>(
-    _ctx.connection, mdu::make_zsu_crc32_result_exit_packet(), 2000uz);
+    _ctx.connection,
+    ulf::mdu_ein::bytes2mdu_ein(mdu::make_zsu_crc32_result_exit_packet()),
+    2000uz);
 }
 
 } // namespace bridge

@@ -222,7 +222,7 @@ int libklug_mdu_ein_zsu_crc32_result(libklug_handle handle) {
   return to_bridge(handle)->mdu_ein().zsuCRC32Result();
 }
 
-int libklug_mdu_ein_zsu_crc32_result_end(libklug_handle handle) {
+int libklug_mdu_ein_zsu_crc32_result_exit(libklug_handle handle) {
   return to_bridge(handle)->mdu_ein().zsuCRC32ResultExit();
 }
 

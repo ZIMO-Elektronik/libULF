@@ -1,0 +1,82 @@
+#include <ranges>
+#include "../helper.hpp"
+#include "../range_matcher.hpp"
+#include "f_mdu_ein.hpp"
+#include "helper.hpp"
+
+TEST_F(TestMDU_EIN, zsu_update_payload) {
+  auto const blocks{libklug_zsu_firmware_blocks(libHandle, fwItHandle)};
+
+  for (unsigned int idx{0uz}; idx < blocks; idx++) {
+    {
+      InSequence i;
+      EXPECT_CALL(
+        conn,
+        _transmit(RM(helper::mdu::packet2frame(mdu::make_zsu_update_packet(
+                    idx * 64uz,
+                    std::span<uint8_t const, 64uz>{
+                      std::span<uint8_t const>(fwIt.get().bin)
+                        .subspan(idx * 64uz, 64uz)}))),
+                  _))
+        .Times(1);
+      EXPECT_CALL(conn, _receive(_, _, _, _)).Times(1);
+    }
+
+    libklug_mdu_ein_zsu_update(libHandle, fwItHandle, idx);
+    libklug_result(libHandle);
+  }
+}
+
+TEST_F(TestMDU_EIN, zsu_update_result_success) {
+  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(helper::mdu::receive_ack);
+
+  libklug_mdu_ein_zsu_update(libHandle, fwItHandle, 0uz);
+  auto const result{libklug_result(libHandle)};
+
+  ASSERT_EQ(result.type, result_type::status);
+  ASSERT_EQ(result.data.success, LIBKLUG_TRUE);
+}
+
+TEST_F(TestMDU_EIN, zsu_update_result_no_success) {
+  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(helper::mdu::receive_nak);
+
+  libklug_mdu_ein_zsu_update(libHandle, fwItHandle, 0uz);
+  auto const result{libklug_result(libHandle)};
+
+  ASSERT_EQ(result.type, result_type::status);
+  ASSERT_EQ(result.data.success, LIBKLUG_FALSE);
+}
+
+TEST_F(TestMDU_EIN, zsu_update_transmit_error) {
+  assertTransmitErrorCalls(LIBUSB_ERROR_IO);
+
+  libklug_mdu_ein_zsu_update(libHandle, fwItHandle, 0uz);
+  libklug_result(libHandle);
+}
+
+TEST_F(TestMDU_EIN, zsu_update_transmit_error_result) {
+  int error = LIBUSB_ERROR_IO;
+  ON_CALL(conn, _transmit(_, _)).WillByDefault(Return(error));
+
+  libklug_mdu_ein_zsu_update(libHandle, fwItHandle, 0uz);
+  auto const result{libklug_result(libHandle)};
+
+  assertTransmitReceiveErrorResult(result, error);
+}
+
+TEST_F(TestMDU_EIN, zsu_update_receive_error) {
+  assertReceiveErrorCalls(LIBUSB_ERROR_IO);
+
+  libklug_mdu_ein_zsu_update(libHandle, fwItHandle, 0uz);
+  libklug_result(libHandle);
+}
+
+TEST_F(TestMDU_EIN, zsu_update_receive_error_result) {
+  int error = LIBUSB_ERROR_IO;
+  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(Return(error));
+
+  libklug_mdu_ein_zsu_update(libHandle, fwItHandle, 0uz);
+  auto const result{libklug_result(libHandle)};
+
+  assertTransmitReceiveErrorResult(result, error);
+}

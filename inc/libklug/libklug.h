@@ -108,7 +108,7 @@ int libklug_mdu_ein_zsu_update(libklug_handle handle,
 int libklug_mdu_ein_zsu_crc32_start(libklug_handle handle,
                                     firmware_iterator_handle firmware);
 int libklug_mdu_ein_zsu_crc32_result(libklug_handle handle);
-int libklug_mdu_ein_zsu_crc32_result_end(libklug_handle handle);
+int libklug_mdu_ein_zsu_crc32_result_exit(libklug_handle handle);
 
 /** ---------------------------------------------------
  *  Bridge ZPP
