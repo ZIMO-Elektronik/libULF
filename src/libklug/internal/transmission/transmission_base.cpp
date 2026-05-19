@@ -11,6 +11,7 @@
 #include <ranges>
 #include <string>
 #include "libklug/internal/connection.hpp"
+#include "libklug/internal/exception/e_libusb.hpp"
 #include "libklug/internal/logging.hpp"
 
 namespace transmission {
@@ -50,58 +51,31 @@ TransmissionBase::TransmissionBase(std::shared_ptr<Connection> conn,
 /**
  * Execute transmission
  *
- * \return int 0
- *
- * \todo Refactor to return error if unsuccessful
+ * \throw libusb_error
  */
-res::Result TransmissionBase::execute() {
-  auto rc{this->transmit()};
-  if (rc != LIBUSB_SUCCESS) return res::LibusbError{rc};
-
-  rc = this->receive();
-  if (rc != LIBUSB_SUCCESS) return res::LibusbError{rc};
-
-  return res::Status{true};
+void TransmissionBase::execute() {
+  this->transmit();
+  this->receive();
 }
 
 /**
  * Transmit payload
  *
- * \return int
- * \retval LIBUSB_ERROR   Error
- * \retval LIBUSB_SUCCESS Success
+ * \throw libusb_error
  */
-int TransmissionBase::transmit() {
+void TransmissionBase::transmit() {
   _conn->flush();
-  auto rc{_conn->transmit(_payload, _timeout)};
-
-  if (rc != 0) {
-    LOGE("Transfer Error. Error: {}", libusb_error_name(rc));
-    return rc;
-  }
-
-  return rc;
+  _conn->transmit(_payload, _timeout);
 }
 
 /**
  * Receive response
  *
- * \return int
- * \retval LIBUSB_ERROR   Error
- * \retval LIBUSB_SUCCESS SUCCESS
+ * \throw libusb_error
  */
-int TransmissionBase::receive() {
+void TransmissionBase::receive() {
   if (_response.size() < 64u) _response.resize(64u);
-
-  auto rc{_conn->receive(_response, _timeout)};
-  if (rc != 0) {
-    LOGE("Transfer Error. Error: {}", libusb_error_name(rc));
-    return rc;
-  }
-
-  LOGD("Received {} Bytes", _response.size());
-
-  return rc;
+  _conn->receive(_response, _timeout);
 }
 
 } // namespace transmission

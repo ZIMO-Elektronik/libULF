@@ -33,12 +33,13 @@ struct Connection {
    * \tparam R      Input range type
    * \param r       Range
    * \param timeout Timeout
-   * \return int  Forwarded form libusb
+   *
+   * \throw libusb_error
    */
   template<std::ranges::input_range R>
   requires std::constructible_from<std::span<uint8_t const>, R>
-  int transmit(R const& r, uint32_t timeout) {
-    return _transmit({r}, timeout);
+  void transmit(R const& r, uint32_t timeout) {
+    _transmit({r}, timeout);
   }
 
   /**
@@ -49,7 +50,8 @@ struct Connection {
    * \tparam R      Output range type
    * \param r       Range
    * \param timeout Timeout
-   * \return int  Forwarded from libusb
+   *
+   * \throw libusb_error
    */
   template<std::ranges::output_range<uint8_t> R>
   requires requires(R r, uint32_t s) {
@@ -57,11 +59,10 @@ struct Connection {
     { r.size() } -> std::convertible_to<size_t>;
     { r.data() } -> std::same_as<uint8_t*>;
   }
-  constexpr int receive(R&& r, uint32_t timeout) {
+  constexpr void receive(R&& r, uint32_t timeout) {
     int received{};
-    auto rc{_receive(r.data(), r.size(), &received, timeout)};
+    _receive(r.data(), r.size(), &received, timeout);
     r.resize(received);
-    return rc;
   }
 
   virtual void flush();
@@ -72,8 +73,8 @@ struct Connection {
   int interface();
 
 private:
-  virtual int _transmit(std::span<uint8_t const> payload, uint32_t timeout);
-  virtual int
+  virtual void _transmit(std::span<uint8_t const> payload, uint32_t timeout);
+  virtual void
   _receive(uint8_t* buffer, uint32_t length, int* received, uint32_t timeout);
 
   libusb_device_handle* _handle{nullptr}; ///< Device

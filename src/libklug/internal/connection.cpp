@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <vector>
 #include <ztl/ztl.hpp>
+#include "libklug/internal/exception/e_libusb.hpp"
 #include "libklug/internal/logging.hpp"
 
 /**
@@ -222,10 +223,15 @@ void Connection::close() {
 /**
  * Flush RX Buffer
  *
+ * \todo Refactor, as waiting for an exception is probably not the most elegant
+ * thing here
  */
 void Connection::flush() {
   ztl::inplace_vector<uint8_t, 64u> buffer;
-  while (receive(buffer, 1) == LIBUSB_SUCCESS);
+  try {
+    while (true) receive(buffer, 1);
+
+  } catch (except::libusb_error e) {}
 }
 
 /**
@@ -261,15 +267,20 @@ int Connection::interface() { return _interface; }
  *
  * \param payload Payload
  * \param timeout Timeout
- * \return int  Forwarded from libusb
+ *
+ * \throw libusb_error
  */
-int Connection::_transmit(std::span<uint8_t const> payload, uint32_t timeout) {
-  return libusb_bulk_transfer(_handle,
-                              _tx_ep,
-                              std::bit_cast<unsigned char*>(payload.data()),
-                              payload.size(),
-                              nullptr,
-                              timeout);
+void Connection::_transmit(std::span<uint8_t const> payload, uint32_t timeout) {
+  using std::operator""sv;
+  if (auto rc{
+        libusb_bulk_transfer(_handle,
+                             _tx_ep,
+                             std::bit_cast<unsigned char*>(payload.data()),
+                             payload.size(),
+                             nullptr,
+                             timeout)};
+      rc != LIBUSB_SUCCESS)
+    throw except::libusb_error{rc, "Unable to transmit"sv};
 }
 
 /**
@@ -279,12 +290,16 @@ int Connection::_transmit(std::span<uint8_t const> payload, uint32_t timeout) {
  * \param length    Buffer length
  * \param received  Actual received
  * \param timeout   Timeout
- * \return int  Forwarded from libusb
+ *
+ * \throw libusb_error
  */
-int Connection::_receive(uint8_t* buffer,
-                         uint32_t length,
-                         int* received,
-                         uint32_t timeout) {
-  return libusb_bulk_transfer(
-    _handle, _rx_ep, buffer, length, received, timeout);
+void Connection::_receive(uint8_t* buffer,
+                          uint32_t length,
+                          int* received,
+                          uint32_t timeout) {
+  using std::operator""sv;
+  if (auto rc{libusb_bulk_transfer(
+        _handle, _rx_ep, buffer, length, received, timeout)};
+      rc != LIBUSB_SUCCESS)
+    throw except::libusb_error{rc, "Unable to receive"sv};
 }

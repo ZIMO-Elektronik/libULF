@@ -27,7 +27,7 @@ struct CvRead : public ITransmission {
   CvRead(std::shared_ptr<Connection> conn, uint16_t cv);
   virtual ~CvRead() = default;
 
-  virtual res::Result execute() final;
+  virtual void execute() final;
 
   virtual res::Result evaluate() final;
 

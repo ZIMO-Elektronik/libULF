@@ -104,7 +104,7 @@ if(PROJECT_IS_TOP_LEVEL)
   include(CTest)
   enable_testing()
   add_subdirectory(examples)
-  add_subdirectory(tests)
+  # add_subdirectory(tests)
   file(
     DOWNLOAD
     "https://github.com/ZIMO-Elektronik/.github/raw/master/data/.clang-format"

@@ -7,6 +7,8 @@
  */
 
 #include "libklug/internal/bridge/bridge.hpp"
+#include "libklug/internal/exception/e_generic.hpp"
+#include "libklug/internal/exception/e_libusb.hpp"
 
 namespace bridge {
 
@@ -60,7 +62,13 @@ void Bridge::deregisterCB() {
  */
 res::Result Bridge::result() {
   _ctx.result.wait();
-  return _ctx.result.get();
+  try {
+    return _ctx.result.get();
+  } catch (except::libusb_error const& e) {
+    return static_cast<res::LibusbError>(e);
+  } catch (except::generic_error const& e) {
+    return static_cast<res::Error>(e);
+  }
 }
 
 /**

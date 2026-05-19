@@ -8,6 +8,8 @@
 
 #include "libklug/internal/transmission/mdu_ein/cv_read.hpp"
 #include <ulf/mdu_ein.hpp>
+#include "libklug/internal/exception/e_generic.hpp"
+#include "libklug/internal/exception/e_libusb.hpp"
 #include "libklug/internal/transmission/mdu_ein/base.hpp"
 
 namespace transmission::mdu_ein {
@@ -26,24 +28,26 @@ CvRead::CvRead(std::shared_ptr<Connection> conn, uint16_t cv)
  *
  * \return int 0
  *
- * \todo Refactor
+ * \todo Refactor, to avoid exception abuse and to retry single bits
  */
-res::Result CvRead::execute() {
+void CvRead::execute() {
   for (uint8_t i{0}; i < sizeof(_value) * 8u; i++) {
     Base t{_conn,
            ulf::mdu_ein::bytes2mdu_ein(mdu::make_cv_read_packet(_cv, i)),
            100u};
-    auto res{t.execute()};
-    // Check if execution resulted in an error
-    if (!std::holds_alternative<res::Status>(res)) return res;
+    try {
+      t.execute();
+      auto const r = t.evaluate();
+      if (!std::holds_alternative<res::Status>(r))
+        throw except::generic_error{err::Error::nak, "Packet got NAK'd"};
+      _value |= !(std::get<res::Status>(r)) << i;
 
-    auto const r = t.evaluate();
-
-    /// \todo Implement retry for single bits
-    if (!std::holds_alternative<res::Status>(r)) return r;
-    _value |= !(std::get<res::Status>(r)) << i;
+    } catch (except::libusb_error e) {
+      throw except::libusb_error{
+        static_cast<int>(e),
+        std::format("CvRead error at bit {}, Cause: {}", i, e.what())};
+    }
   }
-  return res::Status{true};
 }
 
 /**

@@ -40,11 +40,11 @@ struct TransmissionBase : ITransmission {
                    std::size_t timeout);
   virtual ~TransmissionBase() = default;
 
-  virtual res::Result execute() override;
+  virtual void execute() override;
 
 protected:
-  int transmit();
-  int receive();
+  void transmit();
+  void receive();
 
   std::vector<uint8_t> _payload;  ///< Payload
   std::vector<uint8_t> _response; ///< Response buffer
