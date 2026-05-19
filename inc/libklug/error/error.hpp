@@ -20,6 +20,8 @@ enum class Error : uint8_t {
   nak = 0x02, ///< Nak
 
   crc = 0x03, ///< Bad crc
+
+  unknown = 0xFF, ///< Unknown error
 };
 
 } // namespace err

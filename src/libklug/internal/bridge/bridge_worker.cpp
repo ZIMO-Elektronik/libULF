@@ -60,14 +60,19 @@ void Worker::loop() {
 
     try {
       _t->execute();
-    } catch (...) { _promise.set_exception(std::current_exception()); }
-
-    auto r{_t->evaluate()};
-
-    _promise.set_value(r);
-
-    // Push result to cb
-    if (_ctx.cb) (*_ctx.cb)(r);
+      auto r{_t->evaluate()};
+      _promise.set_value(r);
+      if (_ctx.cb) (*_ctx.cb)(r);
+    } catch (except::generic_error e) {
+      _promise.set_exception(std::current_exception());
+      if (_ctx.cb) (*_ctx.cb)(static_cast<res::Error>(e));
+    } catch (except::libusb_error e) {
+      _promise.set_exception(std::current_exception());
+      if (_ctx.cb) (*_ctx.cb)(static_cast<res::LibusbError>(e));
+    } catch (...) {
+      _promise.set_exception(std::current_exception());
+      if (_ctx.cb) (*_ctx.cb)(err::Error::unknown);
+    }
 
     _t.reset();
   }

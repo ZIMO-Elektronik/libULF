@@ -112,53 +112,33 @@ TEST_F(TestMDU_EIN, cv_read_result_success) {
 
 /// \note Technically, we should test this against every transfer
 TEST_F(TestMDU_EIN, cv_read_transmit_error) {
-  ON_CALL(conn, _transmit(_, _)).WillByDefault(Return(LIBUSB_ERROR_IO));
-
-  EXPECT_CALL(conn, _transmit(_, _)).Times(1);
-  EXPECT_CALL(conn, _receive(_, _, _, _)).Times(0);
+  assertTransmitErrorCalls();
 
   lib.susiv2().cvRead(cv_value);
   lib.result();
 }
 
 TEST_F(TestMDU_EIN, cv_read_transmit_error_result) {
-  ON_CALL(conn, _transmit(_, _)).WillByDefault(Return(LIBUSB_ERROR_IO));
-
-  EXPECT_CALL(conn, _transmit(_, _)).Times(1);
-  EXPECT_CALL(conn, _receive(_, _, _, _)).Times(0);
+  throwTransmitException();
 
   lib.mdu_ein().cvRead(cv_address);
   auto const result{lib.result()};
 
-  ASSERT_TRUE(std::holds_alternative<res::LibusbError>(result));
-  ASSERT_EQ(std::get<res::LibusbError>(result), LIBUSB_ERROR_IO);
+  assertTransmitReceiveErrorResult(result);
 }
 
 TEST_F(TestMDU_EIN, cv_read_receive_error) {
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(Return(LIBUSB_ERROR_IO));
-
-  {
-    InSequence i;
-    EXPECT_CALL(conn, _transmit(_, _)).Times(1);
-    EXPECT_CALL(conn, _receive(_, _, _, _)).Times(1);
-  }
+  assertReceiveErrorCalls();
 
   lib.mdu_ein().cvRead(cv_address);
   lib.result();
 }
 
 TEST_F(TestMDU_EIN, cv_read_receive_error_result) {
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(Return(LIBUSB_ERROR_IO));
-
-  {
-    InSequence i;
-    EXPECT_CALL(conn, _transmit(_, _)).Times(1);
-    EXPECT_CALL(conn, _receive(_, _, _, _)).Times(1);
-  }
+  throwReceiveException();
 
   lib.mdu_ein().cvRead(cv_address);
   auto const result{lib.result()};
 
-  ASSERT_TRUE(std::holds_alternative<res::LibusbError>(result));
-  ASSERT_EQ(std::get<res::LibusbError>(result), LIBUSB_ERROR_IO);
+  assertTransmitReceiveErrorResult(result);
 }

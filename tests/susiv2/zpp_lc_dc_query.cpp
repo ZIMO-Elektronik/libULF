@@ -48,53 +48,33 @@ TEST_F(TestSUSIV2, zpp_lc_dc_query_result_success) {
 }
 
 TEST_F(TestSUSIV2, zpp_lc_dc_query_transmit_error) {
-  ON_CALL(conn, _transmit(_, _)).WillByDefault(Return(LIBUSB_ERROR_IO));
-
-  EXPECT_CALL(conn, _transmit(_, _)).Times(1);
-  EXPECT_CALL(conn, _receive(_, _, _, _)).Times(0);
+  assertTransmitErrorCalls();
 
   lib.susiv2().zppLcDcQuery(developer_code);
   lib.result();
 }
 
 TEST_F(TestSUSIV2, zpp_lc_dc_query_transmit_error_result) {
-  ON_CALL(conn, _transmit(_, _)).WillByDefault(Return(LIBUSB_ERROR_IO));
-
-  EXPECT_CALL(conn, _transmit(_, _)).Times(1);
-  EXPECT_CALL(conn, _receive(_, _, _, _)).Times(0);
+  throwTransmitException();
 
   lib.susiv2().zppLcDcQuery(developer_code);
   auto const result{lib.result()};
 
-  ASSERT_TRUE(std::holds_alternative<res::LibusbError>(result));
-  ASSERT_EQ(std::get<res::LibusbError>(result), LIBUSB_ERROR_IO);
+  assertTransmitReceiveErrorResult(result);
 }
 
 TEST_F(TestSUSIV2, zpp_lc_dc_query_receive_error) {
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(Return(LIBUSB_ERROR_IO));
-
-  {
-    InSequence i;
-    EXPECT_CALL(conn, _transmit(_, _)).Times(1);
-    EXPECT_CALL(conn, _receive(_, _, _, _)).Times(1);
-  }
+  assertReceiveErrorCalls();
 
   lib.susiv2().zppLcDcQuery(developer_code);
   lib.result();
 }
 
 TEST_F(TestSUSIV2, zpp_lc_dc_query_receive_error_result) {
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(Return(LIBUSB_ERROR_IO));
-
-  {
-    InSequence i;
-    EXPECT_CALL(conn, _transmit(_, _)).Times(1);
-    EXPECT_CALL(conn, _receive(_, _, _, _)).Times(1);
-  }
+  throwReceiveException();
 
   lib.susiv2().zppLcDcQuery(developer_code);
   auto const result{lib.result()};
 
-  ASSERT_TRUE(std::holds_alternative<res::LibusbError>(result));
-  ASSERT_EQ(std::get<res::LibusbError>(result), LIBUSB_ERROR_IO);
+  assertTransmitReceiveErrorResult(result);
 }
