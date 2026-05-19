@@ -8,11 +8,13 @@
 
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
-
 #ifdef __cplusplus
+#  include <cstddef>
+#  include <cstdint>
 extern "C" {
+#else
+#  include <stddef.h>
+#  include <stdint.h>
 #endif
 
 #include "callback/callback.h"
@@ -38,9 +40,7 @@ result libklug_result(libklug_handle handle);
 
 // Connection Specifics
 int libklug_init(libklug_handle handle);
-int libklug_open(libklug_handle handle,
-                 uint16_t vid = 0x1FC9u,
-                 uint16_t pid = 0x81C1u);
+int libklug_open(libklug_handle handle, uint16_t vid, uint16_t pid);
 int libklug_openFd(libklug_handle handle, int Fd);
 int libklug_config(libklug_handle handle);
 int libklug_claim(libklug_handle handle);
@@ -117,7 +117,7 @@ int libklug_mdu_ein_zsu_crc32_result_exit(libklug_handle handle);
  */
 
 zpp_handle
-libklug_zpp_read(libklug_handle handle, char16_t const* c, size_t length);
+libklug_zpp_read(libklug_handle handle, char const* c, size_t length);
 void libklug_zpp_release(libklug_handle handle, zpp_handle zpp);
 unsigned int libklug_zpp_blocks(libklug_handle handle, zpp_handle zpp);
 

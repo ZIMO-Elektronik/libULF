@@ -238,9 +238,8 @@ int libklug_mdu_ein_zsu_crc32_result_exit(libklug_handle handle) {
 /// \todo maybe, it is unnecessary to let this run over bridge since ZPP could
 /// be a static class
 zpp_handle
-libklug_zpp_read(libklug_handle handle, char16_t const* c, size_t length) {
-  std::u16string_view s(c, length);
-
+libklug_zpp_read(libklug_handle handle, char const* c, size_t length) {
+  std::string_view s(c, length);
   return reinterpret_cast<zpp_handle>(
     reinterpret_cast<bridge::Bridge*>(handle)->zpp().read(
       std::filesystem::path{s}));

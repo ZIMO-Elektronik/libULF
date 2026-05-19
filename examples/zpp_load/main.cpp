@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <locale>
+#include <paths.hpp>
 #include <string_view>
 #include "setup.hpp"
 
@@ -11,11 +12,8 @@ int main() {
   auto handle{setup::connect()};
   if (!handle) abort();
 
-  std::string path{"/home/jonas/Downloads/Da_Di_Collection_ZIMO-16Bit_S02.zpp"};
-  std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
-  std::u16string u16_path{convert.from_bytes(path)};
-
-  auto z_handle{libklug_zpp_read(handle, u16_path.data(), u16_path.size())};
+  auto z_handle{
+    libklug_zpp_read(handle, paths::zpp_path.data(), paths::zpp_path.size())};
   if (!z_handle) abort();
 
   long const count{libklug_zpp_blocks(handle, z_handle)};

@@ -111,4 +111,14 @@ if(PROJECT_IS_TOP_LEVEL)
     ${CMAKE_CURRENT_LIST_DIR}/.clang-format)
   file(GLOB_RECURSE SRC include/*.*pp src/*.*pp tests/*.*pp)
   add_clang_format_target(KLUGFormat OPTIONS -i FILES ${SRC})
+  add_include_what_you_must_target(
+    KLUGIncludeWhatYouMust
+    TARGET
+    KLUG
+    EXCLUDE_HEADERS
+    inc//libklug/libklug_jni.hpp
+    inc//libklug/internal/platform/android/jni_context.hpp
+    inc//libklug/internal/platform/android/jni_defines.hpp
+    inc//libklug/internal/platform/android/jni_dispatch.hpp
+    inc//libklug/internal/platform/android/jni_functor.hpp)
 endif()

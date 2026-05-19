@@ -11,7 +11,7 @@ libklug_handle connect() {
   rc = libklug_init(handle);
   if (rc != 0) abort();
 
-  rc = libklug_open(handle);
+  rc = libklug_open(handle, 0x1FC9u, 0x81C1u);
   if (rc != 0) abort();
 
   rc = libklug_config(handle);

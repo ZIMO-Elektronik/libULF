@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <span>
 #include <zsu/zsu.hpp>
 
 namespace bridge {
