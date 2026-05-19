@@ -1,3 +1,11 @@
+/**
+ * Managed Iterator
+ *
+ * \file    inc/libklug/internal/managed_iterator.hpp
+ * \author  Jonas Gahlert
+ * \date    19.05.2026
+ */
+
 #pragma once
 
 #include <ranges>
