@@ -54,7 +54,7 @@ struct Connection {
   template<std::ranges::output_range<uint8_t> R>
   requires requires(R r, uint32_t s) {
     { r.resize(s) };
-    { r.size() } -> std::same_as<size_t>;
+    { r.size() } -> std::convertible_to<size_t>;
     { r.data() } -> std::same_as<uint8_t*>;
   }
   constexpr int receive(R&& r, uint32_t timeout) {
@@ -63,6 +63,8 @@ struct Connection {
     r.resize(received);
     return rc;
   }
+
+  virtual void flush();
 
   libusb_device_handle* handle();
   uint8_t tx_ep();
