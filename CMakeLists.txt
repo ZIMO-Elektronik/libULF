@@ -26,6 +26,7 @@ set(SOURCE_FILES
     src/libklug/internal/transmission/com/base.cpp
     src/libklug/internal/transmission/mdu_ein/base.cpp
     src/libklug/internal/transmission/mdu_ein/cv_read.cpp
+    src/libklug/internal/transmission/mdu_ein/config_transfer_rate.cpp
     src/libklug/internal/transmission/mdu_ein/ping.cpp
     src/libklug/internal/transmission/susiv2/base.cpp
     src/libklug/internal/transmission/susiv2/cv_read.cpp
@@ -36,10 +37,10 @@ set(SOURCE_FILES
     src/libklug/internal/bridge/bridge_mdu_ein.cpp
     src/libklug/internal/bridge/bridge_worker.cpp
     src/libklug/internal/bridge/bridge_zpp.cpp
+    src/libklug/internal/bridge/bridge_zsu.cpp
     src/libklug/libklug.cpp)
 
 add_library(${TARGET} SHARED ${SOURCE_FILES})
-# add_executable(${TARGET} test.cpp ${SOURCE_FILES})
 
 if(ANDROID)
   target_sources(
@@ -67,6 +68,10 @@ if(NOT TARGET usb-1.0)
     OPTIONS
     BUILD_SHARED_LIBS
     ON)
+endif()
+
+if(NOT TARGET MDU::MDU)
+  cpmaddpackage("gh:ZIMO-Elektronik/MDU@0.19.2")
 endif()
 
 if(NOT TARGET ULF::MDU_EIN)
@@ -106,4 +111,14 @@ if(PROJECT_IS_TOP_LEVEL)
     ${CMAKE_CURRENT_LIST_DIR}/.clang-format)
   file(GLOB_RECURSE SRC include/*.*pp src/*.*pp tests/*.*pp)
   add_clang_format_target(KLUGFormat OPTIONS -i FILES ${SRC})
+  add_include_what_you_must_target(
+    KLUGIncludeWhatYouMust
+    TARGET
+    KLUG
+    EXCLUDE_HEADERS
+    inc//libklug/libklug_jni.hpp
+    inc//libklug/internal/platform/android/jni_context.hpp
+    inc//libklug/internal/platform/android/jni_defines.hpp
+    inc//libklug/internal/platform/android/jni_dispatch.hpp
+    inc//libklug/internal/platform/android/jni_functor.hpp)
 endif()

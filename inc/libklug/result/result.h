@@ -10,6 +10,12 @@
 
 #include "result_type.h"
 
+#define LIBKLUG_SUCCESS 1
+#define LIBKLUG_BUSY 0
+
+#define LIBKLUG_TRUE 1
+#define LIBKLUG_FALSE 0
+
 /**
  * Result
  *

@@ -12,7 +12,7 @@
 #include <string_view>
 #include "error.hpp"
 
-namespace error {
+namespace err {
 
 constexpr std::string_view error2string(Error e) {
   using std::operator""sv;
@@ -23,4 +23,4 @@ constexpr std::string_view error2string(Error e) {
   }
 }
 
-} // namespace error
+} // namespace err

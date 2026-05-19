@@ -1,6 +1,9 @@
 #pragma once
 
+#include <ulf/mdu_ein.hpp>
 #include "../f_base.hpp"
+#include "libklug/internal/managed_iterator.hpp"
+#include "paths.hpp"
 
 using testing::_;
 using testing::Ge;
@@ -18,4 +21,14 @@ struct TestMDU_EIN : public TestBase {
           return 0;
         });
   }
+
+  zpp::File zpp{zpp::read(paths::zpp_path)};
+  zpp_handle zppHandle{reinterpret_cast<zpp_handle>(&zpp)};
+
+  zsu::File zsu{zsu::read(paths::zsu_path)};
+  zsu_handle zsuHandle{reinterpret_cast<zsu_handle>(&zsu)};
+
+  internal::ManagedIterator<decltype(zsu.firmwares)> fwIt{zsu.firmwares};
+  firmware_iterator_handle fwItHandle{
+    reinterpret_cast<firmware_iterator_handle>(&fwIt)};
 };

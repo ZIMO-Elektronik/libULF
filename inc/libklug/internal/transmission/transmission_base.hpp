@@ -51,7 +51,6 @@ protected:
   std::size_t _timeout;           ///< Timeout
 
   std::shared_ptr<Connection> _conn; ///< USB Connection
-  void flush();
 };
 
 } // namespace transmission

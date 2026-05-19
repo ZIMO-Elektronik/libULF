@@ -69,16 +69,18 @@ struct Bridge {
   MDU_EIN& mdu_ein();
 
   ZPP& zpp();
+  ZSU& zsu();
 
 private:
   Context _ctx; ///< Bridge context
   ZPP _zpp{};   ///< ZPP bridge
+  ZSU _zsu{};   ///< ZSU bridge
 
   Worker _worker{_ctx}; ///< Worker
 
-  COM _com{_ctx, _worker};             ///< COM bridge
-  SUSIV2 _susiv2{_ctx, _worker, _zpp}; ///< SUSIV2 bridge
-  MDU_EIN _mdu_ein{_ctx, _worker};     ///< MDU_EIN bridge
+  COM _com{_ctx, _worker};                     ///< COM bridge
+  SUSIV2 _susiv2{_ctx, _worker, _zpp};         ///< SUSIV2 bridge
+  MDU_EIN _mdu_ein{_ctx, _worker, _zpp, _zsu}; ///< MDU_EIN bridge
 };
 
 } // namespace bridge

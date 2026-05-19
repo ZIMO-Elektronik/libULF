@@ -72,8 +72,7 @@ res::Result TransmissionBase::execute() {
  * \retval LIBUSB_SUCCESS Success
  */
 int TransmissionBase::transmit() {
-  flush();
-
+  _conn->flush();
   auto rc{_conn->transmit(_payload, _timeout)};
 
   if (rc != 0) {
@@ -103,21 +102,6 @@ int TransmissionBase::receive() {
   LOGD("Received {} Bytes", _response.size());
 
   return rc;
-}
-
-/**
- * Flush RX Buffer
- *
- */
-void TransmissionBase::flush() {
-  return;
-  std::array<uint8_t, 64u> data;
-  while (libusb_bulk_transfer(_conn->handle(),
-                              _conn->rx_ep(),
-                              std::bit_cast<unsigned char*>(data.data()),
-                              data.size(),
-                              nullptr,
-                              1) == 0);
 }
 
 } // namespace transmission

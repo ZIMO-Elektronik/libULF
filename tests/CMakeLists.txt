@@ -3,7 +3,8 @@ include(GoogleTest)
 file(GLOB_RECURSE SRC *.cpp)
 add_executable(Tests ${SRC})
 
-include(cmake/get_test_data.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/get_test_data.cmake)
+get_test_data(Tests)
 
 target_include_directories(Tests PRIVATE ${PROJECT_SOURCE_DIR}/src
                                          ${PROJECT_SOURCE_DIR}/tests)

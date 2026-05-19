@@ -8,17 +8,24 @@
 
 #pragma once
 
+#include <span>
 #include <zsu/zsu.hpp>
 
 namespace bridge {
 
 struct ZSU {
+  using AddressedBlock = std::pair<uint32_t, std::span<uint8_t const, 64uz>>;
+
   zsu::File* read(std::filesystem::path path);
   void release(zsu::File* file);
 
-  unsigned int blocks(zsu::File* file);
+  uint32_t blocks(zsu::Firmware const& firmware);
 
-  std::span<uint8_t> block(zsu::File* file, unsigned int block);
+  std::pair<uint32_t, std::span<uint8_t const, 64uz>>
+  block(zsu::Firmware const& firmware, uint32_t index);
+
+private:
+  size_t const _blockSize{64uz};
 };
 
 } // namespace bridge

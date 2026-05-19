@@ -14,14 +14,15 @@
 namespace bridge {
 
 struct ZPP {
+  using AddressedBlock = std::pair<uint32_t, std::span<uint8_t const, 256uz>>;
+
   zpp::File* read(std::filesystem::path path);
   void release(zpp::File* file);
 
   unsigned int blocks(zpp::File* file);
   unsigned int cvs(zpp::File* file);
 
-  std::pair<uint32_t, std::span<uint8_t>> block(zpp::File* file,
-                                                unsigned int block);
+  AddressedBlock block(zpp::File* file, unsigned int block);
 
   std::string_view author(zpp::File* file);
   std::string_view email(zpp::File* file);

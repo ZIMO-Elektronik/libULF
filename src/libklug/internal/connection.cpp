@@ -10,6 +10,7 @@
 #include <cassert>
 #include <cstdint>
 #include <vector>
+#include <ztl/ztl.hpp>
 #include "libklug/internal/logging.hpp"
 
 /**
@@ -216,6 +217,15 @@ void Connection::close() {
   libusb_close(_handle);
   _handle = nullptr;
   return;
+}
+
+/**
+ * Flush RX Buffer
+ *
+ */
+void Connection::flush() {
+  ztl::inplace_vector<uint8_t, 64u> buffer;
+  while (receive(buffer, 1) == LIBUSB_SUCCESS);
 }
 
 /**
