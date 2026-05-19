@@ -7,6 +7,7 @@
  */
 
 #include "libklug/internal/transmission/mdu_ein/cv_read.hpp"
+#include <format>
 #include <ulf/mdu_ein.hpp>
 #include "libklug/internal/exception/e_generic.hpp"
 #include "libklug/internal/exception/e_libusb.hpp"
