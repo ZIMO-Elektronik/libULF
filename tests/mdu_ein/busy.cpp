@@ -48,13 +48,12 @@ TEST_F(TestMDU_EIN, busy_transmit_error) {
 }
 
 TEST_F(TestMDU_EIN, busy_transmit_error_result) {
-  int const error{LIBUSB_ERROR_IO};
-  ON_CALL(conn, _transmit(_, _)).WillByDefault(Return(error));
+  throwTransmitException();
 
   libklug_mdu_ein_busy(libHandle);
   auto const result{libklug_result(libHandle)};
 
-  assertTransmitReceiveErrorResult(result, error);
+  assertTransmitReceiveErrorResult(result);
 }
 
 TEST_F(TestMDU_EIN, busy_receive_error) {
@@ -65,11 +64,10 @@ TEST_F(TestMDU_EIN, busy_receive_error) {
 }
 
 TEST_F(TestMDU_EIN, busy_receive_error_result) {
-  int const error{LIBUSB_ERROR_IO};
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(Return(error));
+  throwReceiveException();
 
   libklug_mdu_ein_busy(libHandle);
   auto const result{libklug_result(libHandle)};
 
-  assertTransmitReceiveErrorResult(result, error);
+  assertTransmitReceiveErrorResult(result);
 }

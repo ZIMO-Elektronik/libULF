@@ -9,6 +9,8 @@
 #include "libklug/internal/bridge/bridge_worker.hpp"
 #include <future>
 #include <thread>
+#include "libklug/internal/exception/e_generic.hpp"
+#include "libklug/internal/exception/e_libusb.hpp"
 
 namespace bridge {
 
@@ -56,15 +58,21 @@ void Worker::loop() {
     }
     if (exit) break;
 
-    auto r{_t->execute()};
-    if (std::holds_alternative<res::Status>(r)) {
-      // No transmission error, evaluate result
-      r = _t->evaluate();
+    try {
+      _t->execute();
+      auto r{_t->evaluate()};
+      _promise.set_value(r);
+      if (_ctx.cb) (*_ctx.cb)(r);
+    } catch (except::generic_error e) {
+      _promise.set_exception(std::current_exception());
+      if (_ctx.cb) (*_ctx.cb)(static_cast<res::Error>(e));
+    } catch (except::libusb_error e) {
+      _promise.set_exception(std::current_exception());
+      if (_ctx.cb) (*_ctx.cb)(static_cast<res::LibusbError>(e));
+    } catch (...) {
+      _promise.set_exception(std::current_exception());
+      if (_ctx.cb) (*_ctx.cb)(err::Error::unknown);
     }
-    _promise.set_value(r);
-
-    // Push result to cb
-    if (_ctx.cb) (*_ctx.cb)(r);
 
     _t.reset();
   }

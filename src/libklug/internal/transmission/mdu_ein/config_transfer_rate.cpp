@@ -8,6 +8,8 @@
 
 #include "libklug/internal/transmission/mdu_ein/config_transfer_rate.hpp"
 #include <ulf/mdu_ein.hpp>
+#include "libklug/internal/exception/e_generic.hpp"
+#include "libklug/internal/exception/e_libusb.hpp"
 #include "libklug/internal/logging.hpp"
 
 namespace transmission::mdu_ein {
@@ -16,19 +18,34 @@ ConfigTransferRate::ConfigTransferRate(std::shared_ptr<Connection> conn,
                                        mdu::TransferRate speed)
   : _conn{conn}, _speed{speed} {}
 
-res::Result ConfigTransferRate::execute() {
-  auto r{packet()};
-  if (!std::holds_alternative<res::Status>(r) || !std::get<res::Status>(r)) {
-    LOGE("Unable to configure new speed, attempting to set fallback");
-    special(true);
-    return r;
-  }
-
-  r = special(false);
-  if (std::holds_alternative<res::Status>(r) && std::get<res::Status>(r))
+/**
+ * Execute
+ *
+ * \throw generic_error
+ *
+ * \todo Maybe refactor to avoid exception abuse
+ *
+ */
+void ConfigTransferRate::execute() {
+  using std::operator""sv;
+  try {
+    auto r{packet()};
+    if (!std::holds_alternative<res::Status>(r) || !std::get<res::Status>(r))
+      throw except::generic_error{err::Error::nak,
+                                  "Unable to set speed for decoder"sv};
+    r = special(false);
+    if (!std::holds_alternative<res::Status>(r) || !std::get<res::Status>(r))
+      throw except::generic_error{err::Error::nak,
+                                  "Unable to set speed for device"sv};
     _result = true;
-
-  return r;
+  } catch (std::exception const& e) {
+    LOGE(e.what());
+    LOGD("Attempting to set fallback timing");
+    auto r{special(true)};
+    if (!std::holds_alternative<res::Status>(r) || !std::get<res::Status>(r))
+      throw except::generic_error{err::Error::nak,
+                                  "Unable to set fallback speed for device"sv};
+  }
 }
 
 res::Result ConfigTransferRate::evaluate() { return res::Status{_result}; }
@@ -38,9 +55,7 @@ res::Result ConfigTransferRate::packet() {
     _conn,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_config_transfer_rate_packet(_speed)),
     100u};
-  auto r{t.execute()};
-  // Check if execution resulted in an error
-  if (!std::holds_alternative<res::Status>(r)) return r;
+  t.execute();
   return t.evaluate();
 }
 
@@ -51,9 +66,7 @@ res::Result ConfigTransferRate::special(bool fallback) {
            std::to_underlying(fallback ? mdu::TransferRate::Fallback : _speed),
            std::array<uint8_t, 16>{}),
          100u};
-  auto r{t.execute()};
-  // Check if execution resulted in an error
-  if (!std::holds_alternative<res::Status>(r)) return r;
+  t.execute();
   return t.evaluate();
 }
 

@@ -14,6 +14,9 @@ struct MockConnection : public Connection {
 
   MOCK_METHOD(void, flush, (), (override));
 
-  MOCK_METHOD(int, _transmit, (std::span<uint8_t const>, uint32_t), (override));
-  MOCK_METHOD(int, _receive, (uint8_t*, uint32_t, int*, uint32_t), (override));
+  MOCK_METHOD(void,
+              _transmit,
+              (std::span<uint8_t const>, uint32_t),
+              (override));
+  MOCK_METHOD(void, _receive, (uint8_t*, uint32_t, int*, uint32_t), (override));
 };

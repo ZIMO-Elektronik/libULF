@@ -85,53 +85,33 @@ TEST_F(TestCOM, mdu_ein_result_not_ok) {
 // }
 
 TEST_F(TestCOM, mdu_ein_transmit_error) {
-  ON_CALL(conn, _transmit(_, _)).WillByDefault(Return(LIBUSB_ERROR_IO));
-
-  EXPECT_CALL(conn, _transmit(_, _)).Times(1);
-  EXPECT_CALL(conn, _receive(_, _, _, _)).Times(0);
+  assertTransmitErrorCalls();
 
   lib.com().mdu_ein();
   lib.result();
 }
 
 TEST_F(TestCOM, mdu_ein_transmit_error_result) {
-  ON_CALL(conn, _transmit(_, _)).WillByDefault(Return(LIBUSB_ERROR_IO));
-
-  EXPECT_CALL(conn, _transmit(_, _)).Times(1);
-  EXPECT_CALL(conn, _receive(_, _, _, _)).Times(0);
+  throwTransmitException();
 
   lib.com().mdu_ein();
   auto const result{lib.result()};
 
-  ASSERT_TRUE(std::holds_alternative<res::LibusbError>(result));
-  ASSERT_EQ(std::get<res::LibusbError>(result), LIBUSB_ERROR_IO);
+  assertTransmitReceiveErrorResult(result);
 }
 
 TEST_F(TestCOM, mdu_ein_receive_error) {
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(Return(LIBUSB_ERROR_IO));
-
-  {
-    InSequence i;
-    EXPECT_CALL(conn, _transmit(_, _)).Times(1);
-    EXPECT_CALL(conn, _receive(_, _, _, _)).Times(1);
-  }
+  assertReceiveErrorCalls();
 
   lib.com().mdu_ein();
   lib.result();
 }
 
 TEST_F(TestCOM, mdu_ein_receive_error_result) {
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(Return(LIBUSB_ERROR_IO));
-
-  {
-    InSequence i;
-    EXPECT_CALL(conn, _transmit(_, _)).Times(1);
-    EXPECT_CALL(conn, _receive(_, _, _, _)).Times(1);
-  }
+  throwReceiveException();
 
   lib.com().mdu_ein();
   auto const result{lib.result()};
 
-  ASSERT_TRUE(std::holds_alternative<res::LibusbError>(result));
-  ASSERT_EQ(std::get<res::LibusbError>(result), LIBUSB_ERROR_IO);
+  assertTransmitReceiveErrorResult(result);
 }

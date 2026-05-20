@@ -29,7 +29,7 @@ struct ConfigTransferRate : public ITransmission {
   ConfigTransferRate(std::shared_ptr<Connection> conn, mdu::TransferRate speed);
   virtual ~ConfigTransferRate() = default;
 
-  virtual res::Result execute() final;
+  virtual void execute() final;
 
   virtual res::Result evaluate() final;
 

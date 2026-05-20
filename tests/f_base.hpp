@@ -3,6 +3,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <libklug/libklug.h>
+#include <libklug/internal/exception/e_generic.hpp>
+#include <libklug/internal/exception/e_libusb.hpp>
 #include <libklug/libklug.hpp>
 #include <memory>
 #include "mock_connection.hpp"
@@ -11,6 +13,7 @@ using testing::_;
 using testing::InSequence;
 using testing::NiceMock;
 using testing::Return;
+using testing::Throw;
 
 struct TestBase : public testing::Test {
   TestBase()
@@ -23,18 +26,32 @@ struct TestBase : public testing::Test {
   libklug_handle libHandle{reinterpret_cast<libklug_handle>(&lib)};
 
   void assertTransmitErrorCalls(int error = LIBUSB_ERROR_IO) {
-    ON_CALL(conn, _transmit(_, _)).WillByDefault(Return(error));
+    throwTransmitException(error);
     EXPECT_CALL(conn, _transmit(_, _)).Times(1);
     EXPECT_CALL(conn, _receive(_, _, _, _)).Times(0);
   }
   void assertReceiveErrorCalls(int error = LIBUSB_ERROR_IO) {
-    ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(Return(error));
+    throwReceiveException(error);
     {
       InSequence i;
       EXPECT_CALL(conn, _transmit(_, _)).Times(1);
       EXPECT_CALL(conn, _receive(_, _, _, _)).Times(1);
     }
   }
+
+  void throwTransmitException(int error = LIBUSB_ERROR_IO) {
+    using std::operator""sv;
+    ON_CALL(conn, _transmit(_, _))
+      .WillByDefault(
+        Throw(except::libusb_error{error, "A very important error message"sv}));
+  }
+  void throwReceiveException(int error = LIBUSB_ERROR_IO) {
+    using std::operator""sv;
+    ON_CALL(conn, _receive(_, _, _, _))
+      .WillByDefault(
+        Throw(except::libusb_error{error, "A very important error message"sv}));
+  }
+
   void assertTransmitReceiveErrorResult(result const& result,
                                         int error = LIBUSB_ERROR_IO) {
     ASSERT_EQ(result.type, result_type::libusb_error);
