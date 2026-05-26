@@ -27,11 +27,10 @@ int main() {
   auto lib{setup::connect()};
   if (!lib) return -1;
 
-  auto zsu{
-    libklug_zsu_read(lib, paths::zsu_path.data(), paths::zsu_path.size())};
+  auto zsu{libklug_zsu_read(paths::zsu_path.data(), paths::zsu_path.size())};
   if (!zsu) return -1;
 
-  auto const fw_it{libklug_zsu_create_firmware_iterator(zsu)};
+  auto const fw_it{libklug_zsu_firmware_iterator_create_begin(zsu)};
 
   gsl::final_action a([&]() {
     libklug_com_reset(lib);
@@ -40,7 +39,7 @@ int main() {
       return -1;
     }
     libklug_zsu_destroy_firmware_iterator(fw_it);
-    libklug_zsu_release(lib, zsu);
+    libklug_zsu_release(zsu);
     setup::disconnect(lib);
     return 0;
   });
@@ -74,17 +73,18 @@ int main() {
   std::cout << "Searching decoder" << std::endl;
   bool found{};
   do { // Caution, this assumes at least one firmware in file
-    libklug_mdu_ein_ping(lib, 0uz, libklug_zsu_firmware_id(fw_it));
+    libklug_mdu_ein_ping(lib, 0uz, libklug_zsu_firmware_iterator_get_id(fw_it));
     // Inverted success because of ping
     if (success(libklug_result(lib))) {
       found = true;
       break;
     }
 
-  } while (libklug_zsu_firmware_next(fw_it));
+  } while (libklug_zsu_firmware_iterator_next(fw_it));
   if (found)
-    std::cout << "Found decoder " << libklug_zsu_firmware_name(fw_it)
-              << " with ID " << std::hex << libklug_zsu_firmware_id(fw_it)
+    std::cout << "Found decoder "
+              << libklug_zsu_firmware_iterator_get_name(fw_it) << " with ID "
+              << std::hex << libklug_zsu_firmware_iterator_get_id(fw_it)
               << std::dec << std::endl;
   else {
     std::cout << "Unable to find decoder " << std::endl;
@@ -115,7 +115,7 @@ int main() {
   std::cout << "Flash erased" << std::endl;
 
   std::cout << "Progress" << std::endl;
-  long const blocks{libklug_zsu_firmware_blocks(lib, fw_it)};
+  long const blocks{libklug_zsu_firmware_iterator_get_blocks(fw_it)};
   double progress{0.0};
   unsigned int retry{0uz};
   for (long i{0}; i < blocks; i++) {

@@ -5,7 +5,7 @@
 #include "helper.hpp"
 
 TEST_F(TestMDU_EIN, zsu_update_payload) {
-  auto const blocks{libklug_zsu_firmware_blocks(libHandle, fwItHandle)};
+  auto const blocks{libklug_zsu_firmware_iterator_get_blocks(fwItHandle)};
 
   for (unsigned int idx{0uz}; idx < blocks; idx++) {
     {

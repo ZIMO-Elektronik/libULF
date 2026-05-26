@@ -21,6 +21,7 @@ concept FirmwareRange =
 template<FirmwareRange R>
 struct ManagedIterator {
   ManagedIterator(R const& r) : _r{r}, _current{r.begin()} {}
+  ManagedIterator(R const& r, bool) : _r{r}, _current{r.end()} {}
   ManagedIterator(ManagedIterator const& lhs) = default;
 
   bool next() {
@@ -33,6 +34,10 @@ struct ManagedIterator {
     if (_current == _r.cbegin() || _current - 1 == _r.cbegin()) return false;
     _current--;
     return true;
+  }
+
+  bool equals(ManagedIterator const& rhs) const {
+    return _current == rhs._current;
   }
 
   R::value_type const& get() { return *_current; }

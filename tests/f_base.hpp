@@ -3,9 +3,9 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <libklug/libklug.h>
+#include <libklug/internal/bridge/bridge.hpp>
 #include <libklug/internal/exception/e_generic.hpp>
 #include <libklug/internal/exception/e_libusb.hpp>
-#include <libklug/libklug.hpp>
 #include <memory>
 #include "mock_connection.hpp"
 
@@ -22,7 +22,7 @@ struct TestBase : public testing::Test {
 
   std::shared_ptr<NiceMock<MockConnection>> p_conn;
   NiceMock<MockConnection>& conn;
-  libklug::LibKLUG lib;
+  bridge::Bridge lib;
   libklug_handle libHandle{reinterpret_cast<libklug_handle>(&lib)};
 
   void assertTransmitErrorCalls(int error = LIBUSB_ERROR_IO) {

@@ -13,10 +13,10 @@ int main() {
   if (!handle) abort();
 
   auto z_handle{
-    libklug_zpp_read(handle, paths::zpp_path.data(), paths::zpp_path.size())};
+    libklug_zpp_read(paths::zpp_path.data(), paths::zpp_path.size())};
   if (!z_handle) abort();
 
-  long const count{libklug_zpp_blocks(handle, z_handle)};
+  long const count{libklug_zpp_blocks(z_handle)};
 
   std::cout << "SUSIV2 mode" << std::endl;
   libklug_com_susiv2(handle);
@@ -89,6 +89,6 @@ int main() {
   r = libklug_result(handle);
   if (r.type != result_type::status) abort();
 
-  libklug_zpp_release(handle, z_handle);
+  libklug_zpp_release(z_handle);
   setup::disconnect(handle);
 }

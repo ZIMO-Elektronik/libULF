@@ -63,4 +63,21 @@ constexpr result dispatch(Result r) {
                     r);
 }
 
+/**
+ * Converts a C `result` to a C++ `Result`
+ *
+ * \param r result
+ * \return Result
+ */
+constexpr Result dispatch(result r) {
+  switch (r.type) {
+    case result_type::status: return Status{r.data.success == LIBKLUG_TRUE};
+    case result_type::cv: return Cv{static_cast<uint8_t>(r.data.value)};
+    case result_type::string: return String{std::string_view{r.data.string}};
+    case result_type::error:
+      return Error{static_cast<err::Error>(r.data.error)};
+    case result_type::libusb_error: return LibusbError{r.data.libusb_error};
+  }
+}
+
 } // namespace res
