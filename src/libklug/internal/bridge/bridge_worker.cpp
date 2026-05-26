@@ -61,20 +61,22 @@ void Worker::loop() {
     try {
       _t->execute();
       auto r{_t->evaluate()};
+      _t.reset();
       _promise.set_value(r);
       if (_ctx.cb) (*_ctx.cb)(r);
     } catch (except::generic_error e) {
+      _t.reset();
       _promise.set_exception(std::current_exception());
       if (_ctx.cb) (*_ctx.cb)(static_cast<res::Error>(e));
     } catch (except::libusb_error e) {
+      _t.reset();
       _promise.set_exception(std::current_exception());
       if (_ctx.cb) (*_ctx.cb)(static_cast<res::LibusbError>(e));
     } catch (...) {
+      _t.reset();
       _promise.set_exception(std::current_exception());
       if (_ctx.cb) (*_ctx.cb)(err::Error::unknown);
     }
-
-    _t.reset();
   }
 }
 
