@@ -68,7 +68,7 @@ struct ZSU {
       return *this;
     }
 
-    bool operator==(FirmwareIterator const& rhs) {
+    bool operator==(FirmwareIterator const& rhs) const {
       return libklug_zsu_firmware_iterator_equals(
         static_cast<firmware_iterator_handle const>(*this),
         static_cast<firmware_iterator_handle const>(rhs));
@@ -168,32 +168,39 @@ struct MDU_EIN {
   }
   int busy() { return libklug_mdu_ein_busy(_lib); }
 
-  int zppValidQuery(zpp_handle zpp) {
-    return libklug_mdu_ein_zpp_valid_query(_lib, zpp);
+  int zppValidQuery(ZPP& zpp) {
+    return libklug_mdu_ein_zpp_valid_query(_lib, static_cast<zpp_handle>(zpp));
   }
-  int zppLcDcQuery(zpp_handle zpp) {
-    return libklug_mdu_ein_zpp_lc_dc_query(_lib, zpp);
+  int zppLcDcQuery(ZPP& zpp) {
+    return libklug_mdu_ein_zpp_lc_dc_query(_lib, static_cast<zpp_handle>(zpp));
   }
-  int zppErase(zpp_handle zpp) { return libklug_mdu_ein_zpp_erase(_lib, zpp); }
-  int zppUpdate(zpp_handle zpp, uint32_t index) {
-    return libklug_mdu_ein_zpp_update(_lib, zpp, index);
+  int zppErase(ZPP& zpp) {
+    return libklug_mdu_ein_zpp_erase(_lib, static_cast<zpp_handle>(zpp));
   }
-  int zppUpdateEnd(zpp_handle zpp) {
-    return libklug_mdu_ein_zpp_update_end(_lib, zpp);
+  int zppUpdate(ZPP& zpp, uint32_t index) {
+    return libklug_mdu_ein_zpp_update(
+      _lib, static_cast<zpp_handle>(zpp), index);
+  }
+  int zppUpdateEnd(ZPP& zpp) {
+    return libklug_mdu_ein_zpp_update_end(_lib, static_cast<zpp_handle>(zpp));
   }
   int zppExitReset() { return libklug_mdu_ein_zpp_exit_reset(_lib); }
 
-  int zsuSalsa20Iv(firmware_iterator_handle firmware) {
-    return libklug_mdu_ein_zsu_salsa20_iv(_lib, firmware);
+  int zsuSalsa20Iv(ZSU::FirmwareIterator& firmware) {
+    return libklug_mdu_ein_zsu_salsa20_iv(
+      _lib, static_cast<firmware_iterator_handle>(firmware));
   }
-  int zsuErase(firmware_iterator_handle firmware) {
-    return libklug_mdu_ein_zsu_erase(_lib, firmware);
+  int zsuErase(ZSU::FirmwareIterator& firmware) {
+    return libklug_mdu_ein_zsu_erase(
+      _lib, static_cast<firmware_iterator_handle>(firmware));
   }
-  int zsuUpdate(firmware_iterator_handle firmware, uint32_t index) {
-    return libklug_mdu_ein_zsu_update(_lib, firmware, index);
+  int zsuUpdate(ZSU::FirmwareIterator& firmware, uint32_t index) {
+    return libklug_mdu_ein_zsu_update(
+      _lib, static_cast<firmware_iterator_handle>(firmware), index);
   }
-  int zsuCrc32Stat(firmware_iterator_handle firmware) {
-    return libklug_mdu_ein_zsu_crc32_start(_lib, firmware);
+  int zsuCrc32Start(ZSU::FirmwareIterator& firmware) {
+    return libklug_mdu_ein_zsu_crc32_start(
+      _lib, static_cast<firmware_iterator_handle>(firmware));
   }
   int zsuCrc32Result() { return libklug_mdu_ein_zsu_crc32_result(_lib); }
   int zsuCrc32ResultExit() {

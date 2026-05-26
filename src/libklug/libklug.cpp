@@ -282,7 +282,7 @@ libklug_zsu_firmware_iterator_create_begin(zsu_handle zsu) {
 firmware_iterator_handle
 libklug_zsu_firmware_iterator_create_end(zsu_handle zsu) {
   return reinterpret_cast<firmware_iterator_handle>(
-    new FirmwareIterator(reinterpret_cast<zsu::File*>(zsu)->firmwares), bool{});
+    new FirmwareIterator(reinterpret_cast<zsu::File*>(zsu)->firmwares, bool{}));
 }
 
 void libklug_zsu_destroy_firmware_iterator(firmware_iterator_handle fw) {
