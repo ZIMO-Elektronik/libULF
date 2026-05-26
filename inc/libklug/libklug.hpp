@@ -10,6 +10,7 @@
 
 #include <cassert>
 #include <filesystem>
+#include <functional>
 #include <string_view>
 #include <utility>
 #include "libklug.h"
@@ -208,8 +209,43 @@ struct LibKLUG {
   LibKLUG(LibKLUG const&) = delete;
   ~LibKLUG() { libklug_destroy(_lib); }
 
-  void registerCb(bridge_callback cb) { libklug_register_cb(_lib, cb); }
-  void deregisterCb() { assert(false); }
+  /// Register Cb
+  ///
+  /// \tparam Unique  Type that guarantees uniqueness for each use
+  /// \tparam T       Type of class
+  /// \tparam F       Type of member function
+  template<auto Unique = [] {}, typename T, typename F>
+  constexpr auto registerCb(std::shared_ptr<T> t, F&& f) {
+    static std::weak_ptr<T> _t_weak;
+    _t_weak = t;
+
+    static auto _f{f};
+
+    _c_cb = [](::result r) {
+      if (auto _t_shared = _t_weak.lock())
+        return std::invoke(
+          _f, _t_shared, std::forward<res::Result>(res::dispatch(r)));
+      return;
+    };
+
+    libklug_register_cb(_lib, _c_cb);
+  }
+
+  /// Register Cb
+  ///
+  /// \tparam Unique  Type that guarantees uniqueness for each use
+  /// \tparam F       Type of function object
+  template<auto Unique = [] {}, typename F>
+  constexpr auto registerCb(F&& f) {
+    static std::optional<F> _f;
+    _f.emplace(std::forward<F>(f));
+    _c_cb = [](::result r) {
+      return std::invoke(*_f, std::forward<res::Result>(res::dispatch(r)));
+    };
+    libklug_register_cb(_lib, _c_cb);
+  }
+
+  void deregisterCb() { libklug_register_cb(_lib, nullptr); }
 
   res::Result result() { return res::dispatch(libklug_result(_lib)); }
 
@@ -227,6 +263,8 @@ struct LibKLUG {
 
 private:
   libklug_handle _lib;
+
+  bridge_callback _c_cb{nullptr};
 
   COM _com{_lib};
   SUSIV2 _susiv2{_lib};
