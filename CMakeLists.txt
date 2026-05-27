@@ -71,7 +71,7 @@ if(NOT TARGET usb-1.0)
 endif()
 
 if(NOT TARGET MDU::MDU)
-  cpmaddpackage("gh:ZIMO-Elektronik/MDU@0.19.2")
+  cpmaddpackage("gh:ZIMO-Elektronik/MDU@0.19.3")
 endif()
 
 if(NOT TARGET ULF::MDU_EIN)
