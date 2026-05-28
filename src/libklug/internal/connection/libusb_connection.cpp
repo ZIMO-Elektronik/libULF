@@ -6,13 +6,31 @@
 }* \date    21.04.2026
  */
 
-#include "libklug/internal/connection.hpp"
+#include "libklug/internal/connection/libusb_connection.hpp"
 #include <cassert>
 #include <cstdint>
 #include <vector>
 #include <ztl/ztl.hpp>
 #include "libklug/internal/exception/e_libusb.hpp"
 #include "libklug/internal/logging.hpp"
+
+namespace internal {
+
+/**
+ * Initialize the Libusb context
+ *
+ * \return int
+ * \retval LIBUSB_ERROR   Error
+ * \retval LIBUSB_SUCCESS Success
+ */
+int LibusbConnection::init() {
+#ifdef ANDROID
+  // We can't search devices on Android
+  libusb_set_option(NULL, LIBUSB_OPTION_WEAK_AUTHORITY);
+  libusb_set_option(nullptr, LIBUSB_OPTION_NO_DEVICE_DISCOVERY);
+#endif
+  return libusb_init(nullptr);
+}
 
 /**
  * Open connection
@@ -25,7 +43,7 @@
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-int Connection::open(uint16_t vid, uint16_t pid) {
+int LibusbConnection::open(uint16_t vid, uint16_t pid) {
   if (_handle) {
     LOGE("Attempted to open device {:04x}:{:04x}, but a device exists already ",
          vid,
@@ -53,7 +71,7 @@ int Connection::open(uint16_t vid, uint16_t pid) {
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-int Connection::openFd(int Fd) {
+int LibusbConnection::openFd(int Fd) {
   if (_handle) {
     LOGE("Attempted to open device with descriptor ID {}, but a device exists "
          "already",
@@ -80,7 +98,7 @@ int Connection::openFd(int Fd) {
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-int Connection::config() {
+int LibusbConnection::config() {
   if (!_handle) {
     LOGE("Attempted to configure connection without an open device!");
     return LIBUSB_ERROR_OTHER;
@@ -144,13 +162,13 @@ int Connection::config() {
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-int Connection::claim() {
+int LibusbConnection::claim() {
   if (!_handle) {
     LOGE("Attempted to claim an interface without an open device!");
     return LIBUSB_ERROR_OTHER;
   }
 
-  LOGD("TX_EP - {} RX_EP - {} Interface {}", tx_ep(), rx_ep(), interface());
+  LOGD("TX_EP - {} RX_EP - {} Interface {}", _tx_ep, _rx_ep, _interface);
 
   auto rc{libusb_kernel_driver_active(_handle, _interface)};
   if (rc == 1) {
@@ -187,7 +205,7 @@ int Connection::claim() {
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-int Connection::release() {
+int LibusbConnection::release() {
   if (!_handle) {
     LOGE("Attempted to release an interface without an open device!");
     return LIBUSB_ERROR_OTHER;
@@ -209,7 +227,7 @@ int Connection::release() {
  * Kotlin
  *
  */
-void Connection::close() {
+void LibusbConnection::close() {
   if (!_handle) {
     LOGE("Attemted to close a device without an open device!");
     return;
@@ -226,41 +244,13 @@ void Connection::close() {
  * \todo Refactor, as waiting for an exception is probably not the most elegant
  * thing here
  */
-void Connection::flush() {
+void LibusbConnection::flush() {
   ztl::inplace_vector<uint8_t, 64u> buffer;
   try {
     while (true) receive(buffer, 1);
 
   } catch (except::libusb_error e) {}
 }
-
-/**
- * Handle getter
- *
- * \return libusb_device_handle* Handle
- */
-libusb_device_handle* Connection::handle() { return _handle; }
-
-/**
- * TX-EP getter
- *
- * \return uint8_t TX-EP
- */
-uint8_t Connection::tx_ep() { return _tx_ep; }
-
-/**
- * RX-EP getter
- *
- * \return uint8_t RX-EP
- */
-uint8_t Connection::rx_ep() { return _rx_ep; }
-
-/**
- * Interface getter
- *
- * \return int Interface
- */
-int Connection::interface() { return _interface; }
 
 /**
  * Transmit payload
@@ -270,7 +260,8 @@ int Connection::interface() { return _interface; }
  *
  * \throw libusb_error
  */
-void Connection::_transmit(std::span<uint8_t const> payload, uint32_t timeout) {
+void LibusbConnection::_transmit(std::span<uint8_t const> payload,
+                                 uint32_t timeout) {
   using std::operator""sv;
   if (auto rc{
         libusb_bulk_transfer(_handle,
@@ -293,13 +284,15 @@ void Connection::_transmit(std::span<uint8_t const> payload, uint32_t timeout) {
  *
  * \throw libusb_error
  */
-void Connection::_receive(uint8_t* buffer,
-                          uint32_t length,
-                          int* received,
-                          uint32_t timeout) {
+void LibusbConnection::_receive(uint8_t* buffer,
+                                uint32_t length,
+                                int* received,
+                                uint32_t timeout) {
   using std::operator""sv;
   if (auto rc{libusb_bulk_transfer(
         _handle, _rx_ep, buffer, length, received, timeout)};
       rc != LIBUSB_SUCCESS)
     throw except::libusb_error{rc, "Unable to receive"sv};
 }
+
+} // namespace internal

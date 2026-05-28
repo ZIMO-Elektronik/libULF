@@ -1,8 +1,10 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <libklug/internal/connection.hpp>
+#include <libklug/internal/connection/i_connection.hpp>
 
-struct MockConnection : public Connection {
+struct MockConnection : public internal::IConnection {
+  MOCK_METHOD(int, init, (), (override));
+
   MOCK_METHOD(int, open, (uint16_t, uint16_t), (override));
   MOCK_METHOD(int, openFd, (int Fd), (override));
 

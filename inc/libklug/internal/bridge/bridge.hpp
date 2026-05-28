@@ -47,7 +47,7 @@ namespace bridge {
  */
 struct Bridge {
   Bridge() = default;
-  Bridge(std::shared_ptr<Connection> conn);
+  Bridge(std::shared_ptr<internal::IConnection> conn);
 
   int init();
 

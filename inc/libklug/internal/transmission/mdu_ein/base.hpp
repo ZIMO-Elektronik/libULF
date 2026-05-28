@@ -19,10 +19,10 @@ namespace transmission::mdu_ein {
  *
  */
 struct Base : public TransmissionBase {
-  Base(std::shared_ptr<Connection> conn,
+  Base(std::shared_ptr<internal::IConnection> conn,
        std::string payload,
        std::size_t timeout);
-  Base(std::shared_ptr<Connection> conn,
+  Base(std::shared_ptr<internal::IConnection> conn,
        std::span<uint8_t const> payload,
        std::size_t timeout);
   virtual ~Base() = default;

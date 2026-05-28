@@ -11,6 +11,7 @@
 #include <thread>
 #include "libklug/internal/exception/e_generic.hpp"
 #include "libklug/internal/exception/e_libusb.hpp"
+#include "libklug/internal/logging.hpp"
 
 namespace bridge {
 
@@ -66,14 +67,17 @@ void Worker::loop() {
       if (_ctx.cb) (*_ctx.cb)(r);
     } catch (except::generic_error e) {
       _t.reset();
+      LOGE("{}", e.what());
       _promise.set_exception(std::current_exception());
       if (_ctx.cb) (*_ctx.cb)(static_cast<res::Error>(e));
     } catch (except::libusb_error e) {
       _t.reset();
+      LOGE("{}", e.what());
       _promise.set_exception(std::current_exception());
       if (_ctx.cb) (*_ctx.cb)(static_cast<res::LibusbError>(e));
-    } catch (...) {
+    } catch (std::exception e) {
       _t.reset();
+      LOGE("{}", e.what());
       _promise.set_exception(std::current_exception());
       if (_ctx.cb) (*_ctx.cb)(err::Error::unknown);
     }

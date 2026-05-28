@@ -18,10 +18,10 @@ namespace transmission::mdu_ein {
  * \internal Overrides \ref Ping::evaluate since ping success is NAK'ed
  */
 struct Ping : public Base {
-  Ping(std::shared_ptr<Connection> conn,
+  Ping(std::shared_ptr<internal::IConnection> conn,
        std::string payload,
        std::size_t timeout);
-  Ping(std::shared_ptr<Connection> conn,
+  Ping(std::shared_ptr<internal::IConnection> conn,
        std::span<uint8_t const> payload,
        std::size_t timeout);
   virtual ~Ping() = default;

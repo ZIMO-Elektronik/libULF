@@ -10,7 +10,7 @@
 #include <libusb.h>
 #include <ranges>
 #include <string>
-#include "libklug/internal/connection.hpp"
+#include "libklug/internal/connection/i_connection.hpp"
 #include "libklug/internal/exception/e_libusb.hpp"
 #include "libklug/internal/logging.hpp"
 
@@ -23,7 +23,7 @@ namespace transmission {
  * \param payload Payload
  * \param timeout Timeout
  */
-TransmissionBase::TransmissionBase(std::shared_ptr<Connection> conn,
+TransmissionBase::TransmissionBase(std::shared_ptr<internal::IConnection> conn,
                                    std::string payload,
                                    std::size_t timeout)
   : _timeout{timeout}, _conn{conn} {
@@ -40,7 +40,7 @@ TransmissionBase::TransmissionBase(std::shared_ptr<Connection> conn,
  * \param payload Payload
  * \param timeout Timeout
  */
-TransmissionBase::TransmissionBase(std::shared_ptr<Connection> conn,
+TransmissionBase::TransmissionBase(std::shared_ptr<internal::IConnection> conn,
                                    std::span<uint8_t const> payload,
                                    std::size_t timeout)
   : _timeout{timeout}, _conn{conn} {

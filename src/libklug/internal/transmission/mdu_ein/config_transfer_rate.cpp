@@ -14,8 +14,8 @@
 
 namespace transmission::mdu_ein {
 
-ConfigTransferRate::ConfigTransferRate(std::shared_ptr<Connection> conn,
-                                       mdu::TransferRate speed)
+ConfigTransferRate::ConfigTransferRate(
+  std::shared_ptr<internal::IConnection> conn, mdu::TransferRate speed)
   : _conn{conn}, _speed{speed} {}
 
 /**
@@ -39,7 +39,7 @@ void ConfigTransferRate::execute() {
                                   "Unable to set speed for device"sv};
     _result = true;
   } catch (std::exception const& e) {
-    LOGE(e.what());
+    LOGE("{}", e.what());
     LOGD("Attempting to set fallback timing");
     auto r{special(true)};
     if (!std::holds_alternative<res::Status>(r) || !std::get<res::Status>(r))

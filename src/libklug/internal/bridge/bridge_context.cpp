@@ -7,6 +7,8 @@
  */
 
 #include "libklug/internal/bridge/bridge_context.hpp"
+#include "libklug/internal/connection/libserialport_connection.hpp"
+#include "libklug/internal/connection/libusb_connection.hpp"
 
 namespace bridge {
 
@@ -14,14 +16,16 @@ namespace bridge {
  * CTor
  *
  */
-Context::Context() : connection{std::make_shared<Connection>()} {}
+Context::Context()
+  : connection{std::make_shared<internal::LibserialportConnection>()} {}
 
 /**
  * CTor
  *
  * \param conn Connection ptr
  */
-Context::Context(std::shared_ptr<Connection> conn) : connection{conn} {}
+Context::Context(std::shared_ptr<internal::IConnection> conn)
+  : connection{conn} {}
 
 /**
  * Setter for transmission

@@ -20,7 +20,7 @@ namespace transmission::com {
  * \param payload Payload
  * \param timeout Timeout
  */
-Base::Base(std::shared_ptr<Connection> conn,
+Base::Base(std::shared_ptr<internal::IConnection> conn,
            std::string payload,
            std::size_t timeout)
   : TransmissionBase{conn, payload, timeout} {}
@@ -32,7 +32,7 @@ Base::Base(std::shared_ptr<Connection> conn,
  * \param payload Payload
  * \param timeout Timeout
  */
-Base::Base(std::shared_ptr<Connection> conn,
+Base::Base(std::shared_ptr<internal::IConnection> conn,
            std::span<uint8_t const> payload,
            std::size_t timeout)
   : TransmissionBase{conn, payload, timeout} {}
