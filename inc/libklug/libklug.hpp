@@ -11,6 +11,7 @@
 #include <cassert>
 #include <filesystem>
 #include <functional>
+#include <optional>
 #include <string_view>
 #include <utility>
 #include "libklug.h"
