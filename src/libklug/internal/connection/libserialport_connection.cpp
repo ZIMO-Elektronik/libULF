@@ -99,7 +99,8 @@ void LibserialportConnection::close() {
 }
 
 void LibserialportConnection::flush() {
-  if (_port) sp_flush(_port, SP_BUF_BOTH);
+  // if (_port) sp_flush(_port, SP_BUF_BOTH);
+  std::cout << "Here we would fulsh" << std::endl;
 }
 
 void LibserialportConnection::_transmit(std::span<uint8_t const> payload,
