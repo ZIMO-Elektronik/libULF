@@ -1,57 +1,58 @@
 cmake_minimum_required(VERSION 3.15)
 project(libserialport_wrapper C)
 
-include(ExternalProject)
+include(FetchContent)
 
-message(STATUS Penis)
+# 1. Wir laden nur die Quellcodes herunter, anstatt ExternalProject zu nutzen
+FetchContent_Declare(
+  libserialport_src
+  GIT_REPOSITORY "https://github.com/sigrokproject/libserialport.git"
+  GIT_TAG "master")
+FetchContent_MakeAvailable(libserialport_src)
 
-if(CMAKE_CROSSCOMPILING)
-  set(AUTOTOOLS_HOST_FLAG "--host=${CMAKE_LIBRARY_ARCHITECTURE}")
+check_include_files(sys/time.h HAVE_SYS_TIME_H)
+check_include_files(sys/types.h HAVE_SYS_TYPES_H)
+check_include_files(unistd.h HAVE_UNISTD_H)
+check_include_files(termios.h HAVE_TERMIOS_H)
+
+# 1. Die config.h aus der Vorlage generieren (sauber und unbloated)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config.h.in"
+               "${CMAKE_CURRENT_BINARY_DIR}/config.h")
+
+# 1. Wir definieren das SHARED-Target (die DLL) direkt in CMake! libserialport
+#   besteht auf Windows primär aus diesen Quelldateien.
+add_library(libserialport SHARED "${libserialport_src_SOURCE_DIR}/serialport.c"
+                                 "${libserialport_src_SOURCE_DIR}/timing.c")
+
+if(WIN32)
+  target_sources(libserialport
+                 PRIVATE "${libserialport_src_SOURCE_DIR}/windows.c")
 else()
-  set(AUTOTOOLS_HOST_FLAG "")
+  target_sources(libserialport
+                 PRIVATE "${libserialport_src_SOURCE_DIR}/linux.c")
 endif()
 
-set(LIBSERIALPORT_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/libserialport_ext")
-set(LIBSERIALPORT_INSTALL_DIR "${LIBSERIALPORT_PREFIX}/install")
+# 1. Interne Makros setzen, die libserialport zum Kompilieren braucht
+target_compile_definitions(
+  libserialport
+  PRIVATE _GNU_SOURCE LIBSERIALPORT_BUILDING "SP_API=__declspec\(dllexport\)"
+          "SP_PRIV=" "SP_PACKAGE_VERSION_STRING=\"0.1.2\""
+          "SP_LIB_VERSION_STRING=\"1:1:1\"")
 
-set(LIBSERIALPORT_INCLUDE_DIR "${LIBSERIALPORT_INSTALL_DIR}/include")
-set(LIBSERIALPORT_LIBRARY "${LIBSERIALPORT_INSTALL_DIR}/lib/libserialport.so")
+# 1. Header-Suchpfad für Ihr Hauptprojekt bereitstellen
+target_include_directories(
+  libserialport
+  PUBLIC "${libserialport_src_SOURCE_DIR}"
+  PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
-set_source_files_properties("${LIBSERIALPORT_LIBRARY}" PROPERTIES GENERATED TRUE)
+# 1. Windows-Systembibliotheken linken, die für serielle Ports nötig sind
+if(WIN32)
+  target_link_libraries(libserialport PRIVATE setupapi uuid)
 
-
-ExternalProject_Add(libserialport_project
-  GIT_REPOSITORY "https://github.com/sigrokproject/libserialport.git"
-  GIT_TAG master
-  PREFIX "${LIBSERIALPORT_PREFIX}"
-  INSTALL_DIR "${LIBSERIALPORT_INSTALL_DIR}"
-  CONFIGURE_COMMAND <SOURCE_DIR>/autogen.sh
-  BUILD_COMMAND <SOURCE_DIR>/configure
-  --prefix=<INSTALL_DIR>
-  --disable-static
-  --enable-shared
-  ${AUTOTOOLS_HOST_FLAG}
-  CC=${CMAKE_C_COMPILER}
-  CFLAGS=${CMAKE_C_FLAGS}
-  LDFLAGS=${CMAKE_EXE_LINKER_FLAGS}
-  COMMAND make
-  INSTALL_COMMAND make install
-  BUILD_BYPRODUCTS "${LIBSERIALPORT_LIBRARY}"
-  CMAKE_ARGS -DBUILD_SHARED_LIBS=ON
-)
-
-# Target im Unterprojekt definieren (wird für das Hauptprojekt sichtbar)
-add_library(libserialport UNKNOWN IMPORTED GLOBAL)
-add_dependencies(libserialport libserialport_project)
-
-set(LIBSERIALPORT_INCLUDE_DIR "${LIBSERIALPORT_INSTALL_DIR}/include")
-set(LIBSERIALPORT_LIBRARY "${LIBSERIALPORT_INSTALL_DIR}/lib/libserialport.so")
-
-# Wichtig bei FetchContent: Ordner existieren beim ersten Aufruf noch nicht,
-# daher legen wir sie virtuell an, damit CMake nicht meckert.
-file(MAKE_DIRECTORY "${LIBSERIALPORT_INCLUDE_DIR}")
-
-set_target_properties(libserialport PROPERTIES
-  IMPORTED_LOCATION "${LIBSERIALPORT_LIBRARY}"
-  INTERFACE_INCLUDE_DIRECTORIES "${LIBSERIALPORT_INCLUDE_DIR}"
-)
+  # Zwingt CMake, die DLL sauber als DLL zu exportieren
+  set_target_properties(
+    libserialport
+    PROPERTIES PREFIX ""
+               IMPORT_PREFIX ""
+               OUTPUT_NAME "libserialport")
+endif()

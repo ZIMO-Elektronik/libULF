@@ -10,7 +10,7 @@
 
 #define LOG_TAG "NativeKLUG"
 
-#define LOGGINGING
+// #define LOGGINGING
 
 #ifdef ANDROID
 #  include <android/log.h>
@@ -25,6 +25,7 @@
 
 #else
 #  ifdef LOGGINGING
+#    include <format>
 #    include <iostream>
 
 #    define LOGD(...)                                                          \
