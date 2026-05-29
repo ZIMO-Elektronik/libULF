@@ -1,3 +1,11 @@
+/**
+ * LibserialportConnection
+ *
+ * \file    inc/libklug/internal/connection/libserialport_connection.hpp
+ * \author  Jonas Gahlert
+ * \date    29.05.2026
+ */
+
 #pragma once
 
 #include <libserialport.h>
@@ -7,6 +15,20 @@
 
 namespace internal {
 
+/**
+ * LibserialportConnection
+ *
+ * \details
+ * A connection class using libserialport as its backend
+ *
+ * \note
+ * Probably, using this is better on Windows as we dont have to change the
+ * driver..
+ *
+ * \todo
+ * Change error handling to exception model, since we throw anyway
+ *
+ */
 struct LibserialportConnection : public IConnection {
   virtual int init() override;
 
@@ -29,7 +51,7 @@ private:
                         int* received,
                         uint32_t timeout) override;
 
-  sp_port* _port{nullptr};
+  sp_port* _port{nullptr}; ///< Port
 };
 
 } // namespace internal

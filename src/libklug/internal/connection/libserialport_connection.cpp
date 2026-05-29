@@ -1,3 +1,11 @@
+/**
+ * LibserialportConnection
+ *
+ * \file    src/libklug/internal/connection/libserialport_connection.cpp
+ * \author  Jonas Gahlert
+ * \date    29.05.2026
+ */
+
 #include "libklug/internal/connection/libserialport_connection.hpp"
 #include <libserialport.h>
 #include <cassert>
@@ -8,8 +16,20 @@
 
 namespace internal {
 
+/**
+ * Init (fake)
+ *
+ * \return int 0
+ */
 int LibserialportConnection::init() { return 0; }
 
+/**
+ * Open device
+ *
+ * \param vid Device VID
+ * \param pid Device PID
+ * \return int
+ */
 int LibserialportConnection::open(uint16_t vid, uint16_t pid) {
   sp_port** port_list;
   sp_port* found_port = nullptr;
@@ -35,19 +55,27 @@ int LibserialportConnection::open(uint16_t vid, uint16_t pid) {
   }
 
   this->_port = found_port;
+  auto rc = sp_open(_port, SP_MODE_READ_WRITE);
   return 0; // Erfolg
 }
 
+/**
+ * Open filedescriptor
+ *
+ * \param Fd
+ * \return int
+ */
 int LibserialportConnection::openFd(int Fd) { return -1; }
 
 int LibserialportConnection::config() {
   if (!_port) return -1;
 
-  sp_set_baudrate(_port, 115200);
-  sp_set_bits(_port, 8);
-  sp_set_parity(_port, SP_PARITY_NONE);
-  sp_set_stopbits(_port, 1);
-  sp_set_flowcontrol(_port, SP_FLOWCONTROL_NONE);
+  auto rc = sp_set_baudrate(_port, 115200);
+  rc = sp_set_bits(_port, 8);
+  rc = sp_set_parity(_port, SP_PARITY_NONE);
+  rc = sp_set_stopbits(_port, 1);
+  rc = sp_set_flowcontrol(_port, SP_FLOWCONTROL_NONE);
+
   return 0;
 }
 
@@ -99,6 +127,7 @@ void LibserialportConnection::_receive(uint8_t* buffer,
     sp_free_error_message(sp_err);
     throw except::generic_error{err::Error::usb, err};
   }
+  *received = r;
 }
 
 } // namespace internal

@@ -1,7 +1,7 @@
 /**
  * USB connection
  *
- * \file    inc/libklug/internal/connection.hpp
+ * \file    inc/libklug/internal/connection/libusb_connection.hpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */
@@ -17,7 +17,8 @@ namespace internal {
 /**
  * Connetion
  *
- * \note More of a fascade for libusb
+ * \details
+ * A connection class using libusb as backend
  *
  */
 struct LibusbConnection : IConnection {

@@ -1,3 +1,11 @@
+/**
+ * IConnection
+ *
+ * \file    inc/libklug/internal/connection/i_connection.hpp
+ * \author  Jonas Gahlert
+ * \date    29.05.2026
+ */
+
 #pragma once
 
 #include <cstdint>
@@ -5,6 +13,11 @@
 #include <span>
 
 namespace internal {
+
+/**
+ * IConnection interface
+ *
+ */
 struct IConnection {
   virtual int init() = 0;
 

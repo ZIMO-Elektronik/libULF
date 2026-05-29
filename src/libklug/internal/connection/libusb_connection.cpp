@@ -1,9 +1,9 @@
 /**
- * Connection
+ * LibusbConnection
  *
- * \file    src/libklug/internal/connection.cpp
+ * \file    src/libklug/internal/connection/libusb_connection.cpp
  * \author  Jonas Gahlert
-}* \date    21.04.2026
+ * \date    21.04.2026
  */
 
 #include "libklug/internal/connection/libusb_connection.hpp"
