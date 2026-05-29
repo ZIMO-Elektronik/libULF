@@ -1,12 +1,33 @@
 #pragma once
 
+#include <cstdint>
+
 namespace internal::config {
 
 namespace log {
 
-constexpr bool log_to_stdout = @LOG_TO_STDOUT_VALUE@;
-constexpr bool log_to_stderr = @LOG_TO_STDERR_VALUE@;
+constexpr bool log_to_stdout {@LOG_TO_STDOUT_VALUE@};
+constexpr bool log_to_stderr {@LOG_TO_STDERR_VALUE@};
 
 } // namespace log
+
+namespace timeout {
+
+constexpr uint32_t transmit{100uz};
+
+namespace com {
+
+constexpr uint32_t ping{2000uz};
+constexpr uint32_t reset{2000uz};
+constexpr uint32_t mdu_ein{2000uz};
+constexpr uint32_t susiv2{2000uz};
+
+} // namespace com
+
+namespace mdu_ein {}
+
+namespace susiv2 {}
+
+} // namespace timeout
 
 } // namespace internal::config

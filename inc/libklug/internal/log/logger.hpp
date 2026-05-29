@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <iostream>
 #include <string>
 #include <string_view>
 #include "config.hpp"
@@ -11,21 +12,23 @@ namespace internal::log {
 using Functor = std::function<void(Level, std::string const&)>;
 
 struct Logger {
-  static Logger& get() {
+  constexpr static Logger& get() {
     static Logger instance;
     return instance;
   }
 
-  void setFunctor(Functor functor) { _functor = std::move(functor); }
+  constexpr void setFunctor(Functor functor) { _functor = std::move(functor); }
+  constexpr void setLevel(Level level) { _level = std::move(level); }
 
-  void log(Level level, std::string const& message) {
+  constexpr void log(Level level, std::string const& message) {
+    if (level < _level) return;
     if constexpr (config::log::log_to_stdout)
-      if (level < LogLevel::Warn)
+      if (level < Level::Warning)
         std::cout << "[" << levelToString(level) << "] " << message
                   << std::endl;
 
     if constexpr (config::log::log_to_stderr)
-      if (level >= LogLevel::Warn)
+      if (level >= Level::Warning)
         std::cerr << "[" << levelToString(level) << "] " << message
                   << std::endl;
 
@@ -33,7 +36,7 @@ struct Logger {
   }
 
 private:
-  Logger() = default;
+  constexpr Logger() = default;
 
   Functor _functor{nullptr};
 
@@ -49,23 +52,27 @@ private:
       default: return "UNKNOWN"sv;
     }
   }
-}
 
-#define LOG_TRACE(fmt, ...)                                                    \
-  MyLib::Logger::getInstance().log(Level::Trace,                               \
-                                   std::format(fmt, ##__VA_ARGS__))
-#define LOG_DEBUG(fmt, ...)                                                    \
-  MyLib::Logger::getInstance().log(Level::Debug,                               \
-                                   std::format(fmt, ##__VA_ARGS__))
-#define LOG_INFO(fmt, ...)                                                     \
-  MyLib::Logger::getInstance().log(Level::Info, std::format(fmt, ##__VA_ARGS__))
-#define LOG_WARN(fmt, ...)                                                     \
-  MyLib::Logger::getInstance().log(Level::Warn, std::format(fmt, ##__VA_ARGS__))
-#define LOG_ERROR(fmt, ...)                                                    \
-  MyLib::Logger::getInstance().log(Level::Error,                               \
-                                   std::format(fmt, ##__VA_ARGS__))
-#define LOG_FATAL(fmt, ...)                                                    \
-  MyLib::Logger::getInstance().log(Level::Fatal,                               \
-                                   std::format(fmt, ##__VA_ARGS__))
+  Level _level{Level::Warning};
+};
 
 } // namespace internal::log
+
+#define LOG_TRACE(fmt, ...)                                                    \
+  ::internal::log::Logger::get().log(::internal::log::Level::Trace,            \
+                                     std::format(fmt, ##__VA_ARGS__))
+#define LOG_DEBUG(fmt, ...)                                                    \
+  ::internal::log::Logger::get().log(::internal::log::Level::Debug,            \
+                                     std::format(fmt, ##__VA_ARGS__))
+#define LOG_INFO(fmt, ...)                                                     \
+  ::internal::log::Logger::get().log(::internal::log::Level::Info,             \
+                                     std::format(fmt, ##__VA_ARGS__))
+#define LOG_WARN(fmt, ...)                                                     \
+  ::internal::log::Logger::get().log(::internal::log::Level::Warning,          \
+                                     std::format(fmt, ##__VA_ARGS__))
+#define LOG_ERROR(fmt, ...)                                                    \
+  ::internal::log::Logger::get().log(::internal::log::Level::Error,            \
+                                     std::format(fmt, ##__VA_ARGS__))
+#define LOG_CRITICAL(fmt, ...)                                                 \
+  ::internal::log::Logger::get().log(::internal::log::Level::Critical,         \
+                                     std::format(fmt, ##__VA_ARGS__))

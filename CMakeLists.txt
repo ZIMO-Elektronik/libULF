@@ -97,11 +97,15 @@ option(LIBKLUG_ENABLE_STDOUT_LOGGING "Enable logging to stdout" ON)
 option(LIBKLUG_ENABLE_STDERR_LOGGING "Enable logging to stderr" ON)
 
 function(to_cpp_bool cmake_value output_var)
-    if(${cmake_value})
-        set(${output_var} "true" PARENT_SCOPE)
-    else()
-        set(${output_var} "false" PARENT_SCOPE)
-    endif()
+  if(${cmake_value})
+    set(${output_var}
+        "true"
+        PARENT_SCOPE)
+  else()
+    set(${output_var}
+        "false"
+        PARENT_SCOPE)
+  endif()
 endfunction()
 
 to_cpp_bool(${LIBKLUG_ENABLE_STDOUT_LOGGING} LOG_TO_STDOUT_VALUE)
@@ -144,4 +148,6 @@ if(PROJECT_IS_TOP_LEVEL)
     inc//libklug/internal/platform/android/jni_defines.hpp
     inc//libklug/internal/platform/android/jni_dispatch.hpp
     inc//libklug/internal/platform/android/jni_functor.hpp)
+  target_include_directories(KLUGIncludeWhatYouMust PRIVATE
+                             ${CMAKE_CURRENT_BINARY_DIR}/generated/)
 endif()
