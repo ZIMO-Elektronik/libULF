@@ -33,7 +33,7 @@ struct IConnection {
   virtual void flush() = 0;
 
   /**
-   * Transmit range
+   * Write range
    *
    * \tparam R      Input range type
    * \param r       Range
@@ -43,12 +43,39 @@ struct IConnection {
    */
   template<std::ranges::input_range R>
   requires std::constructible_from<std::span<uint8_t const>, R>
-  void transmit(R const& r, uint32_t timeout) {
-    _transmit({r}, timeout);
+  void write(R const& r, uint32_t timeout) {
+    _write(r, timeout);
   }
 
   /**
-   * Receive to range
+   * Read to range
+   *
+   * \note Used range MUST support `resize`, `size` and `data` ops
+   *
+   * \tparam R          Output range type
+   * \tparam T          Terminator type
+   * \param r           Range
+   * \param terminator  Terminator
+   * \param timeout     Timeout
+   *
+   * \throw libusb_error
+   *
+   * \todo Envode some type T convertible to uint8_t
+   */
+  template<std::ranges::output_range<uint8_t> R, typename T>
+  requires requires(R r, uint32_t s) {
+    { r.resize(s) };
+    { r.size() } -> std::convertible_to<size_t>;
+    { r.data() } -> std::same_as<uint8_t*>;
+  }
+  constexpr void read_until(R&& r, T&& terminator, uint32_t timeout) {
+    int received{};
+    _read_until(r.data(), r.size(), &received, terminator, timeout);
+    r.resize(received);
+  }
+
+  /**
+   * Read to range
    *
    * \note Used range MUST support `resize`, `size` and `data` ops
    *
@@ -64,19 +91,23 @@ struct IConnection {
     { r.size() } -> std::convertible_to<size_t>;
     { r.data() } -> std::same_as<uint8_t*>;
   }
-  constexpr void receive(R&& r, uint32_t timeout) {
+  constexpr void read_all(R&& r, uint32_t timeout) {
     int received{};
-    _receive(r.data(), r.size(), &received, timeout);
+    _read_all(r.data(), r.size(), &received, timeout);
     r.resize(received);
   }
 
 private:
-  virtual void _transmit(std::span<uint8_t const> payload,
+  virtual void _write(std::span<uint8_t const> payload, uint32_t timeout) = 0;
+  virtual void _read_until(uint8_t* buffer,
+                           uint32_t length,
+                           int* received,
+                           uint8_t terminator,
+                           uint32_t timeout) = 0;
+  virtual void _read_all(uint8_t* buffer,
+                         uint32_t length,
+                         int* received,
                          uint32_t timeout) = 0;
-  virtual void _receive(uint8_t* buffer,
-                        uint32_t length,
-                        int* received,
-                        uint32_t timeout) = 0;
 };
 
 } // namespace internal

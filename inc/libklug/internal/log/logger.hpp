@@ -1,10 +1,12 @@
 #pragma once
 
+#include <format>
 #include <functional>
 #include <iostream>
 #include <string>
 #include <string_view>
 #include "config.hpp"
+#include "formatter/ranges.hpp"
 #include "level.hpp"
 
 namespace internal::log {
@@ -53,7 +55,7 @@ private:
     }
   }
 
-  Level _level{Level::Warning};
+  Level _level{Level::Trace};
 };
 
 } // namespace internal::log

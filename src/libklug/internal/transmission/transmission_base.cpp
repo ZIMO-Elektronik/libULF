@@ -24,7 +24,7 @@ namespace transmission {
  * \param timeout Timeout
  */
 TransmissionBase::TransmissionBase(std::shared_ptr<internal::IConnection> conn,
-                                   std::string payload,
+                                   std::string_view payload,
                                    std::size_t timeout)
   : _timeout{timeout}, _conn{conn} {
   _response.reserve(64u);
@@ -49,6 +49,42 @@ TransmissionBase::TransmissionBase(std::shared_ptr<internal::IConnection> conn,
 }
 
 /**
+ * CTor
+ *
+ * \param conn        Connection
+ * \param payload     Payload
+ * \param terminator  Terminator
+ * \param timeout     Timeout
+ */
+TransmissionBase::TransmissionBase(std::shared_ptr<internal::IConnection> conn,
+                                   std::string_view payload,
+                                   uint8_t terminator,
+                                   std::size_t timeout)
+  : _timeout{timeout}, _terminator{terminator}, _conn{conn} {
+  _response.reserve(64u);
+  for (auto const it : payload) {
+    _payload.push_back(static_cast<uint8_t>(it));
+  }
+}
+
+/**
+ * CTor
+ *
+ * \param conn        Connection
+ * \param payload     Payload
+ * \param terminator  Terminator
+ * \param timeout     Timeout
+ */
+TransmissionBase::TransmissionBase(std::shared_ptr<internal::IConnection> conn,
+                                   std::span<uint8_t const> payload,
+                                   uint8_t terminator,
+                                   std::size_t timeout)
+  : _timeout{timeout}, _terminator{terminator}, _conn{conn} {
+  _response.reserve(64u);
+  std::ranges::copy(payload, std::back_inserter(_payload));
+}
+
+/**
  * Execute transmission
  *
  * \throw libusb_error
@@ -65,7 +101,7 @@ void TransmissionBase::execute() {
  */
 void TransmissionBase::transmit() {
   _conn->flush();
-  _conn->transmit(_payload, _timeout);
+  _conn->write(_payload, _timeout);
 }
 
 /**
@@ -75,7 +111,8 @@ void TransmissionBase::transmit() {
  */
 void TransmissionBase::receive() {
   if (_response.size() < 64u) _response.resize(64u);
-  _conn->receive(_response, _timeout);
+  if (_terminator) _conn->read_until(_payload, (*_terminator), _timeout);
+  _conn->read_all(_payload, _timeout);
 }
 
 } // namespace transmission

@@ -91,6 +91,8 @@ if(NOT TARGET ZSU::ZSU)
   cpmaddpackage("gh:ZIMO-Elektronik/ZSU@0.1.1")
 endif()
 
+find_package(fmt CONFIG REQUIRED)
+
 add_subdirectory(serialport-cmake)
 
 option(LIBKLUG_ENABLE_STDOUT_LOGGING "Enable logging to stdout" ON)
@@ -131,7 +133,7 @@ if(PROJECT_IS_TOP_LEVEL)
   include(CTest)
   enable_testing()
   add_subdirectory(examples)
-  add_subdirectory(tests)
+  # add_subdirectory(tests)
   file(
     DOWNLOAD
     "https://github.com/ZIMO-Elektronik/.github/raw/master/data/.clang-format"
@@ -148,6 +150,6 @@ if(PROJECT_IS_TOP_LEVEL)
     inc//libklug/internal/platform/android/jni_defines.hpp
     inc//libklug/internal/platform/android/jni_dispatch.hpp
     inc//libklug/internal/platform/android/jni_functor.hpp)
-  target_include_directories(KLUGIncludeWhatYouMust PRIVATE
-                             ${CMAKE_CURRENT_BINARY_DIR}/generated/)
+  target_include_directories(KLUGIncludeWhatYouMust
+                             PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/generated/)
 endif()

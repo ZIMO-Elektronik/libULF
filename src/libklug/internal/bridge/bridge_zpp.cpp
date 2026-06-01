@@ -22,15 +22,16 @@ namespace bridge {
  * \return nullptr Error
  */
 zpp::File* ZPP::read(std::filesystem::path path) {
-  LOG_INFO("Reading ZPP file at {}", path.c_str());
+  LOG_INFO("Reading ZPP file at {}", path.string());
   try {
     auto file{zpp::File(zpp::read(path))};
     std::fill_n(std::back_inserter(file.flash), file.flash.size() % 256uz, 0uz);
     return new zpp::File(file);
   } catch (std::exception) {
-    LOG_ERROR("Unable to read file at {}", path.c_str());
+    LOG_ERROR("Unable to read file at {}", path.string());
     return nullptr;
   }
+  return nullptr;
 }
 
 /**

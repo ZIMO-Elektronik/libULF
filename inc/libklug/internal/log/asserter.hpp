@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <thread>
 #include "logger.hpp"
 
 namespace internal::log {
@@ -31,6 +32,8 @@ public:
     Logger::get().log(Level::Critical, _stream.str());
 
     // 2. Programm sofort und kontrolliert beenden
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+
     std::abort();
   }
 

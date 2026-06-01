@@ -247,21 +247,21 @@ void LibusbConnection::close() {
 void LibusbConnection::flush() {
   ztl::inplace_vector<uint8_t, 64u> buffer;
   try {
-    while (true) receive(buffer, 1);
+    while (true) read_all(buffer, 1);
 
   } catch (except::libusb_error e) {}
 }
 
 /**
- * Transmit payload
+ * Write payload
  *
  * \param payload Payload
  * \param timeout Timeout
  *
  * \throw libusb_error
  */
-void LibusbConnection::_transmit(std::span<uint8_t const> payload,
-                                 uint32_t timeout) {
+void LibusbConnection::_write(std::span<uint8_t const> payload,
+                              uint32_t timeout) {
   using std::operator""sv;
   if (auto rc{
         libusb_bulk_transfer(_handle,
@@ -277,6 +277,30 @@ void LibusbConnection::_transmit(std::span<uint8_t const> payload,
 /**
  * Receive to buffer
  *
+ * \param buffer      Buffer
+ * \param length      Buffer length
+ * \param received    Actual received
+ * \param terminator  Terminator
+ * \param timeout     Timeout
+ *
+ * \throw libusb_error
+ */
+void LibusbConnection::_read_until(uint8_t* buffer,
+                                   uint32_t length,
+                                   int* received,
+                                   uint8_t terminator,
+                                   uint32_t timeout) {
+  using std::operator""sv;
+  if (auto rc{libusb_bulk_transfer(
+        _handle, _rx_ep, buffer, length, received, timeout)};
+      rc != LIBUSB_SUCCESS)
+    throw except::libusb_error{rc, "Unable to receive"sv};
+
+} // namespace internal
+
+/**
+ * Receive to buffer
+ *
  * \param buffer    Buffer
  * \param length    Buffer length
  * \param received  Actual received
@@ -284,10 +308,10 @@ void LibusbConnection::_transmit(std::span<uint8_t const> payload,
  *
  * \throw libusb_error
  */
-void LibusbConnection::_receive(uint8_t* buffer,
-                                uint32_t length,
-                                int* received,
-                                uint32_t timeout) {
+void LibusbConnection::_read_all(uint8_t* buffer,
+                                 uint32_t length,
+                                 int* received,
+                                 uint32_t timeout) {
   using std::operator""sv;
   if (auto rc{libusb_bulk_transfer(
         _handle, _rx_ep, buffer, length, received, timeout)};

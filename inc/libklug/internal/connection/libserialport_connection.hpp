@@ -44,12 +44,17 @@ struct LibserialportConnection : public IConnection {
   virtual void flush() override;
 
 private:
-  virtual void _transmit(std::span<uint8_t const> payload,
+  virtual void _write(std::span<uint8_t const> payload,
+                      uint32_t timeout) override;
+  virtual void _read_until(uint8_t* buffer,
+                           uint32_t length,
+                           int* received,
+                           uint8_t terminator,
+                           uint32_t timeout) override;
+  virtual void _read_all(uint8_t* buffer,
+                         uint32_t length,
+                         int* received,
                          uint32_t timeout) override;
-  virtual void _receive(uint8_t* buffer,
-                        uint32_t length,
-                        int* received,
-                        uint32_t timeout) override;
 
   sp_port* _port{nullptr}; ///< Port
 };
