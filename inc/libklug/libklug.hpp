@@ -140,6 +140,12 @@ struct SUSIV2 {
   int zppWrite(ZPP& zpp, uint32_t index) {
     return libklug_susiv2_zpp_write(_lib, static_cast<zpp_handle>(zpp), index);
   }
+
+  int features() { return libklug_susiv2_features(_lib); }
+  int exit(bool reboot, bool cv8_reset) {
+    return libklug_susiv2_exit(_lib, reboot, cv8_reset);
+  }
+
   int zppLcDcQuery(ZPP& zpp) {
     return libklug_susiv2_zpp_lc_dc_query(_lib, static_cast<zpp_handle>(zpp));
   }

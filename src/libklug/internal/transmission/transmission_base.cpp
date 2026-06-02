@@ -111,8 +111,8 @@ void TransmissionBase::transmit() {
  */
 void TransmissionBase::receive() {
   if (_response.size() < 64u) _response.resize(64u);
-  if (_terminator) _conn->read_until(_payload, (*_terminator), _timeout);
-  _conn->read_all(_payload, _timeout);
+  if (_terminator) _conn->read_until(_response, (*_terminator), _timeout);
+  else _conn->read_all(_response, _timeout);
 }
 
 } // namespace transmission

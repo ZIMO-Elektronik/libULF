@@ -139,7 +139,7 @@ void LibserialportConnection::_write(std::span<uint8_t const> payload,
   assert(_port);
 
   LOG_TRACE(
-    "Attempting to transmit. Timeout: {}, Payload {}", timeout, payload);
+    "Attempting to transmit. Timeout: {}, Payload {:x}", timeout, payload);
   auto r{sp_blocking_write(_port, payload.data(), payload.size(), timeout)};
   if (r < 0) {
     auto sp_err{sp_last_error_message()};
@@ -156,13 +156,15 @@ void LibserialportConnection::_read_until(uint8_t* buffer,
                                           uint8_t terminator,
                                           uint32_t timeout) {
   assert(_port);
-  LOG_TRACE("Attempting to receive. Timeout: {}", timeout);
+  LOG_TRACE("Attempting to receive data untit terminator [{:02x}]. Timeout: {}",
+            terminator,
+            timeout);
 
   int _received{0};
 
   while (true) {
     // Receive until timeout, error, or terminator
-    if (sp_blocking_read(_port, buffer + _received, 1, timeout) != SP_OK) {
+    if (sp_blocking_read(_port, buffer + _received, 1, timeout) <= 0) {
       throw except::generic_error{
         err::Error::usb,
         std::string{"Receive Error: SP_ERR[" +
@@ -172,7 +174,7 @@ void LibserialportConnection::_read_until(uint8_t* buffer,
     if (buffer[_received++] == terminator) break;
   }
 
-  LOG_TRACE("Successfully received {} bytes. Payload {}",
+  LOG_TRACE("Successfully received {} bytes. Payload {:x}",
             _received,
             std::span<uint8_t const>(buffer, _received));
   *received = _received;
@@ -191,7 +193,7 @@ void LibserialportConnection::_read_all(uint8_t* buffer,
     sp_free_error_message(sp_err);
     throw except::generic_error{err::Error::usb, err};
   }
-  LOG_TRACE("Successfully received {} bytes. Payload {}",
+  LOG_TRACE("Successfully received {} bytes. Payload {:x}",
             std::to_underlying(r),
             std::span<uint8_t const>(buffer, r));
   *received = r;

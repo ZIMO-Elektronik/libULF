@@ -114,19 +114,19 @@ int main() {
   }
   std::cout << "Flash erased" << std::endl;
 
-  std::cout << "Progress" << std::endl;
+  // std::cout << "Progress" << std::endl;
   long const blocks{libklug_zsu_firmware_iterator_get_blocks(fw_it)};
   double progress{0.0};
   unsigned int retry{0uz};
   for (long i{0}; i < blocks; i++) {
-    int barWidth = 70;
-    std::cout << "[";
-    int pos = static_cast<int>(barWidth * progress);
-    for (int j{0}; j < barWidth; j++) {
-      if (j < pos) std::cout << "=";
-      else if (j == pos) std::cout << ">";
-      else std::cout << " ";
-    }
+    // int barWidth = 70;
+    // std::cout << "[";
+    // int pos = static_cast<int>(barWidth * progress);
+    // for (int j{0}; j < barWidth; j++) {
+    //   if (j < pos) std::cout << "=";
+    //   else if (j == pos) std::cout << ">";
+    //   else std::cout << " ";
+    // }
 
     libklug_mdu_ein_zsu_update(lib, fw_it, i);
     r = libklug_result(lib);
@@ -139,10 +139,10 @@ int main() {
       i--;
     } else retry = 0;
 
-    progress = static_cast<double>(i + 1) / static_cast<double>(blocks);
-    std::cout << "] Progress " << static_cast<int>(progress * 100) << "%";
-    std::cout << "\r";
-    std::cout.flush();
+    // progress = static_cast<double>(i + 1) / static_cast<double>(blocks);
+    // std::cout << "] Progress " << static_cast<int>(progress * 100) << "%";
+    // std::cout << "\r";
+    // std::cout.flush();
   }
   std::cout << std::endl;
 
