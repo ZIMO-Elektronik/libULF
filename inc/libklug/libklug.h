@@ -472,6 +472,8 @@ int libklug_mdu_ein_zsu_crc32_result_exit(libklug_handle handle);
 zpp_handle libklug_zpp_read(char const* c, size_t length);
 void libklug_zpp_release(zpp_handle zpp);
 unsigned int libklug_zpp_blocks(zpp_handle zpp);
+char const* libklug_zpp_author(zpp_handle zpp);
+char const* libklug_zpp_email(zpp_handle zpp);
 
 /** ---------------------------------------------------
  *  Bridge ZSU

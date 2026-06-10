@@ -55,7 +55,7 @@ private:
     }
   }
 
-  Level _level{Level::Trace};
+  Level _level{::internal::config::log::default_log_level};
 };
 
 } // namespace internal::log

@@ -257,6 +257,14 @@ unsigned int libklug_zpp_blocks(zpp_handle zpp) {
   return bridge::ZPP::blocks(reinterpret_cast<zpp::File*>(zpp));
 }
 
+char const* libklug_zpp_author(zpp_handle zpp) {
+  return bridge::ZPP::author(reinterpret_cast<zpp::File*>(zpp)).data();
+}
+
+char const* libklug_zpp_email(zpp_handle zpp) {
+  return bridge::ZPP::email(reinterpret_cast<zpp::File*>(zpp)).data();
+}
+
 /** ---------------------------------------------------
  *  Bridge ZSU
  *  ---------------------------------------------------
