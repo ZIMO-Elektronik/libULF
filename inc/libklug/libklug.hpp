@@ -79,7 +79,6 @@ struct ZPP {
   ZPP() = delete;
   ZPP(ZPP const&) = delete;
   ZPP& operator=(const ZPP&) = delete;
-  ZPP(ZPP&&) = delete;
   ZPP& operator=(ZPP&&) = delete;
   ZPP(ZPP&& source) : _zpp{source._zpp} { source._zpp = nullptr; }
   ~ZPP() {
@@ -295,9 +294,8 @@ struct ZSU {
   ZSU() = delete;
   ZSU(ZSU const&) = delete;
   ZSU& operator=(const ZSU&) = delete;
-  ZSU(ZSU&&) = delete;
-  ZSU& operator=(ZSU&&) = delete;
   ZSU(ZSU&& source) : _zsu{source._zsu} { source._zsu = nullptr; }
+  ZSU& operator=(ZSU&&) = delete;
   ~ZSU() {
     if (_zsu) libklug_zsu_release(_zsu);
   }
