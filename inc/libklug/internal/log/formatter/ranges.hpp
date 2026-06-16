@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <concepts>
+#include <cstdint>
 #include <format>
 #include <ranges>
 
