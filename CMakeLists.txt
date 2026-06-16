@@ -88,10 +88,14 @@ if(ANDROID)
            src/libklug/internal/platform/android/jni_context.cpp)
 endif()
 
+# if(LIBKLUG_BACKEND_LIBUSB)
 target_sources(${TARGET}
-               PUBLIC src/libklug/internal/connection/libusb_connection.cpp)
+               PRIVATE src/libklug/internal/connection/libusb_connection.cpp)
+# elseif(LIBKLUG_BACKEND_LIBSERIALPORT)
 target_sources(
-  ${TARGET} PUBLIC src/libklug/internal/connection/libserialport_connection.cpp)
+  ${TARGET}
+  PRIVATE src/libklug/internal/connection/libserialport_connection.cpp)
+# endif()
 
 # TODO once we can safely not link against libusb, write this without the
 # generator
