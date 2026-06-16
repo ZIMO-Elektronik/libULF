@@ -20,7 +20,7 @@ namespace transmission::mdu_ein {
  * \param payload Payload
  * \param timeout Timeout
  */
-Ping::Ping(std::shared_ptr<Connection> conn,
+Ping::Ping(std::shared_ptr<internal::IConnection> conn,
            std::string payload,
            std::size_t timeout)
   : Base{conn, payload, timeout} {}
@@ -32,7 +32,7 @@ Ping::Ping(std::shared_ptr<Connection> conn,
  * \param payload Payload
  * \param timeout Timeout
  */
-Ping::Ping(std::shared_ptr<Connection> conn,
+Ping::Ping(std::shared_ptr<internal::IConnection> conn,
            std::span<uint8_t const> payload,
            std::size_t timeout)
   : Base{conn, payload, timeout} {}

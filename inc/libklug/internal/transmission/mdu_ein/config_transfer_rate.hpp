@@ -26,7 +26,8 @@ namespace transmission::mdu_ein {
  *
  */
 struct ConfigTransferRate : public ITransmission {
-  ConfigTransferRate(std::shared_ptr<Connection> conn, mdu::TransferRate speed);
+  ConfigTransferRate(std::shared_ptr<internal::IConnection> conn,
+                     mdu::TransferRate speed);
   virtual ~ConfigTransferRate() = default;
 
   virtual void execute() final;
@@ -37,9 +38,9 @@ private:
   res::Result packet();
   res::Result special(bool fallback);
 
-  std::shared_ptr<Connection> _conn; ///< Connection
-  mdu::TransferRate _speed;          ///< Speed
-  bool _result;                      ///< Result
+  std::shared_ptr<internal::IConnection> _conn; ///< Connection
+  mdu::TransferRate _speed;                     ///< Speed
+  bool _result;                                 ///< Result
 };
 
 } // namespace transmission::mdu_ein

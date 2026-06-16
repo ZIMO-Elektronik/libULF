@@ -19,13 +19,12 @@ constexpr uint32_t sn{0x00FF00FFuz};
 TEST_F(TestMDU_EIN, dcc_zpp_payload) {
   {
     InSequence i;
-    EXPECT_CALL(
-      conn,
-      _transmit(RM(helper::mdu::special2frame(
-                  helper::mdu::make_dcc_zpp_entry_command(sn, false))),
-                _))
+    EXPECT_CALL(conn,
+                _write(RM(helper::mdu::special2frame(
+                         helper::mdu::make_dcc_zpp_entry_command(sn, false))),
+                       _))
       .Times(1);
-    EXPECT_CALL(conn, _receive(_, _, _, _)).Times(1);
+    EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
   }
 
   lib.mdu_ein().enterDCCZPP(sn);
@@ -33,7 +32,8 @@ TEST_F(TestMDU_EIN, dcc_zpp_payload) {
 }
 
 TEST_F(TestMDU_EIN, dcc_zpp_esult_success) {
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(helper::mdu::receive_ack);
+  ON_CALL(conn, _read_until(_, _, _, _, _))
+    .WillByDefault(helper::mdu::receive_ack);
 
   lib.mdu_ein().enterDCCZPP(sn);
   auto const result{lib.result()};
@@ -43,7 +43,8 @@ TEST_F(TestMDU_EIN, dcc_zpp_esult_success) {
 }
 
 TEST_F(TestMDU_EIN, dcc_zpp_esult_no_success) {
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(helper::mdu::receive_nak);
+  ON_CALL(conn, _read_until(_, _, _, _, _))
+    .WillByDefault(helper::mdu::receive_nak);
 
   lib.mdu_ein().enterDCCZPP(sn);
   auto const result{lib.result()};
@@ -52,14 +53,14 @@ TEST_F(TestMDU_EIN, dcc_zpp_esult_no_success) {
   ASSERT_FALSE(std::get<res::Status>(result));
 }
 
-TEST_F(TestMDU_EIN, dcc_zpp_transmit_error) {
+TEST_F(TestMDU_EIN, dcc_zpp_write_error) {
   assertTransmitErrorCalls();
 
   lib.mdu_ein().enterDCCZPP(sn);
   lib.result();
 }
 
-TEST_F(TestMDU_EIN, dcc_zpp_transmit_error_result) {
+TEST_F(TestMDU_EIN, dcc_zpp_write_error_result) {
   throwTransmitException();
 
   lib.mdu_ein().enterDCCZPP(sn);

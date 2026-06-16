@@ -20,11 +20,11 @@ TEST_F(TestMDU_EIN, mdu_payload) {
   {
     InSequence i;
     EXPECT_CALL(conn,
-                _transmit(RM(helper::mdu::special2frame(
-                            helper::mdu::make_mdu_entry_command())),
-                          _))
+                _write(RM(helper::mdu::special2frame(
+                         helper::mdu::make_mdu_entry_command())),
+                       _))
       .Times(1);
-    EXPECT_CALL(conn, _receive(_, _, _, _)).Times(1);
+    EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
   }
 
   lib.mdu_ein().enterMDU();
@@ -32,7 +32,8 @@ TEST_F(TestMDU_EIN, mdu_payload) {
 }
 
 TEST_F(TestMDU_EIN, mdu_esult_success) {
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(helper::mdu::receive_ack);
+  ON_CALL(conn, _read_until(_, _, _, _, _))
+    .WillByDefault(helper::mdu::receive_ack);
 
   lib.mdu_ein().enterMDU();
   auto const result{lib.result()};
@@ -42,7 +43,8 @@ TEST_F(TestMDU_EIN, mdu_esult_success) {
 }
 
 TEST_F(TestMDU_EIN, mdu_esult_no_success) {
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(helper::mdu::receive_nak);
+  ON_CALL(conn, _read_until(_, _, _, _, _))
+    .WillByDefault(helper::mdu::receive_nak);
 
   lib.mdu_ein().enterMDU();
   auto const result{lib.result()};
@@ -51,14 +53,14 @@ TEST_F(TestMDU_EIN, mdu_esult_no_success) {
   ASSERT_FALSE(std::get<res::Status>(result));
 }
 
-TEST_F(TestMDU_EIN, mdu_transmit_error) {
+TEST_F(TestMDU_EIN, mdu_write_error) {
   assertTransmitErrorCalls();
 
   lib.mdu_ein().enterMDU();
   lib.result();
 }
 
-TEST_F(TestMDU_EIN, mdu_transmit_error_result) {
+TEST_F(TestMDU_EIN, mdu_write_error_result) {
   throwTransmitException();
 
   lib.mdu_ein().enterMDU();

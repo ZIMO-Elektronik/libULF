@@ -1,8 +1,12 @@
+#pragma once
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <libklug/internal/connection.hpp>
+#include <libklug/internal/connection/i_connection.hpp>
 
-struct MockConnection : public Connection {
+struct MockConnection : public internal::IConnection {
+  MOCK_METHOD(int, init, (), (override));
+
   MOCK_METHOD(int, open, (uint16_t, uint16_t), (override));
   MOCK_METHOD(int, openFd, (int Fd), (override));
 
@@ -14,9 +18,13 @@ struct MockConnection : public Connection {
 
   MOCK_METHOD(void, flush, (), (override));
 
+  MOCK_METHOD(void, _write, (std::span<uint8_t const>, uint32_t), (override));
   MOCK_METHOD(void,
-              _transmit,
-              (std::span<uint8_t const>, uint32_t),
+              _read_until,
+              (uint8_t*, uint32_t, int*, uint8_t, uint32_t),
               (override));
-  MOCK_METHOD(void, _receive, (uint8_t*, uint32_t, int*, uint32_t), (override));
+  MOCK_METHOD(void,
+              _read_all,
+              (uint8_t*, uint32_t, int*, uint32_t),
+              (override));
 };

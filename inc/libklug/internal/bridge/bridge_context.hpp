@@ -11,7 +11,7 @@
 #include <future>
 #include <mutex>
 #include "libklug/callback/i_functor.hpp"
-#include "libklug/internal/connection.hpp"
+#include "libklug/internal/connection/i_connection.hpp"
 #include "libklug/internal/transmission/transmission_base.hpp"
 
 namespace bridge {
@@ -26,9 +26,9 @@ namespace bridge {
  */
 struct Context {
   Context();
-  Context(std::shared_ptr<Connection> conn);
+  Context(std::shared_ptr<internal::IConnection> conn);
 
-  std::shared_ptr<Connection> connection; ///< Libusb connection info
+  std::shared_ptr<internal::IConnection> connection; ///< Libusb connection info
 
   bool valid() const;
   bool transmission(transmission::TransmissionBase* t);

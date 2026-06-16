@@ -24,7 +24,7 @@ namespace transmission::mdu_ein {
  *
  */
 struct CvRead : public ITransmission {
-  CvRead(std::shared_ptr<Connection> conn, uint16_t cv);
+  CvRead(std::shared_ptr<internal::IConnection> conn, uint16_t cv);
   virtual ~CvRead() = default;
 
   virtual void execute() final;
@@ -32,9 +32,9 @@ struct CvRead : public ITransmission {
   virtual res::Result evaluate() final;
 
 private:
-  std::shared_ptr<Connection> _conn; ///< Connection
-  uint16_t _cv;                      ///< Cv to read
-  uint8_t _value;                    ///< Result
+  std::shared_ptr<internal::IConnection> _conn; ///< Connection
+  uint16_t _cv;                                 ///< Cv to read
+  uint8_t _value;                               ///< Result
 };
 
 } // namespace transmission::mdu_ein

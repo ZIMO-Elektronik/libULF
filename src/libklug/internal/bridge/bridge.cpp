@@ -12,7 +12,7 @@
 
 namespace bridge {
 
-Bridge::Bridge(std::shared_ptr<Connection> conn) : _ctx{conn} {}
+Bridge::Bridge(std::shared_ptr<internal::IConnection> conn) : _ctx{conn} {}
 
 /**
  * Init USB backend
@@ -22,14 +22,7 @@ Bridge::Bridge(std::shared_ptr<Connection> conn) : _ctx{conn} {}
  * \retval LIBUSB_SUCCESS Success
  *
  */
-int Bridge::init() {
-#ifdef ANDROID
-  // We can't search devices on Android
-  libusb_set_option(NULL, LIBUSB_OPTION_WEAK_AUTHORITY);
-  libusb_set_option(nullptr, LIBUSB_OPTION_NO_DEVICE_DISCOVERY);
-#endif
-  return libusb_init(nullptr);
-}
+int Bridge::init() { return _ctx.connection->init(); }
 
 /**
  * Register callback

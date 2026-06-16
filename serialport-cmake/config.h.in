@@ -1,0 +1,12 @@
+#ifndef LIBSERIALPORT_CONFIG_H
+#define LIBSERIALPORT_CONFIG_H
+
+#define SP_PACKAGE_VERSION_STRING "0.1.2"
+#define SP_LIB_VERSION_STRING "1:1:1"
+
+#cmakedefine HAVE_SYS_TIME_H 1
+#cmakedefine HAVE_SYS_TYPES_H 1
+#cmakedefine HAVE_UNISTD_H 1
+#cmakedefine HAVE_TERMIOS_H 1
+
+#endif /* LIBSERIALPORT_CONFIG_H */

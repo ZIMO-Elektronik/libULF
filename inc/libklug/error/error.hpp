@@ -21,6 +21,8 @@ enum class Error : uint8_t {
 
   crc = 0x03, ///< Bad crc
 
+  usb = 0x04, ///< Usb backend error
+
   unknown = 0xFF, ///< Unknown error
 };
 

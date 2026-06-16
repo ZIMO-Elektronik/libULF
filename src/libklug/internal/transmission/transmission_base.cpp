@@ -10,7 +10,7 @@
 #include <libusb.h>
 #include <ranges>
 #include <string>
-#include "libklug/internal/connection.hpp"
+#include "libklug/internal/connection/i_connection.hpp"
 #include "libklug/internal/exception/e_libusb.hpp"
 #include "libklug/internal/logging.hpp"
 
@@ -23,8 +23,8 @@ namespace transmission {
  * \param payload Payload
  * \param timeout Timeout
  */
-TransmissionBase::TransmissionBase(std::shared_ptr<Connection> conn,
-                                   std::string payload,
+TransmissionBase::TransmissionBase(std::shared_ptr<internal::IConnection> conn,
+                                   std::string_view payload,
                                    std::size_t timeout)
   : _timeout{timeout}, _conn{conn} {
   _response.reserve(64u);
@@ -40,10 +40,46 @@ TransmissionBase::TransmissionBase(std::shared_ptr<Connection> conn,
  * \param payload Payload
  * \param timeout Timeout
  */
-TransmissionBase::TransmissionBase(std::shared_ptr<Connection> conn,
+TransmissionBase::TransmissionBase(std::shared_ptr<internal::IConnection> conn,
                                    std::span<uint8_t const> payload,
                                    std::size_t timeout)
   : _timeout{timeout}, _conn{conn} {
+  _response.reserve(64u);
+  std::ranges::copy(payload, std::back_inserter(_payload));
+}
+
+/**
+ * CTor
+ *
+ * \param conn        Connection
+ * \param payload     Payload
+ * \param terminator  Terminator
+ * \param timeout     Timeout
+ */
+TransmissionBase::TransmissionBase(std::shared_ptr<internal::IConnection> conn,
+                                   std::string_view payload,
+                                   uint8_t terminator,
+                                   std::size_t timeout)
+  : _timeout{timeout}, _terminator{terminator}, _conn{conn} {
+  _response.reserve(64u);
+  for (auto const it : payload) {
+    _payload.push_back(static_cast<uint8_t>(it));
+  }
+}
+
+/**
+ * CTor
+ *
+ * \param conn        Connection
+ * \param payload     Payload
+ * \param terminator  Terminator
+ * \param timeout     Timeout
+ */
+TransmissionBase::TransmissionBase(std::shared_ptr<internal::IConnection> conn,
+                                   std::span<uint8_t const> payload,
+                                   uint8_t terminator,
+                                   std::size_t timeout)
+  : _timeout{timeout}, _terminator{terminator}, _conn{conn} {
   _response.reserve(64u);
   std::ranges::copy(payload, std::back_inserter(_payload));
 }
@@ -65,7 +101,7 @@ void TransmissionBase::execute() {
  */
 void TransmissionBase::transmit() {
   _conn->flush();
-  _conn->transmit(_payload, _timeout);
+  _conn->write(_payload, _timeout);
 }
 
 /**
@@ -75,7 +111,8 @@ void TransmissionBase::transmit() {
  */
 void TransmissionBase::receive() {
   if (_response.size() < 64u) _response.resize(64u);
-  _conn->receive(_response, _timeout);
+  if (_terminator) _conn->read_until(_response, (*_terminator), _timeout);
+  else _conn->read_all(_response, _timeout);
 }
 
 } // namespace transmission

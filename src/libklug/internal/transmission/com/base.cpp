@@ -19,11 +19,13 @@ namespace transmission::com {
  * \param conn    Connection
  * \param payload Payload
  * \param timeout Timeout
+ *
+ * \todo Put terminator behind constant
  */
-Base::Base(std::shared_ptr<Connection> conn,
+Base::Base(std::shared_ptr<internal::IConnection> conn,
            std::string payload,
            std::size_t timeout)
-  : TransmissionBase{conn, payload, timeout} {}
+  : TransmissionBase{conn, payload, '\r', timeout} {}
 
 /**
  * CTor
@@ -31,11 +33,13 @@ Base::Base(std::shared_ptr<Connection> conn,
  * \param conn    Connection
  * \param payload Payload
  * \param timeout Timeout
+ *
+ * \todo Put terminator behind constant
  */
-Base::Base(std::shared_ptr<Connection> conn,
+Base::Base(std::shared_ptr<internal::IConnection> conn,
            std::span<uint8_t const> payload,
            std::size_t timeout)
-  : TransmissionBase{conn, payload, timeout} {}
+  : TransmissionBase{conn, payload, 'r', timeout} {}
 
 /**
  * Evaluate

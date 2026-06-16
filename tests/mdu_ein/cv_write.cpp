@@ -21,11 +21,11 @@ TEST_F(TestMDU_EIN, cv_write_payload) {
   {
     InSequence i;
     EXPECT_CALL(conn,
-                _transmit(RM(helper::mdu::packet2frame(
-                            mdu::make_cv_write_packet(cv_address, cv_value))),
-                          _))
+                _write(RM(helper::mdu::packet2frame(
+                         mdu::make_cv_write_packet(cv_address, cv_value))),
+                       _))
       .Times(1);
-    EXPECT_CALL(conn, _receive(_, _, _, _)).Times(1);
+    EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
   }
 
   lib.mdu_ein().cvWrite(cv_address, cv_value);
@@ -33,7 +33,8 @@ TEST_F(TestMDU_EIN, cv_write_payload) {
 }
 
 TEST_F(TestMDU_EIN, cv_write_result_success) {
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(helper::mdu::receive_ack);
+  ON_CALL(conn, _read_until(_, _, _, _, _))
+    .WillByDefault(helper::mdu::receive_ack);
 
   lib.mdu_ein().cvWrite(cv_address, cv_value);
   auto const result{lib.result()};
@@ -42,14 +43,14 @@ TEST_F(TestMDU_EIN, cv_write_result_success) {
   ASSERT_TRUE(std::get<res::Status>(result));
 }
 
-TEST_F(TestMDU_EIN, cv_write_transmit_error) {
+TEST_F(TestMDU_EIN, cv_write_write_error) {
   assertTransmitErrorCalls();
 
   lib.mdu_ein().cvWrite(cv_address, cv_value);
   lib.result();
 }
 
-TEST_F(TestMDU_EIN, cv_write_transmit_error_result) {
+TEST_F(TestMDU_EIN, cv_write_write_error_result) {
   throwTransmitException();
 
   lib.mdu_ein().cvWrite(cv_address, cv_value);

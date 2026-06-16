@@ -1,0 +1,75 @@
+#pragma once
+
+#include <cstdint>
+#include "libklug/internal/log/level.hpp"
+
+namespace internal::config {
+
+namespace log {
+
+constexpr bool log_to_stdout{@LOG_TO_STDOUT_VALUE@};
+constexpr bool log_to_stderr{@LOG_TO_STDERR_VALUE@};
+
+constexpr auto default_log_level{::internal::log::Level::Warning};
+
+} // namespace log
+
+namespace timeout {
+
+constexpr uint32_t transmit{100uz};
+
+namespace com {
+
+constexpr uint32_t ping{2000uz};
+constexpr uint32_t reset{2000uz};
+constexpr uint32_t mdu_ein{2000uz};
+constexpr uint32_t susiv2{4000uz};
+
+} // namespace com
+
+namespace mdu_ein {
+
+constexpr uint32_t enter_mdu{2000uz};
+constexpr uint32_t enter_dcc_zsu{2000uz};
+constexpr uint32_t enter_dcc_zpp{2000uz};
+
+constexpr uint32_t ping{2000uz};
+constexpr uint32_t config_transfer_rate{2000uz};
+constexpr uint32_t binary_tree_search{2000uz};
+constexpr uint32_t cv_read{2000uz};
+constexpr uint32_t cv_write{2000uz};
+constexpr uint32_t busy{2000uz};
+
+constexpr uint32_t zpp_valid_query{2000uz};
+constexpr uint32_t zpp_lc_dc_query{2000uz};
+constexpr uint32_t zpp_erase{2000uz};
+constexpr uint32_t zpp_update{2000uz};
+constexpr uint32_t zpp_update_end{2000uz};
+constexpr uint32_t zpp_exit{2000uz};
+constexpr uint32_t zpp_exit_reset{2000uz};
+
+constexpr uint32_t zsu_salsa_20_iv{2000uz};
+constexpr uint32_t zsu_erase{2000uz};
+constexpr uint32_t zsu_update{2000uz};
+constexpr uint32_t zsu_crc32_start{2000uz};
+constexpr uint32_t zsu_crc32_result{2000uz};
+constexpr uint32_t zsu_crc32_result_exit{2000uz};
+
+}
+
+namespace susiv2 {
+
+constexpr uint32_t cv_read{2000uz};
+constexpr uint32_t cv_write{2000uz};
+constexpr uint32_t features{2000uz};
+constexpr uint32_t exit{2000uz};
+
+constexpr uint32_t zpp_erase{2000uz};
+constexpr uint32_t zpp_write{2000uz};
+constexpr uint32_t zpp_lc_dc_query{2000uz};
+
+}
+
+} // namespace timeout
+
+} // namespace internal::config

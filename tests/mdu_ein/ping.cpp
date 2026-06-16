@@ -22,10 +22,9 @@ TEST_F(TestMDU_EIN, ping_payload) {
     InSequence i;
     EXPECT_CALL(
       conn,
-      _transmit(RM(helper::mdu::packet2frame(mdu::make_ping_packet(sn, id))),
-                _))
+      _write(RM(helper::mdu::packet2frame(mdu::make_ping_packet(sn, id))), _))
       .Times(1);
-    EXPECT_CALL(conn, _receive(_, _, _, _)).Times(1);
+    EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
   }
 
   lib.mdu_ein().ping(sn, id);
@@ -33,7 +32,8 @@ TEST_F(TestMDU_EIN, ping_payload) {
 }
 
 TEST_F(TestMDU_EIN, ping_result_success) {
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(helper::mdu::receive_nak);
+  ON_CALL(conn, _read_until(_, _, _, _, _))
+    .WillByDefault(helper::mdu::receive_nak);
 
   lib.mdu_ein().ping(sn, id);
   auto const result{lib.result()};
@@ -43,7 +43,8 @@ TEST_F(TestMDU_EIN, ping_result_success) {
 }
 
 TEST_F(TestMDU_EIN, ping_result_no_success) {
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(helper::mdu::receive_ack);
+  ON_CALL(conn, _read_until(_, _, _, _, _))
+    .WillByDefault(helper::mdu::receive_ack);
 
   lib.mdu_ein().ping(sn, id);
   auto const result{lib.result()};
@@ -52,14 +53,14 @@ TEST_F(TestMDU_EIN, ping_result_no_success) {
   ASSERT_FALSE(std::get<res::Status>(result));
 }
 
-TEST_F(TestMDU_EIN, ping_transmit_error) {
+TEST_F(TestMDU_EIN, ping_write_error) {
   assertTransmitErrorCalls();
 
   lib.mdu_ein().ping(sn, id);
   lib.result();
 }
 
-TEST_F(TestMDU_EIN, ping_transmit_error_result) {
+TEST_F(TestMDU_EIN, ping_write_error_result) {
   throwTransmitException();
 
   lib.mdu_ein().ping(sn, id);

@@ -16,8 +16,8 @@ TEST_F(TestCOM, ping_payload) {
 
   {
     InSequence i;
-    EXPECT_CALL(conn, _transmit(RM(expected_payload), _)).Times(1);
-    EXPECT_CALL(conn, _receive(_, _, _, _)).Times(1);
+    EXPECT_CALL(conn, _write(RM(expected_payload), _)).Times(1);
+    EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
   }
 
   lib.com().ping();
@@ -30,9 +30,9 @@ TEST_F(TestCOM, ping_result) {
   auto expected{"Super duper real device v2.0.255\r"sv};
 
   auto const r{helper::string_view2span(expected)};
-  ON_CALL(conn, _receive(_, _, _, _))
+  ON_CALL(conn, _read_until(_, _, _, _, _))
     .WillByDefault(
-      [&](uint8_t* buf, uint32_t len, int* rx_ed, uint32_t timeout) {
+      [&](uint8_t* buf, uint32_t len, int* rx_ed, uint8_t, uint32_t timeout) {
         assert(len >= r.size());
         std::ranges::copy(r, buf);
         *rx_ed = r.size();

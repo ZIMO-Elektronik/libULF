@@ -3,6 +3,7 @@
 #include "../helper.hpp"
 #include "../range_matcher.hpp"
 #include "f_susiv2.hpp"
+#include "helper.hpp"
 
 using testing::_;
 using testing::Ge;
@@ -17,8 +18,8 @@ TEST_F(TestSUSIV2, zpp_erase_payload) {
 
   {
     InSequence i;
-    EXPECT_CALL(conn, _transmit(RM(expected), _)).Times(1);
-    EXPECT_CALL(conn, _receive(_, _, _, _)).Times(1);
+    EXPECT_CALL(conn, _write(RM(expected), _)).Times(1);
+    EXPECT_CALL(conn, _read_all(_, _, _, _)).Times(1);
   }
 
   lib.susiv2().zppErase();
@@ -29,14 +30,8 @@ TEST_F(TestSUSIV2, zpp_erase_result_success) {
   std::vector<uint8_t> r{ulf::susiv2::ack};
   r.push_back(zusi::crc8(r));
 
-  ON_CALL(conn, _receive(_, Ge(r.size()), _, _))
-    .WillByDefault(
-      [&](uint8_t* buf, uint32_t len, int* rx_ed, uint32_t timeout) {
-        assert(len >= r.size());
-        std::ranges::copy(r, buf);
-        *rx_ed = r.size();
-        return 0;
-      });
+  ON_CALL(conn, _read_all(_, Ge(r.size()), _, _))
+    .WillByDefault(helper::susiv2::receive_ack);
 
   lib.susiv2().zppErase();
   auto const result{lib.result()};
@@ -45,14 +40,14 @@ TEST_F(TestSUSIV2, zpp_erase_result_success) {
   ASSERT_TRUE(std::get<res::Status>(result));
 }
 
-TEST_F(TestSUSIV2, zpp_erase_transmit_error) {
-  assertTransmitErrorCalls();
+TEST_F(TestSUSIV2, zpp_erase_write_error) {
+  assertTransmitErrorCalls<true>();
 
   lib.susiv2().zppErase();
   lib.result();
 }
 
-TEST_F(TestSUSIV2, zpp_erase_transmit_error_result) {
+TEST_F(TestSUSIV2, zpp_erase_write_error_result) {
   throwTransmitException();
 
   lib.susiv2().zppErase();
@@ -62,7 +57,7 @@ TEST_F(TestSUSIV2, zpp_erase_transmit_error_result) {
 }
 
 TEST_F(TestSUSIV2, zpp_erase_receive_error) {
-  assertReceiveErrorCalls();
+  assertReceiveErrorCalls<true>();
 
   lib.susiv2().zppErase();
   lib.result();

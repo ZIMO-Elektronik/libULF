@@ -5,21 +5,21 @@
 #include "helper.hpp"
 
 TEST_F(TestMDU_EIN, zsu_update_payload) {
-  auto const blocks{libklug_zsu_firmware_blocks(libHandle, fwItHandle)};
+  auto const blocks{libklug_zsu_firmware_iterator_get_blocks(fwItHandle)};
 
   for (unsigned int idx{0uz}; idx < blocks; idx++) {
     {
       InSequence i;
       EXPECT_CALL(
         conn,
-        _transmit(RM(helper::mdu::packet2frame(mdu::make_zsu_update_packet(
-                    idx * 64uz,
-                    std::span<uint8_t const, 64uz>{
-                      std::span<uint8_t const>(fwIt.get().bin)
-                        .subspan(idx * 64uz, 64uz)}))),
-                  _))
+        _write(RM(helper::mdu::packet2frame(mdu::make_zsu_update_packet(
+                 idx * 64uz,
+                 std::span<uint8_t const, 64uz>{
+                   std::span<uint8_t const>(fwIt.get().bin)
+                     .subspan(idx * 64uz, 64uz)}))),
+               _))
         .Times(1);
-      EXPECT_CALL(conn, _receive(_, _, _, _)).Times(1);
+      EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
     }
 
     libklug_mdu_ein_zsu_update(libHandle, fwItHandle, idx);
@@ -28,7 +28,8 @@ TEST_F(TestMDU_EIN, zsu_update_payload) {
 }
 
 TEST_F(TestMDU_EIN, zsu_update_result_success) {
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(helper::mdu::receive_ack);
+  ON_CALL(conn, _read_until(_, _, _, _, _))
+    .WillByDefault(helper::mdu::receive_ack);
 
   libklug_mdu_ein_zsu_update(libHandle, fwItHandle, 0uz);
   auto const result{libklug_result(libHandle)};
@@ -38,7 +39,8 @@ TEST_F(TestMDU_EIN, zsu_update_result_success) {
 }
 
 TEST_F(TestMDU_EIN, zsu_update_result_no_success) {
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(helper::mdu::receive_nak);
+  ON_CALL(conn, _read_until(_, _, _, _, _))
+    .WillByDefault(helper::mdu::receive_nak);
 
   libklug_mdu_ein_zsu_update(libHandle, fwItHandle, 0uz);
   auto const result{libklug_result(libHandle)};
@@ -47,14 +49,14 @@ TEST_F(TestMDU_EIN, zsu_update_result_no_success) {
   ASSERT_EQ(result.data.success, LIBKLUG_FALSE);
 }
 
-TEST_F(TestMDU_EIN, zsu_update_transmit_error) {
+TEST_F(TestMDU_EIN, zsu_update_write_error) {
   assertTransmitErrorCalls(LIBUSB_ERROR_IO);
 
   libklug_mdu_ein_zsu_update(libHandle, fwItHandle, 0uz);
   libklug_result(libHandle);
 }
 
-TEST_F(TestMDU_EIN, zsu_update_transmit_error_result) {
+TEST_F(TestMDU_EIN, zsu_update_write_error_result) {
   throwTransmitException();
 
   libklug_mdu_ein_zsu_update(libHandle, fwItHandle, 0uz);

@@ -59,6 +59,20 @@
             "displayName": "Release AMD64",
             "description": "Release build for AMD64 architecture",
             "inherits": "release_base"
+        },
+        {
+            "name": "debug_amd64_windows",
+            "displayName": "Debug AMD64 Windows",
+            "description": "Cross-Compiled Debug build for Windows on AMD64 architecture",
+            "toolchainFile": "${sourceDir}/cmake/clang-windows-toolchain.cmake",
+            "inherits": "debug_base"
+        },
+        {
+            "name": "release_amd64_windows",
+            "displayName": "Release AMD64 Windows",
+            "description": "Cross-Compiled Release build for Windows on AMD64 architecture",
+            "toolchainFile": "${sourceDir}/cmake/clang-windows-toolchain.cmake",
+            "inherits": "release_base"
         }
     ],
     "testPresets": [

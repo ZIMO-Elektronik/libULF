@@ -69,7 +69,7 @@ constexpr auto packet2frame(::mdu::Packet packet) {
 }
 
 constexpr auto receive_ack{
-  [](uint8_t* buf, uint32_t len, int* rx_ed, uint32_t timeout) {
+  [](uint8_t* buf, uint32_t len, int* rx_ed, uint8_t, uint32_t timeout) {
     auto const r{ulf::mdu_ein::response2mdu_ein(true, true)};
     assert(len >= r.size());
     std::ranges::copy(r, buf);
@@ -78,7 +78,7 @@ constexpr auto receive_ack{
   }};
 
 constexpr auto receive_nak{
-  [](uint8_t* buf, uint32_t len, int* rx_ed, uint32_t timeout) {
+  [](uint8_t* buf, uint32_t len, int* rx_ed, uint8_t, uint32_t timeout) {
     auto const r{ulf::mdu_ein::response2mdu_ein(true, false)};
     assert(len >= r.size());
     std::ranges::copy(r, buf);
