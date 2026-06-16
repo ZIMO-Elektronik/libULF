@@ -21,8 +21,8 @@ struct MockConnection : public internal::IConnection {
   MOCK_METHOD(void, _write, (std::span<uint8_t const>, uint32_t), (override));
   MOCK_METHOD(void,
               _read_until,
-              (std::span<uint8_t const> uint8_t, uint32_t),
-              (overrode));
+              (uint8_t*, uint32_t, int*, uint8_t, uint32_t),
+              (override));
   MOCK_METHOD(void,
               _read_all,
               (uint8_t*, uint32_t, int*, uint32_t),

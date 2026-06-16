@@ -9,13 +9,13 @@ TEST_F(TestMDU_EIN, zsu_crc32_start_payload) {
     InSequence i;
     EXPECT_CALL(
       conn,
-      _transmit(RM(helper::mdu::packet2frame(mdu::make_zsu_crc32_start_packet(
-                  0,
-                  zsu.firmwares.front().bin.size() - 1u,
-                  mdu::crc32(zsu.firmwares.front().bin)))),
-                _))
+      _write(RM(helper::mdu::packet2frame(mdu::make_zsu_crc32_start_packet(
+               0,
+               zsu.firmwares.front().bin.size() - 1u,
+               mdu::crc32(zsu.firmwares.front().bin)))),
+             _))
       .Times(1);
-    EXPECT_CALL(conn, _receive(_, _, _, _)).Times(1);
+    EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
   }
 
   libklug_mdu_ein_zsu_crc32_start(libHandle, fwItHandle);
@@ -23,7 +23,8 @@ TEST_F(TestMDU_EIN, zsu_crc32_start_payload) {
 }
 
 TEST_F(TestMDU_EIN, zsu_crc32_start_result_success) {
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(helper::mdu::receive_ack);
+  ON_CALL(conn, _read_until(_, _, _, _, _))
+    .WillByDefault(helper::mdu::receive_ack);
 
   libklug_mdu_ein_zsu_crc32_start(libHandle, fwItHandle);
   auto const result{libklug_result(libHandle)};
@@ -33,7 +34,8 @@ TEST_F(TestMDU_EIN, zsu_crc32_start_result_success) {
 }
 
 TEST_F(TestMDU_EIN, zsu_crc32_start_result_no_success) {
-  ON_CALL(conn, _receive(_, _, _, _)).WillByDefault(helper::mdu::receive_nak);
+  ON_CALL(conn, _read_until(_, _, _, _, _))
+    .WillByDefault(helper::mdu::receive_nak);
 
   libklug_mdu_ein_zsu_crc32_start(libHandle, fwItHandle);
   auto const result{libklug_result(libHandle)};
@@ -42,14 +44,14 @@ TEST_F(TestMDU_EIN, zsu_crc32_start_result_no_success) {
   ASSERT_EQ(result.data.success, LIBKLUG_FALSE);
 }
 
-TEST_F(TestMDU_EIN, zsu_crc32_start_transmit_error) {
+TEST_F(TestMDU_EIN, zsu_crc32_start_write_error) {
   assertTransmitErrorCalls(LIBUSB_ERROR_IO);
 
   libklug_mdu_ein_zsu_crc32_start(libHandle, fwItHandle);
   libklug_result(libHandle);
 }
 
-TEST_F(TestMDU_EIN, zsu_crc32_start_transmit_error_result) {
+TEST_F(TestMDU_EIN, zsu_crc32_start_write_error_result) {
   throwTransmitException();
 
   libklug_mdu_ein_zsu_crc32_start(libHandle, fwItHandle);

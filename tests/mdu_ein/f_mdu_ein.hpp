@@ -12,9 +12,9 @@ struct TestMDU_EIN : public TestBase {
   TestMDU_EIN() {
     auto const r{ulf::mdu_ein::response2mdu_ein(true, true)};
 
-    ON_CALL(conn, _receive(_, Ge(r.size()), _, _))
+    ON_CALL(conn, _read_until(_, Ge(r.size()), _, _, _))
       .WillByDefault(
-        [=](uint8_t* buf, uint32_t len, int* rx_ed, uint32_t timeout) {
+        [=](uint8_t* buf, uint32_t len, int* rx_ed, uint8_t, uint32_t timeout) {
           assert(len >= r.size());
           std::ranges::copy(r, buf);
           *rx_ed = r.size();
