@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(libserialport_wrapper C)
 
 include(FetchContent)
+include(CheckIncludeFiles)
 
 # 1. Wir laden nur die Quellcodes herunter, anstatt ExternalProject zu nutzen
 FetchContent_Declare(

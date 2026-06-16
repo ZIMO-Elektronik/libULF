@@ -17,7 +17,14 @@ namespace bridge {
  *
  */
 Context::Context()
-  : connection{std::make_shared<internal::LibserialportConnection>()} {}
+
+#ifdef USE_LIBSERIALPORT
+  : connection{std::make_shared<internal::LibserialportConnection>()}
+#elifdef USE_LIBUSB
+  : connection{std::make_shared<internal::LibusbConnection>()}
+#endif
+{
+}
 
 /**
  * CTor
