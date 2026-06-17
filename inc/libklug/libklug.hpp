@@ -569,7 +569,9 @@ struct MDU_EIN {
    * \return true   Started
    * \return false  Busy
    */
-  bool enterDCCZSU() { return libklug_mdu_ein_enter_dcc_zsu(_lib); }
+  bool enterDCCZSU(uint32_t id = 0uz, uint32_t sn = 0uz, bool done = true) {
+    return libklug_mdu_ein_enter_dcc_zsu(_lib, id, sn, done);
+  }
 
   /**
    * Starts a DCC ZPP entry transmission
@@ -580,7 +582,9 @@ struct MDU_EIN {
    * \return true   Started
    * \return false  Busy
    */
-  bool enterDCCZPP() { return libklug_mdu_ein_enter_dcc_zpp(_lib); }
+  bool enterDCCZPP(uint32_t sn = 0uz, bool done = true) {
+    return libklug_mdu_ein_enter_dcc_zpp(_lib, sn, done);
+  }
 
   /**
    * Starts a ping transmission

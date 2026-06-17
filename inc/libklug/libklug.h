@@ -432,8 +432,11 @@ int libklug_susiv2_zpp_lc_dc_query(libklug_handle handle,
  */
 
 int libklug_mdu_ein_enter_mdu(libklug_handle handle);
-int libklug_mdu_ein_enter_dcc_zsu(libklug_handle handle);
-int libklug_mdu_ein_enter_dcc_zpp(libklug_handle handle);
+int libklug_mdu_ein_enter_dcc_zsu(libklug_handle handle,
+                                  uint32_t id,
+                                  uint32_t sn,
+                                  int done);
+int libklug_mdu_ein_enter_dcc_zpp(libklug_handle handle, uint32_t sn, int done);
 
 int libklug_mdu_ein_ping(libklug_handle handle, uint32_t sn, uint32_t id);
 int libklug_mdu_ein_ping_all(libklug_handle handle);
