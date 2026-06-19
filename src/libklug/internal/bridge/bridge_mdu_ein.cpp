@@ -282,7 +282,7 @@ bool MDU_EIN::zppUpdateEnd(uint32_t start_address, uint32_t end_address) {
  * \return Forwarded
  */
 bool MDU_EIN::zppUpdateEnd(zpp::File* file) {
-  return zppUpdate(0uz, file->flash.size() - 1uz);
+  return zppUpdateEnd(0uz, file->flash.size() - 1uz);
 }
 
 /**
