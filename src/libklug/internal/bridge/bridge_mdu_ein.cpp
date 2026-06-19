@@ -8,6 +8,7 @@
 
 #include "libklug/internal/bridge/bridge_mdu_ein.hpp"
 #include <ulf/mdu_ein.hpp>
+#include "config.hpp"
 #include "libklug/internal/transmission/mdu_ein/base.hpp"
 #include "libklug/internal/transmission/mdu_ein/config_transfer_rate.hpp"
 #include "libklug/internal/transmission/mdu_ein/cv_read.hpp"
@@ -271,8 +272,10 @@ bool MDU_EIN::zppUpdate(zpp::File* file, uint32_t index) {
  * \todo Implement, Library implementation of packet factory also missing
  */
 bool MDU_EIN::zppUpdateEnd(uint32_t start_address, uint32_t end_address) {
-  assert(false);
-  return false;
+  return _worker.emplace<transmission::mdu_ein::Base>(
+    _ctx.connection,
+    ulf::mdu_ein::bytes2mdu_ein(mdu::make_zpp_exit_reset_packet()),
+    internal::config::timeout::mdu_ein::zpp_exit_reset);
 }
 
 /**
