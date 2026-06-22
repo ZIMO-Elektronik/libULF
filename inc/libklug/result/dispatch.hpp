@@ -54,11 +54,6 @@ constexpr result dispatch(Result r) {
                           std::to_underlying(static_cast<err::Error>(e));
                         return r;
                       },
-                      [](LibusbError e) {
-                        result r{.type = result_type::libusb_error};
-                        r.data.libusb_error = e;
-                        return r;
-                      },
                     },
                     r);
 }
@@ -76,7 +71,6 @@ constexpr Result dispatch(result r) {
     case result_type::string: return String{std::string_view{r.data.string}};
     case result_type::error:
       return Error{static_cast<err::Error>(r.data.error)};
-    case result_type::libusb_error: return LibusbError{r.data.libusb_error};
   }
 }
 

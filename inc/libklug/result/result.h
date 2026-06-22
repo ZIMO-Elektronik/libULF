@@ -27,6 +27,5 @@ typedef struct {
     int value;
     char const* string;
     int error;
-    int libusb_error;
   } data;
 } result;

@@ -13,9 +13,8 @@
  *
  */
 typedef enum {
-  status,       ///< Success = 1, Error = 0
-  cv,           ///< Cv value
-  string,       ///< String
-  error,        ///< General error
-  libusb_error, ///< Libusb Error
+  status, ///< Success = 1, Error = 0
+  cv,     ///< Cv value
+  string, ///< String
+  error,  ///< General error
 } result_type;

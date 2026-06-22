@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <vector>
 #include <ztl/ztl.hpp>
-#include "libklug/internal/exception/e_libusb.hpp"
+#include "libklug/internal/exception/e_generic.hpp"
 #include "libklug/internal/logging.hpp"
 
 namespace internal {
@@ -249,7 +249,7 @@ void LibusbConnection::flush() {
   try {
     while (true) read_all(buffer, 1);
 
-  } catch (except::libusb_error e) {}
+  } catch (except::generic_error e) {}
 }
 
 /**
@@ -258,7 +258,7 @@ void LibusbConnection::flush() {
  * \param payload Payload
  * \param timeout Timeout
  *
- * \throw libusb_error
+ * \throw generic_error
  */
 void LibusbConnection::_write(std::span<uint8_t const> payload,
                               uint32_t timeout) {
@@ -271,7 +271,7 @@ void LibusbConnection::_write(std::span<uint8_t const> payload,
                              nullptr,
                              timeout)};
       rc != LIBUSB_SUCCESS)
-    throw except::libusb_error{rc, "Unable to transmit"sv};
+    throw except::generic_error{err::Error::usb, "Unable to transmit"sv};
 }
 
 /**
@@ -283,7 +283,7 @@ void LibusbConnection::_write(std::span<uint8_t const> payload,
  * \param terminator  Terminator
  * \param timeout     Timeout
  *
- * \throw libusb_error
+ * \throw generic_error
  */
 void LibusbConnection::_read_until(uint8_t* buffer,
                                    uint32_t length,
@@ -294,7 +294,7 @@ void LibusbConnection::_read_until(uint8_t* buffer,
   if (auto rc{libusb_bulk_transfer(
         _handle, _rx_ep, buffer, length, received, timeout)};
       rc != LIBUSB_SUCCESS)
-    throw except::libusb_error{rc, "Unable to receive"sv};
+    throw except::generic_error{err::Error::usb, "Unable to receive"sv};
 
 } // namespace internal
 
@@ -306,7 +306,7 @@ void LibusbConnection::_read_until(uint8_t* buffer,
  * \param received  Actual received
  * \param timeout   Timeout
  *
- * \throw libusb_error
+ * \throw generic_error
  */
 void LibusbConnection::_read_all(uint8_t* buffer,
                                  uint32_t length,
@@ -316,7 +316,7 @@ void LibusbConnection::_read_all(uint8_t* buffer,
   if (auto rc{libusb_bulk_transfer(
         _handle, _rx_ep, buffer, length, received, timeout)};
       rc != LIBUSB_SUCCESS)
-    throw except::libusb_error{rc, "Unable to receive"sv};
+    throw except::generic_error{err::Error::usb, "Unable to receive"sv};
 }
 
 } // namespace internal
