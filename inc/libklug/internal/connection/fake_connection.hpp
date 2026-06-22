@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include <libserialport.h>
 #include <cstdint>
 #include <span>
 #include "i_connection.hpp"

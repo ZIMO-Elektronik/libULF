@@ -7,7 +7,6 @@
  */
 
 #include "libklug/internal/transmission/transmission_base.hpp"
-#include <libusb.h>
 #include <ranges>
 #include <string>
 #include "libklug/internal/connection/i_connection.hpp"

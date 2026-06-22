@@ -7,8 +7,11 @@
  */
 
 #include "libklug/internal/bridge/bridge_context.hpp"
-#include "libklug/internal/connection/libserialport_connection.hpp"
-#include "libklug/internal/connection/libusb_connection.hpp"
+#ifdef USE_LIBSERIALPORT
+#  include "libklug/internal/connection/libserialport_connection.hpp"
+#elifdef USE_LIBUSB
+#  include "libklug/internal/connection/libusb_connection.hpp"
+#endif
 
 namespace bridge {
 
