@@ -200,3 +200,20 @@ if(PROJECT_IS_TOP_LEVEL)
   target_include_directories(KLUGIncludeWhatYouMust
                              PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/generated/)
 endif()
+
+set(INSTALL_TARGETS KLUG)
+
+if(LIBKLUG_BACKEND_LIBSERIALPORT)
+  list(APPEND INSTALL_TARGETS libserialport)
+endif()
+
+if(LIBKLUG_BACKEND_LIBUSB)
+  list(APPEND INSTALL_TARGETS usb-1.0)
+endif()
+
+install(
+  TARGETS ${INSTALL_TARGETS}
+  LIBRARY DESTINATION lib # .so-Files
+  RUNTIME DESTINATION bin # .dll-Files (to avoid linking issues)
+  ARCHIVE DESTINATION lib # [.a/.lib]-Files
+)
