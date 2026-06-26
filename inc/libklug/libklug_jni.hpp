@@ -130,13 +130,26 @@ JNI_METHOD(jint, bridge_1mdu_1ein_1zsu_1crc32_1result_1end, jlong handle);
  *  ---------------------------------------------------
  */
 
+/// ---- ZPP lifetime
+
+JNI_METHOD(jlong, libklug_1zpp_1read, jstring path);
+JNI_METHOD(void, libklug_1zpp_1release, jlong zpp_handle);
+
+/// ---- ZPP Ops
+
+JNI_METHOD(jlong, libklug_1zpp_1blocks, jlong zpp_handle);
+JNI_METHOD(jstring, libklug_1zpp_1author, jlong zpp_handle);
+JNI_METHOD(jstring, libklug_1zpp_1email, jlong zpp_handle);
+
 /** ---------------------------------------------------
  *  Bridge ZSU
  *  ---------------------------------------------------
  */
 
-JNI_METHOD(jlong, libklug_1zsu_1read, jchar c, jint length);
-JNI_METHOD(jint, libklug_1zsu_1release, jlong zsu_handle);
+/// ---- ZSU lifetime
+
+JNI_METHOD(jlong, libklug_1zsu_1read, jstring path);
+JNI_METHOD(void, libklug_1zsu_1release, jlong zsu_handle);
 
 /// ---- Iterator lifetime
 
@@ -164,4 +177,23 @@ JNI_METHOD(jint,
            jlong rhs);
 
 /// ---- Firmware ops
+
+JNI_METHOD(jlong,
+           libklug_1zsu_1firmware_1iterator_1get_1id,
+           jlong firmware_iterator_handle);
+JNI_METHOD(jstring,
+           libklug_1zsu_1firmware_1iterator_1get_1name,
+           jlong firmware_iterator_handle);
+JNI_METHOD(jstring,
+           libklug_1zsu_1firmware_1iterator_1get_1version_1major,
+           jlong firmware_iterator_handle);
+JNI_METHOD(jstring,
+           libklug_1zsu_1firmware_1iterator_1get_1version_1minor,
+           jlong firmware_iterator_handle);
+JNI_METHOD(jint,
+           libklug_1zsu_1firmware_1iterator_1get_1type,
+           jlong firmware_iterator_handle);
+JNI_METHOD(jlong,
+           libklug_1zsu_1firmware_1iterator_1get_1blocks,
+           jlong firmware_iterator_handle);
 }
