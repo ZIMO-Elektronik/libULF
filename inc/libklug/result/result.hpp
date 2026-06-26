@@ -13,7 +13,6 @@
 #include <variant>
 #include "wrapper/cv.hpp"
 #include "wrapper/error.hpp"
-#include "wrapper/libusb_error.hpp"
 #include "wrapper/status.hpp"
 #include "wrapper/string.hpp"
 
@@ -23,6 +22,6 @@ namespace res {
  * Result
  *
  */
-using Result = std::variant<String, Status, Cv, Error, LibusbError>;
+using Result = std::variant<String, Status, Cv, Error>;
 
 } // namespace res

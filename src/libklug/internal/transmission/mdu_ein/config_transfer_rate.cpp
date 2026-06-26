@@ -9,7 +9,6 @@
 #include "libklug/internal/transmission/mdu_ein/config_transfer_rate.hpp"
 #include <ulf/mdu_ein.hpp>
 #include "libklug/internal/exception/e_generic.hpp"
-#include "libklug/internal/exception/e_libusb.hpp"
 #include "libklug/internal/logging.hpp"
 
 namespace transmission::mdu_ein {

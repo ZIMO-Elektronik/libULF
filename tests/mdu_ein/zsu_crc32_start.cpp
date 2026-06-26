@@ -45,7 +45,7 @@ TEST_F(TestMDU_EIN, zsu_crc32_start_result_no_success) {
 }
 
 TEST_F(TestMDU_EIN, zsu_crc32_start_write_error) {
-  assertTransmitErrorCalls(LIBUSB_ERROR_IO);
+  assertTransmitErrorCalls();
 
   libklug_mdu_ein_zsu_crc32_start(libHandle, fwItHandle);
   libklug_result(libHandle);
@@ -61,7 +61,7 @@ TEST_F(TestMDU_EIN, zsu_crc32_start_write_error_result) {
 }
 
 TEST_F(TestMDU_EIN, zsu_crc32_start_receive_error) {
-  assertReceiveErrorCalls(LIBUSB_ERROR_IO);
+  assertReceiveErrorCalls();
 
   libklug_mdu_ein_zsu_crc32_start(libHandle, fwItHandle);
   libklug_result(libHandle);

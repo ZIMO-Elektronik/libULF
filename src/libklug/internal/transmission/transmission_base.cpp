@@ -7,11 +7,9 @@
  */
 
 #include "libklug/internal/transmission/transmission_base.hpp"
-#include <libusb.h>
 #include <ranges>
 #include <string>
 #include "libklug/internal/connection/i_connection.hpp"
-#include "libklug/internal/exception/e_libusb.hpp"
 #include "libklug/internal/logging.hpp"
 
 namespace transmission {

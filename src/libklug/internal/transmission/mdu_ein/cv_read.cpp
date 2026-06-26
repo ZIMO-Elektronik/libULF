@@ -10,7 +10,6 @@
 #include <format>
 #include <ulf/mdu_ein.hpp>
 #include "libklug/internal/exception/e_generic.hpp"
-#include "libklug/internal/exception/e_libusb.hpp"
 #include "libklug/internal/transmission/mdu_ein/base.hpp"
 
 namespace transmission::mdu_ein {
@@ -43,9 +42,9 @@ void CvRead::execute() {
         throw except::generic_error{err::Error::nak, "Packet got NAK'd"};
       _value |= !(std::get<res::Status>(r)) << i;
 
-    } catch (except::libusb_error e) {
-      throw except::libusb_error{
-        static_cast<int>(e),
+    } catch (except::generic_error e) {
+      throw except::generic_error{
+        static_cast<err::Error>(e),
         std::format("CvRead error at bit {}, Cause: {}", i, e.what())};
     }
   }

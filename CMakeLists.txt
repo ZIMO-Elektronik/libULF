@@ -34,6 +34,8 @@ else()
   # Default (for now)
   option(LIBKLUG_BACKEND_LIBUSB "Libusb as backend" OFF)
   option(LIBKLUG_BACKEND_LIBSERIALPORT "Libserialport as backend" ON)
+  # option(LIBKLUG_BACKEND_LIBUSB "Libusb as backend" ON)
+  # option(LIBKLUG_BACKEND_LIBSERIALPORT "Libserialport as backend" OFF)
 endif()
 
 if((LIBKLUG_BACKEND_LIBUSB AND LIBKLUG_BACKEND_LIBSERIALPORT)
@@ -88,20 +90,16 @@ if(ANDROID)
            src/libklug/internal/platform/android/jni_context.cpp)
 endif()
 
-# if(LIBKLUG_BACKEND_LIBUSB)
-target_sources(${TARGET}
-               PRIVATE src/libklug/internal/connection/libusb_connection.cpp)
-# elseif(LIBKLUG_BACKEND_LIBSERIALPORT)
-target_sources(
-  ${TARGET}
-  PRIVATE src/libklug/internal/connection/libserialport_connection.cpp)
-# endif()
-
-# TODO once we can safely not link against libusb, write this without the
-# generator
-target_compile_definitions(
-  ${TARGET} PRIVATE $<IF:$<BOOL:${LIBKLUG_BACKEND_LIBSERIALPORT}>,USE_LIBUSB,
-                    USE_LIBSERIALPORT>)
+if(LIBKLUG_BACKEND_LIBUSB)
+  target_sources(${TARGET}
+                 PRIVATE src/libklug/internal/connection/libusb_connection.cpp)
+  target_compile_definitions(${TARGET} PRIVATE USE_LIBUSB)
+elseif(LIBKLUG_BACKEND_LIBSERIALPORT)
+  target_sources(
+    ${TARGET}
+    PRIVATE src/libklug/internal/connection/libserialport_connection.cpp)
+  target_compile_definitions(${TARGET} PRIVATE USE_LIBSERIALPORT)
+endif()
 
 target_compile_features(${TARGET} PUBLIC cxx_std_23)
 target_include_directories(${TARGET} PUBLIC inc/)
@@ -109,20 +107,20 @@ target_include_directories(${TARGET} PUBLIC inc/)
 target_compile_definitions(${TARGET} PRIVATE JNI_CLASS_PATH=${JNI_CLASS_PATH}
                                              JNI_RESULT_PATH=${JNI_RESULT_PATH})
 
-# if(NOT TARGET usb-1.0 AND LIBKLUG_BACKEND_LIBUSB)
-cpmaddpackage(
-  NAME
-  usb-1.0
-  GITHUB_REPOSITORY
-  libusb/libusb-cmake
-  GIT_TAG
-  v1.0.29-0
-  OPTIONS
-  BUILD_SHARED_LIBS
-  ON)
-# elseif(NOT TARGET libserialport AND LIBKLUG_BACKEND_LIBSERIALPORT)
-add_subdirectory(serialport-cmake)
-# endif()
+if(NOT TARGET usb-1.0 AND LIBKLUG_BACKEND_LIBUSB)
+  cpmaddpackage(
+    NAME
+    usb-1.0
+    GITHUB_REPOSITORY
+    libusb/libusb-cmake
+    GIT_TAG
+    v1.0.29-0
+    OPTIONS
+    BUILD_SHARED_LIBS
+    ON)
+elseif(NOT TARGET libserialport AND LIBKLUG_BACKEND_LIBSERIALPORT)
+  add_subdirectory(serialport-cmake)
+endif()
 
 if(NOT TARGET MDU::MDU)
   cpmaddpackage("gh:ZIMO-Elektronik/MDU@0.19.3")
@@ -173,12 +171,8 @@ target_link_libraries(
   ULF::SUSIV2
   ZPP::ZPP
   ZSU::ZSU
-  usb-1.0
-  libserialport)
-
-# Reinsert generators once we can safely remove libusb
-# "$<$<BOOL:${LIBKLUG_BACKEND_LIBSERIALPORT}>:libserialport>"
-# "$<$<BOOL:${LIBKLUG_BACKEND_LIBUSB}>:ususb-1.0>")
+  "$<$<BOOL:${LIBKLUG_BACKEND_LIBSERIALPORT}>:libserialport>"
+  "$<$<BOOL:${LIBKLUG_BACKEND_LIBUSB}>:usb-1.0>")
 
 if(PROJECT_IS_TOP_LEVEL)
   include(CTest)
@@ -196,6 +190,8 @@ if(PROJECT_IS_TOP_LEVEL)
     TARGET
     KLUG
     EXCLUDE_HEADERS
+    inc//libklug/internal/connection/libusb_connection.hpp
+    inc//libklug/internal/connection/libserialport_connection.hpp
     inc//libklug/libklug_jni.hpp
     inc//libklug/internal/platform/android/jni_context.hpp
     inc//libklug/internal/platform/android/jni_defines.hpp
@@ -204,3 +200,20 @@ if(PROJECT_IS_TOP_LEVEL)
   target_include_directories(KLUGIncludeWhatYouMust
                              PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/generated/)
 endif()
+
+set(INSTALL_TARGETS KLUG)
+
+if(LIBKLUG_BACKEND_LIBSERIALPORT)
+  list(APPEND INSTALL_TARGETS libserialport)
+endif()
+
+if(LIBKLUG_BACKEND_LIBUSB)
+  list(APPEND INSTALL_TARGETS usb-1.0)
+endif()
+
+install(
+  TARGETS ${INSTALL_TARGETS}
+  LIBRARY DESTINATION lib # .so-Files
+  RUNTIME DESTINATION bin # .dll-Files (to avoid linking issues)
+  ARCHIVE DESTINATION lib # [.a/.lib]-Files
+)

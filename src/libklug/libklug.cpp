@@ -131,12 +131,17 @@ int libklug_mdu_ein_enter_mdu(libklug_handle handle) {
   return to_bridge(handle)->mdu_ein().enterMDU();
 }
 
-int libklug_mdu_ein_enter_dcc_zsu(libklug_handle handle) {
-  return to_bridge(handle)->mdu_ein().enterDCCZSU();
+int libklug_mdu_ein_enter_dcc_zsu(libklug_handle handle,
+                                  uint32_t id,
+                                  uint32_t sn,
+                                  int done) {
+  return to_bridge(handle)->mdu_ein().enterDCCZSU(id, sn, done > 0);
 }
 
-int libklug_mdu_ein_enter_dcc_zpp(libklug_handle handle) {
-  return to_bridge(handle)->mdu_ein().enterDCCZPP();
+int libklug_mdu_ein_enter_dcc_zpp(libklug_handle handle,
+                                  uint32_t sn,
+                                  int done) {
+  return to_bridge(handle)->mdu_ein().enterDCCZPP(sn, done > 0);
 }
 
 int libklug_mdu_ein_ping(libklug_handle handle, uint32_t sn, uint32_t id) {
