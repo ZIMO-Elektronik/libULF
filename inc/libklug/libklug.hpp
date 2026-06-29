@@ -30,57 +30,6 @@
 #include "libklug.h"
 #include "result/dispatch.hpp"
 
-namespace {
-
-/**
- * C-callback wrapper
- *
- * \details
- * Wraps a c callback in a CPP class.
- *
- */
-struct CallbackWrapper {
-  using callback_type = std::function<void(res::Result r)>;
-
-  CallbackWrapper(CallbackWrapper const&) = delete;
-  CallbackWrapper& operator=(CallbackWrapper const&) = delete;
-
-  CallbackWrapper(libklug_handle lib) : _lib{lib} {}
-  ~CallbackWrapper() { libklug_register_cb(_lib, nullptr, nullptr); }
-
-  void setCallback(callback_type cb) {
-    _callback = std::move(cb);
-    if (_callback) libklug_register_cb(_lib, &gateway, this);
-    else libklug_register_cb(_lib, nullptr, nullptr);
-  }
-
-  void unsetCallback() { return setCallback(nullptr); }
-
-private:
-  /**
-   * Gateway
-   *
-   * \details
-   * This is used as the actual callback. `user_data` is used as the `this`
-   * pointer
-   *
-   * \param r         result
-   * \param user_data `this` (usually)
-   */
-  static void gateway(::result r, void* user_data) {
-    auto* instance = static_cast<CallbackWrapper*>(user_data);
-
-    if (instance && instance->_callback) {
-      instance->_callback(res::dispatch(r));
-    }
-  }
-
-  callback_type _callback{};
-
-  libklug_handle _lib;
-};
-} // namespace
-
 namespace libklug {
 
 namespace mdu {
@@ -908,6 +857,54 @@ private:
  *
  */
 struct LibKLUG {
+  /**
+   * C-callback wrapper
+   *
+   * \details
+   * Wraps a c callback in a CPP class.
+   *
+   */
+  struct CallbackWrapper {
+    using callback_type = std::function<void(res::Result r)>;
+
+    CallbackWrapper(CallbackWrapper const&) = delete;
+    CallbackWrapper& operator=(CallbackWrapper const&) = delete;
+
+    CallbackWrapper(libklug_handle lib) : _lib{lib} {}
+    ~CallbackWrapper() { libklug_register_cb(_lib, nullptr, nullptr); }
+
+    void setCallback(callback_type cb) {
+      _callback = std::move(cb);
+      if (_callback) libklug_register_cb(_lib, &gateway, this);
+      else libklug_register_cb(_lib, nullptr, nullptr);
+    }
+
+    void unsetCallback() { return setCallback(nullptr); }
+
+  private:
+    /**
+     * Gateway
+     *
+     * \details
+     * This is used as the actual callback. `user_data` is used as the `this`
+     * pointer
+     *
+     * \param r         result
+     * \param user_data `this` (usually)
+     */
+    static void gateway(::result r, void* user_data) {
+      auto* instance = static_cast<CallbackWrapper*>(user_data);
+
+      if (instance && instance->_callback) {
+        instance->_callback(res::dispatch(r));
+      }
+    }
+
+    callback_type _callback{};
+
+    libklug_handle _lib;
+  };
+
   LibKLUG() : _lib{libklug_create()} {}
   LibKLUG(LibKLUG const&) = delete;
   LibKLUG& operator=(LibKLUG const&) = delete;
