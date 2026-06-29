@@ -21,7 +21,7 @@ extern "C" {
  * sepcific stuff (like jni)
  *
  */
-typedef void (*bridge_callback)(result r);
+typedef void (*bridge_callback)(result r, void* user_data);
 
 // Callback registration
 /// \todo Write registration

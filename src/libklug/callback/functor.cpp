@@ -11,8 +11,11 @@
 
 namespace callback {
 
-Functor::Functor(bridge_callback cb) : _cb{cb} {}
+Functor::Functor(bridge_callback cb, void* userData)
+  : _cb{cb}, _userData{userData} {}
 
-void Functor::operator()(res::Result const& r) { return _cb(res::dispatch(r)); }
+void Functor::operator()(res::Result const& r) {
+  return _cb(res::dispatch(r), _userData);
+}
 
 } // namespace callback
