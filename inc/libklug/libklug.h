@@ -83,10 +83,13 @@ void libklug_destroy(libklug_handle handle);
  * \todo
  * Add some form of manual deregister
  *
- * \param handle  libklug handle
- * \param cb      Callback
+ * \param handle    libklug handle
+ * \param cb        Callback
+ * \param user_data Passed into callback on call
  */
-void libklug_register_cb(libklug_handle handle, bridge_callback cb);
+void libklug_register_cb(libklug_handle handle,
+                         bridge_callback cb,
+                         void* user_data);
 
 /**
  * Get result of last operation

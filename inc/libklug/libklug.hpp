@@ -857,6 +857,54 @@ private:
  *
  */
 struct LibKLUG {
+  /**
+   * C-callback wrapper
+   *
+   * \details
+   * Wraps a c callback in a CPP class.
+   *
+   */
+  struct CallbackWrapper {
+    using callback_type = std::function<void(res::Result r)>;
+
+    CallbackWrapper(CallbackWrapper const&) = delete;
+    CallbackWrapper& operator=(CallbackWrapper const&) = delete;
+
+    CallbackWrapper(libklug_handle lib) : _lib{lib} {}
+    ~CallbackWrapper() { libklug_register_cb(_lib, nullptr, nullptr); }
+
+    void setCallback(callback_type cb) {
+      _callback = std::move(cb);
+      if (_callback) libklug_register_cb(_lib, &gateway, this);
+      else libklug_register_cb(_lib, nullptr, nullptr);
+    }
+
+    void unsetCallback() { return setCallback(nullptr); }
+
+  private:
+    /**
+     * Gateway
+     *
+     * \details
+     * This is used as the actual callback. `user_data` is used as the `this`
+     * pointer
+     *
+     * \param r         result
+     * \param user_data `this` (usually)
+     */
+    static void gateway(::result r, void* user_data) {
+      auto* instance = static_cast<CallbackWrapper*>(user_data);
+
+      if (instance && instance->_callback) {
+        instance->_callback(res::dispatch(r));
+      }
+    }
+
+    callback_type _callback{};
+
+    libklug_handle _lib;
+  };
+
   LibKLUG() : _lib{libklug_create()} {}
   LibKLUG(LibKLUG const&) = delete;
   LibKLUG& operator=(LibKLUG const&) = delete;
@@ -865,68 +913,28 @@ struct LibKLUG {
   LibKLUG& operator=(LibKLUG&& source) = delete;
   ~LibKLUG() { libklug_destroy(_lib); }
 
-  /** Register Cb (by class)
+  /**
+   * Set a `done` callback
    *
-   * \warning It is recommended to call \ref libKLUG::deregisterCb before
-   * deconstructing the this object.
+   * \note
+   * It is recommended to set this before starting a transfer
    *
-   * \details Attemts to avoid a dangling pointer by storing a shared pointer
-   * instead of a raw pointer.
-   *
-   * \todo Somehow, im unhappy with this implementation. Check if there is
-   * another solution
-   *
-   * \tparam Unique  Type that guarantees uniqueness for each use
-   * \tparam T       Type of class
-   * \tparam F       Type of member function
-   *
-   * \param t shared pointer of `this`
-   * \param f Method address (&T::method)
+   * \param cb callback
    */
-  template<auto Unique = [] {}, typename T, typename F>
-  constexpr auto registerCb(std::shared_ptr<T> t, F&& f) {
-    static std::weak_ptr<T> _t_weak;
-    _t_weak = t;
-
-    static auto _f{f};
-
-    _c_cb = [](::result r) {
-      if (auto _t_shared = _t_weak.lock())
-        return std::invoke(
-          _f, _t_shared, std::forward<res::Result>(res::dispatch(r)));
-      return;
-    };
-
-    libklug_register_cb(_lib, _c_cb);
-  }
-
-  /** Register Cb (by callable)
-   *
-   * \warning It is recommended to call \ref libKLUG::deregisterCb before the
-   * callable becomes invalid for any reason
-   *
-   * \tparam Unique  Type that guarantees uniqueness for each use
-   * \tparam F       Type of function object
-   *
-   * \param f Callable (e.g. Lambda)
-   */
-  template<auto Unique = [] {}, typename F>
-  constexpr auto registerCb(F&& f) {
-    static std::optional<F> _f;
-    _f.emplace(std::forward<F>(f));
-    _c_cb = [](::result r) {
-      return std::invoke(*_f, std::forward<res::Result>(res::dispatch(r)));
-    };
-    libklug_register_cb(_lib, _c_cb);
+  void setCallback(CallbackWrapper::callback_type cb) {
+    return _cb_wrapper.setCallback(cb);
   }
 
   /**
-   * Deregisters a callback
+   * Unset the `done` callback
    *
-   * \note (actually just registers a nullptr, which is the same)
+   * \warning
+   * Unsetting while a transfer is running may result in UB. An example is, if
+   * the transfer is complete but the thread was interrupted withing the callack
+   * execution.
    *
    */
-  void deregisterCb() { libklug_register_cb(_lib, nullptr); }
+  void unsetCallback() { return _cb_wrapper.unsetCallback(); }
 
   /**
    * Get last result
@@ -1022,6 +1030,8 @@ private:
   COM _com{_lib};         ///< COM interface
   SUSIV2 _susiv2{_lib};   ///< SUSIV2 interface
   MDU_EIN _mdu_ein{_lib}; ///< MDU_EIN interface
+
+  CallbackWrapper _cb_wrapper{_lib}; ///< Callback wrapper
 };
 
 } // namespace libklug

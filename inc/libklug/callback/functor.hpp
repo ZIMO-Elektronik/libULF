@@ -21,13 +21,15 @@ namespace callback {
  *
  */
 struct Functor : public IFunctor {
-  Functor(bridge_callback cb);
+  Functor(bridge_callback cb, void* userData);
   virtual ~Functor() = default;
 
   virtual void operator()(res::Result const& r) override;
 
 private:
   bridge_callback _cb; ///< Callback
+
+  void* _userData; ///< UserData
 };
 
 } // namespace callback
