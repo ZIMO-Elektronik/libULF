@@ -31,24 +31,24 @@ overloads(Ts...) -> overloads<Ts...>;
  * \param r Result
  * \return result
  */
-constexpr result dispatch(Result r) {
+constexpr result dispatch(Result const& r) {
   return std::visit(overloads{
-                      [](String s) {
+                      [](String const& s) {
                         result r{.type = result_type::string};
                         r.data.string = s->data();
                         return r;
                       },
-                      [](Status s) {
+                      [](Status const& s) {
                         result r{.type = result_type::status};
                         r.data.success = s;
                         return r;
                       },
-                      [](Cv cv) {
+                      [](Cv const& cv) {
                         result r{.type = result_type::cv};
                         r.data.value = cv;
                         return r;
                       },
-                      [](Error e) {
+                      [](Error const& e) {
                         result r{.type = result_type::error};
                         r.data.error =
                           std::to_underlying(static_cast<err::Error>(e));
@@ -64,7 +64,7 @@ constexpr result dispatch(Result r) {
  * \param r result
  * \return Result
  */
-constexpr Result dispatch(result r) {
+constexpr Result dispatch(result const& r) {
   switch (r.type) {
     case result_type::status: return Status{r.data.success == LIBKLUG_TRUE};
     case result_type::cv: return Cv{static_cast<uint8_t>(r.data.value)};
