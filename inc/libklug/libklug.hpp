@@ -871,7 +871,7 @@ struct LibKLUG {
     CallbackWrapper& operator=(CallbackWrapper const&) = delete;
 
     CallbackWrapper(libklug_handle lib) : _lib{lib} {}
-    ~CallbackWrapper() { libklug_register_cb(_lib, nullptr, nullptr); }
+    ~CallbackWrapper() {}
 
     void setCallback(callback_type cb) {
       _callback = std::move(cb);
@@ -911,7 +911,10 @@ struct LibKLUG {
 
   LibKLUG(LibKLUG&& source) : _lib{source._lib} { source._lib = nullptr; }
   LibKLUG& operator=(LibKLUG&& source) = delete;
-  ~LibKLUG() { libklug_destroy(_lib); }
+  ~LibKLUG() {
+    _cb_wrapper.unsetCallback();
+    libklug_destroy(_lib);
+  }
 
   /**
    * Set a `done` callback
