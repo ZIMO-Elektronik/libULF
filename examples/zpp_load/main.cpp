@@ -20,17 +20,17 @@ int main() {
 
   std::cout << "SUSIV2 mode" << std::endl;
   libklug_com_susiv2(handle);
-  auto r{libklug_result(handle)};
+  auto r{libklug_job_await(handle)};
   if (r.type != result_type::status) abort();
 
   std::cout << "SUSIV2 Features" << std::endl;
   libklug_susiv2_features(handle);
-  r = libklug_result(handle);
+  r = libklug_job_await(handle);
   if (r.type != result_type::status) abort();
 
   std::cout << "Erase Flash" << std::endl;
   libklug_susiv2_zpp_erase(handle);
-  r = libklug_result(handle);
+  r = libklug_job_await(handle);
   if (r.type != result_type::status) abort();
 
   std::cout << "Progress" << std::endl;
@@ -61,7 +61,7 @@ int main() {
     }
 
     start = std::chrono::high_resolution_clock::now();
-    r = libklug_result(handle);
+    r = libklug_job_await(handle);
     end = std::chrono::high_resolution_clock::now();
     duration =
       std::chrono::duration_cast<std::chrono::microseconds>(end - start);
@@ -82,11 +82,11 @@ int main() {
   std::cout << std::endl;
 
   libklug_susiv2_exit(handle, 1, 1);
-  r = libklug_result(handle);
+  r = libklug_job_await(handle);
   if (r.type != result_type::status) abort();
 
   libklug_com_reset(handle);
-  r = libklug_result(handle);
+  r = libklug_job_await(handle);
   if (r.type != result_type::status) abort();
 
   libklug_zpp_release(z_handle);

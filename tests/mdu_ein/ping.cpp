@@ -27,44 +27,44 @@ TEST_F(TestMDU_EIN, ping_payload) {
     EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
   }
 
-  lib.mdu_ein().ping(sn, id);
-  lib.result();
+  libklug_mdu_ein_ping(libHandle, sn, id);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestMDU_EIN, ping_result_success) {
   ON_CALL(conn, _read_until(_, _, _, _, _))
     .WillByDefault(helper::mdu::receive_nak);
 
-  lib.mdu_ein().ping(sn, id);
-  auto const result{lib.result()};
+  libklug_mdu_ein_ping(libHandle, sn, id);
+  auto const result{libklug_job_await(libHandle)};
 
-  ASSERT_TRUE(std::holds_alternative<res::Status>(result));
-  ASSERT_TRUE(std::get<res::Status>(result));
+  ASSERT_EQ(result.type, result_type::status);
+  ASSERT_TRUE(result.data.success);
 }
 
 TEST_F(TestMDU_EIN, ping_result_no_success) {
   ON_CALL(conn, _read_until(_, _, _, _, _))
     .WillByDefault(helper::mdu::receive_ack);
 
-  lib.mdu_ein().ping(sn, id);
-  auto const result{lib.result()};
+  libklug_mdu_ein_ping(libHandle, sn, id);
+  auto const result{libklug_job_await(libHandle)};
 
-  ASSERT_TRUE(std::holds_alternative<res::Status>(result));
-  ASSERT_FALSE(std::get<res::Status>(result));
+  ASSERT_EQ(result.type, result_type::status);
+  ASSERT_FALSE(result.data.success);
 }
 
 TEST_F(TestMDU_EIN, ping_write_error) {
   assertTransmitErrorCalls();
 
-  lib.mdu_ein().ping(sn, id);
-  lib.result();
+  libklug_mdu_ein_ping(libHandle, sn, id);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestMDU_EIN, ping_write_error_result) {
   throwTransmitException();
 
-  lib.mdu_ein().ping(sn, id);
-  auto const result{lib.result()};
+  libklug_mdu_ein_ping(libHandle, sn, id);
+  auto const result{libklug_job_await(libHandle)};
 
   assertTransmitReceiveErrorResult(result);
 }
@@ -72,15 +72,15 @@ TEST_F(TestMDU_EIN, ping_write_error_result) {
 TEST_F(TestMDU_EIN, ping_receive_error) {
   assertReceiveErrorCalls();
 
-  lib.mdu_ein().ping(sn, id);
-  lib.result();
+  libklug_mdu_ein_ping(libHandle, sn, id);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestMDU_EIN, ping_receive_error_result) {
   throwTransmitException();
 
-  lib.mdu_ein().ping(sn, id);
-  auto const result{lib.result()};
+  libklug_mdu_ein_ping(libHandle, sn, id);
+  auto const result{libklug_job_await(libHandle)};
 
   assertTransmitReceiveErrorResult(result);
 }

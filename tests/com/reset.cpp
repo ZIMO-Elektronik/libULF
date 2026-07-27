@@ -21,8 +21,8 @@ TEST_F(TestCOM, reset_payload) {
     EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
   }
 
-  lib.com().reset();
-  lib.result();
+  libklug_com_reset(libHandle);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestCOM, reset_result_ok) {
@@ -32,11 +32,11 @@ TEST_F(TestCOM, reset_result_ok) {
   ON_CALL(conn, _read_until(_, _, _, _, _))
     .WillByDefault(helper::com::receive_ok);
 
-  lib.com().reset();
-  auto const result{lib.result()};
+  libklug_com_reset(libHandle);
+  auto const result{libklug_job_await(libHandle)};
 
-  ASSERT_TRUE(std::holds_alternative<res::Status>(result));
-  ASSERT_TRUE(std::get<res::Status>(result));
+  ASSERT_EQ(result.type, result_type::status);
+  ASSERT_TRUE(result.data.success);
 }
 
 TEST_F(TestCOM, reset_result_not_ok) {
@@ -46,45 +46,25 @@ TEST_F(TestCOM, reset_result_not_ok) {
   ON_CALL(conn, _read_until(_, _, _, _, _))
     .WillByDefault(helper::com::receive_not_ok);
 
-  lib.com().reset();
-  auto const result{lib.result()};
+  libklug_com_reset(libHandle);
+  auto const result{libklug_job_await(libHandle)};
 
-  ASSERT_TRUE(std::holds_alternative<res::Status>(result));
-  ASSERT_FALSE(std::get<res::Status>(result));
+  ASSERT_EQ(result.type, result_type::status);
+  ASSERT_FALSE(result.data.success);
 }
-
-// TEST_F(TestCOM, reset_invalid_format) {
-//   using std::operator""sv;
-//
-//   auto const r{helper::string_view2span("OK"sv)};
-//   ON_CALL(conn, _receive(_, _, _, _))
-//     .WillByDefault(
-//       [&](uint8_t* buf, uint32_t len, int* rx_ed, uint32_t timeout) {
-//         assert(len >= r.size());
-//         std::ranges::copy(r, buf);
-//         *rx_ed = r.size();
-//         return 0;
-//       });
-//
-//   lib.com().reset();
-//   auto const result{lib.result()};
-//
-//   ASSERT_TRUE(std::holds_alternative<res::Error>(result));
-//   ASSERT_EQ(std::get<res::Error>(result), err::Error::format);
-// }
 
 TEST_F(TestCOM, reset_transmit_error) {
   assertTransmitErrorCalls();
 
-  lib.com().reset();
-  lib.result();
+  libklug_com_reset(libHandle);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestCOM, reset_transmit_error_result) {
   throwTransmitException();
 
-  lib.com().reset();
-  auto const result{lib.result()};
+  libklug_com_reset(libHandle);
+  auto const result{libklug_job_await(libHandle)};
 
   assertTransmitReceiveErrorResult(result);
 }
@@ -92,15 +72,15 @@ TEST_F(TestCOM, reset_transmit_error_result) {
 TEST_F(TestCOM, reset_receive_error) {
   assertReceiveErrorCalls();
 
-  lib.com().reset();
-  lib.result();
+  libklug_com_reset(libHandle);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestCOM, reset_receive_error_result) {
   throwReceiveException();
 
-  lib.com().reset();
-  auto const result{lib.result()};
+  libklug_com_reset(libHandle);
+  auto const result{libklug_job_await(libHandle)};
 
   assertTransmitReceiveErrorResult(result);
 }

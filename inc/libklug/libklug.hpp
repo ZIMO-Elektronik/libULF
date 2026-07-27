@@ -969,14 +969,32 @@ struct LibKLUG {
   void unsetCallback() { return _cb_wrapper.unsetCallback(); }
 
   /**
-   * Get last result
+   * Await result of current job
    *
    * \warning Calling this before any transmission was started will result in
    * a deadlock.
    *
    * \return res::Result result
    */
-  res::Result result() { return res::dispatch(libklug_result(_lib)); }
+  res::Result jobAwait() { return res::dispatch(libklug_job_await(_lib)); }
+
+  /**
+   * Get result of current job
+   *
+   * \warning Calling this before any transmission was started will result in a
+   * deadlock.
+   *
+   * \return res::Result result
+   */
+  res::Result jobResult() { return res::dispatch(libklug_job_result(_lib)); }
+
+  /**
+   * Poll current job
+   *
+   * \return true   Result available
+   * \return false  No result yet
+   */
+  bool jobPoll() { return libklug_job_poll(_lib); }
 
   /**
    * Init

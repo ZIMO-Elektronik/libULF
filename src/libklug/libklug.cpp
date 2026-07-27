@@ -12,6 +12,7 @@
 #include "libklug/internal/bridge/bridge.hpp"
 #include "libklug/internal/bridge/bridge_zpp.hpp"
 #include "libklug/internal/bridge/bridge_zsu.hpp"
+#include "libklug/internal/exception/e_generic.hpp"
 #include "libklug/result/dispatch.hpp"
 
 bridge::Bridge* to_bridge(libklug_handle handle) {
@@ -36,8 +37,19 @@ void libklug_register_cb(libklug_handle handle,
     std::make_unique<callback::Functor>(cb, user_data));
 }
 
-result libklug_result(libklug_handle handle) {
-  return res::dispatch(to_bridge(handle)->result());
+result libklug_job_await(libklug_handle handle) {
+  try {
+    return res::dispatch(to_bridge(handle)->future().get());
+  } catch (except::generic_error const& e) {
+    return res::dispatch(static_cast<res::Error>(e));
+  } catch (...) { return res::dispatch(res::Error(err::Error::unknown)); }
+}
+
+int libklug_job_poll(libklug_handle handle) {
+  return to_bridge(handle)->future().wait_for(std::chrono::seconds(0)) ==
+             std::future_status::ready
+           ? LIBKLUG_TRUE
+           : LIBKLUG_FALSE;
 }
 
 int libklug_init(libklug_handle handle) { return to_bridge(handle)->init(); }

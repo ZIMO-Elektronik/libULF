@@ -16,7 +16,7 @@ TEST_F(TestMDU_EIN, busy_payload) {
   }
 
   libklug_mdu_ein_busy(libHandle);
-  libklug_result(libHandle);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestMDU_EIN, busy_result_not_busy) {
@@ -24,7 +24,7 @@ TEST_F(TestMDU_EIN, busy_result_not_busy) {
     .WillByDefault(helper::mdu::receive_ack);
 
   libklug_mdu_ein_busy(libHandle);
-  auto const result{libklug_result(libHandle)};
+  auto const result{libklug_job_await(libHandle)};
 
   ASSERT_EQ(result.type, result_type::status);
   ASSERT_EQ(result.data.success, 1);
@@ -35,7 +35,7 @@ TEST_F(TestMDU_EIN, busy_result_busy) {
     .WillByDefault(helper::mdu::receive_nak);
 
   libklug_mdu_ein_busy(libHandle);
-  auto const result{libklug_result(libHandle)};
+  auto const result{libklug_job_await(libHandle)};
 
   ASSERT_EQ(result.type, result_type::status);
   ASSERT_EQ(result.data.success, 0);
@@ -45,14 +45,14 @@ TEST_F(TestMDU_EIN, busy_write_error) {
   assertTransmitErrorCalls();
 
   libklug_mdu_ein_busy(libHandle);
-  libklug_result(libHandle);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestMDU_EIN, busy_write_error_result) {
   throwTransmitException();
 
   libklug_mdu_ein_busy(libHandle);
-  auto const result{libklug_result(libHandle)};
+  auto const result{libklug_job_await(libHandle)};
 
   assertTransmitReceiveErrorResult(result);
 }
@@ -61,14 +61,14 @@ TEST_F(TestMDU_EIN, busy_receive_error) {
   assertReceiveErrorCalls();
 
   libklug_mdu_ein_busy(libHandle);
-  libklug_result(libHandle);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestMDU_EIN, busy_receive_error_result) {
   throwReceiveException();
 
   libklug_mdu_ein_busy(libHandle);
-  auto const result{libklug_result(libHandle)};
+  auto const result{libklug_job_await(libHandle)};
 
   assertTransmitReceiveErrorResult(result);
 }

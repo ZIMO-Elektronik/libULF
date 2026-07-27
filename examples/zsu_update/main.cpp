@@ -35,7 +35,7 @@ int main() {
 
   gsl::final_action a([&]() {
     libklug_com_reset(lib);
-    if (!success(libklug_result(lib))) {
+    if (!success(libklug_job_await(lib))) {
       std::cout << "Unable to RESET device" << std::endl;
       return -1;
     }
@@ -47,7 +47,7 @@ int main() {
   result r{};
 
   libklug_com_mdu_ein(lib);
-  r = libklug_result(lib);
+  r = libklug_job_await(lib);
   if (!success(r)) {
     std::cout << "Unable to enter MDU_EIN" << std::endl;
     return -1;
@@ -55,7 +55,7 @@ int main() {
   std::cout << "Entered MDU_EIN" << std::endl;
 
   libklug_mdu_ein_enter_mdu(lib);
-  r = libklug_result(lib);
+  r = libklug_job_await(lib);
   if (!success(r)) {
     std::cout << "Unable to enter Decoder BL" << std::endl;
     return -1;
@@ -63,7 +63,7 @@ int main() {
   std::cout << "Entered Bootloader via MDU" << std::endl;
 
   libklug_mdu_ein_config_transfer_rate(lib, 3);
-  r = libklug_result(lib);
+  r = libklug_job_await(lib);
   if (!success(r)) {
     std::cout << "Unable to set Transfer Rate" << std::endl;
     return -1;
@@ -75,7 +75,7 @@ int main() {
   do { // Caution, this assumes at least one firmware in file
     libklug_mdu_ein_ping(lib, 0uz, libklug_zsu_get_firmware_id(zsu, fwIndex));
     // Inverted success because of ping
-    if (success(libklug_result(lib))) {
+    if (success(libklug_job_await(lib))) {
       found = true;
       break;
     }
@@ -92,7 +92,7 @@ int main() {
   }
 
   libklug_mdu_ein_zsu_salsa20_iv(lib, zsu, fwIndex);
-  r = libklug_result(lib);
+  r = libklug_job_await(lib);
   if (!success(r)) {
     std::cout << "Unable to init Salsa20" << std::endl;
     return -1;
@@ -100,7 +100,7 @@ int main() {
   std::cout << "Salsa20 initialized" << std::endl;
 
   libklug_mdu_ein_zsu_erase(lib, zsu, fwIndex);
-  r = libklug_result(lib);
+  r = libklug_job_await(lib);
   if (!success(r)) {
     std::cout << "Unable to erase flash" << std::endl;
     return -1;
@@ -109,7 +109,7 @@ int main() {
 
   for (int i{0}; i < 10; i++) { // Loop for 10s
     libklug_mdu_ein_busy(lib);
-    libklug_result(lib);
+    libklug_job_await(lib);
     std::this_thread::sleep_for(1000ms);
   }
   std::cout << "Flash erased" << std::endl;
@@ -129,7 +129,7 @@ int main() {
     // }
 
     libklug_mdu_ein_zsu_update(lib, zsu, fwIndex, i);
-    r = libklug_result(lib);
+    r = libklug_job_await(lib);
     if (!success(r)) {
       if (retry >= max_retries) {
         std::cout << "Error at block " << i << std::endl;
@@ -147,7 +147,7 @@ int main() {
   std::cout << std::endl;
 
   libklug_mdu_ein_zsu_crc32_start(lib, zsu, fwIndex);
-  r = libklug_result(lib);
+  r = libklug_job_await(lib);
   if (!success(r)) {
     std::cout << "Unable to init CRC32 verification" << std::endl;
     return -1;
@@ -155,7 +155,7 @@ int main() {
   std::cout << "CRC32 check started" << std::endl;
 
   libklug_mdu_ein_zsu_crc32_result_exit(lib);
-  r = libklug_result(lib);
+  r = libklug_job_await(lib);
   if (!success(r)) {
     std::cout << "Bad CRC32" << std::endl;
     return -1;

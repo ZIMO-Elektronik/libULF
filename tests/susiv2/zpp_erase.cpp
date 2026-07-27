@@ -22,8 +22,8 @@ TEST_F(TestSUSIV2, zpp_erase_payload) {
     EXPECT_CALL(conn, _read_all(_, _, _, _)).Times(1);
   }
 
-  lib.susiv2().zppErase();
-  lib.result();
+  libklug_susiv2_zpp_erase(libHandle);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestSUSIV2, zpp_erase_result_success) {
@@ -33,25 +33,25 @@ TEST_F(TestSUSIV2, zpp_erase_result_success) {
   ON_CALL(conn, _read_all(_, Ge(r.size()), _, _))
     .WillByDefault(helper::susiv2::receive_ack);
 
-  lib.susiv2().zppErase();
-  auto const result{lib.result()};
+  libklug_susiv2_zpp_erase(libHandle);
+  auto const result{libklug_job_await(libHandle)};
 
-  ASSERT_TRUE(std::holds_alternative<res::Status>(result));
-  ASSERT_TRUE(std::get<res::Status>(result));
+  ASSERT_EQ(result.type, result_type::status);
+  ASSERT_TRUE(result.data.success);
 }
 
 TEST_F(TestSUSIV2, zpp_erase_write_error) {
   assertTransmitErrorCalls<true>();
 
-  lib.susiv2().zppErase();
-  lib.result();
+  libklug_susiv2_zpp_erase(libHandle);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestSUSIV2, zpp_erase_write_error_result) {
   throwTransmitException();
 
-  lib.susiv2().zppErase();
-  auto const result{lib.result()};
+  libklug_susiv2_zpp_erase(libHandle);
+  auto const result{libklug_job_await(libHandle)};
 
   assertTransmitReceiveErrorResult(result);
 }
@@ -59,15 +59,15 @@ TEST_F(TestSUSIV2, zpp_erase_write_error_result) {
 TEST_F(TestSUSIV2, zpp_erase_receive_error) {
   assertReceiveErrorCalls<true>();
 
-  lib.susiv2().zppErase();
-  lib.result();
+  libklug_susiv2_zpp_erase(libHandle);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestSUSIV2, zpp_erase_receive_error_result) {
   throwReceiveException();
 
-  lib.susiv2().zppErase();
-  auto const result{lib.result()};
+  libklug_susiv2_zpp_erase(libHandle);
+  auto const result{libklug_job_await(libHandle)};
 
   assertTransmitReceiveErrorResult(result);
 }

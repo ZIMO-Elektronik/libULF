@@ -23,7 +23,7 @@ TEST_F(TestMDU_EIN, zsu_update_payload) {
     }
 
     libklug_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, idx);
-    libklug_result(libHandle);
+    libklug_job_await(libHandle);
   }
 }
 
@@ -32,7 +32,7 @@ TEST_F(TestMDU_EIN, zsu_update_result_success) {
     .WillByDefault(helper::mdu::receive_ack);
 
   libklug_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, 0uz);
-  auto const result{libklug_result(libHandle)};
+  auto const result{libklug_job_await(libHandle)};
 
   ASSERT_EQ(result.type, result_type::status);
   ASSERT_EQ(result.data.success, LIBKLUG_TRUE);
@@ -43,7 +43,7 @@ TEST_F(TestMDU_EIN, zsu_update_result_no_success) {
     .WillByDefault(helper::mdu::receive_nak);
 
   libklug_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, 0uz);
-  auto const result{libklug_result(libHandle)};
+  auto const result{libklug_job_await(libHandle)};
 
   ASSERT_EQ(result.type, result_type::status);
   ASSERT_EQ(result.data.success, LIBKLUG_FALSE);
@@ -53,14 +53,14 @@ TEST_F(TestMDU_EIN, zsu_update_write_error) {
   assertTransmitErrorCalls();
 
   libklug_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, 0uz);
-  libklug_result(libHandle);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestMDU_EIN, zsu_update_write_error_result) {
   throwTransmitException();
 
   libklug_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, 0uz);
-  auto const result{libklug_result(libHandle)};
+  auto const result{libklug_job_await(libHandle)};
 
   assertTransmitReceiveErrorResult(result);
 }
@@ -69,14 +69,14 @@ TEST_F(TestMDU_EIN, zsu_update_receive_error) {
   assertReceiveErrorCalls();
 
   libklug_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, 0uz);
-  libklug_result(libHandle);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestMDU_EIN, zsu_update_receive_error_result) {
   throwReceiveException();
 
   libklug_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, 0uz);
-  auto const result{libklug_result(libHandle)};
+  auto const result{libklug_job_await(libHandle)};
 
   assertTransmitReceiveErrorResult(result);
 }

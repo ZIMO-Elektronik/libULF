@@ -54,7 +54,7 @@ struct Worker {
 
     // Prepare transmission and result
     _t = std::make_unique<T>(std::forward<Args>(args)...);
-    _promise = std::promise<res::Result>();
+    _promise = std::promise<res::Result&>();
     _ctx.result = _promise.get_future();
 
     // Notify worker thread
@@ -70,10 +70,11 @@ private:
   Context& _ctx; ///< Bridge context
 
   std::thread _thread;                             ///< Thread
-  std::promise<res::Result> _promise;              ///< Promise of result
+  std::promise<res::Result&> _promise;             ///< Promise of result
   std::mutex _mut_t;                               ///< Transmission mutex
   std::condition_variable _cv;                     ///< Wait condition
   std::unique_ptr<transmission::ITransmission> _t; ///< Current transmission
+  std::unique_ptr<res::Result> _r;                 ///< Last result
 
   bool exit;
 };
