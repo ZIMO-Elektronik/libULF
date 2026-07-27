@@ -2,7 +2,6 @@
 
 #include <ulf/mdu_ein.hpp>
 #include "../f_base.hpp"
-#include "libklug/internal/managed_iterator.hpp"
 #include "paths.hpp"
 
 using testing::_;
@@ -28,7 +27,5 @@ struct TestMDU_EIN : public TestBase {
   zsu::File zsu{zsu::read(paths::zsu_path)};
   zsu_handle zsuHandle{reinterpret_cast<zsu_handle>(&zsu)};
 
-  internal::ManagedIterator<decltype(zsu.firmwares)> fwIt{zsu.firmwares};
-  firmware_iterator_handle fwItHandle{
-    reinterpret_cast<firmware_iterator_handle>(&fwIt)};
+  size_t fwIndex{};
 };

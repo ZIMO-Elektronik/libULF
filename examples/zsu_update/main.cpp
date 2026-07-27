@@ -30,7 +30,8 @@ int main() {
   auto zsu{libklug_zsu_read(paths::zsu_path.data(), paths::zsu_path.size())};
   if (!zsu) return -1;
 
-  auto const fw_it{libklug_zsu_firmware_iterator_create_begin(zsu)};
+  size_t fwIndex{};
+  size_t const maxFwIndex{libklug_zsu_get_firmware_count(zsu) - 1uz};
 
   gsl::final_action a([&]() {
     libklug_com_reset(lib);
@@ -38,7 +39,6 @@ int main() {
       std::cout << "Unable to RESET device" << std::endl;
       return -1;
     }
-    libklug_zsu_destroy_firmware_iterator(fw_it);
     libklug_zsu_release(zsu);
     setup::disconnect(lib);
     return 0;
@@ -73,25 +73,25 @@ int main() {
   std::cout << "Searching decoder" << std::endl;
   bool found{};
   do { // Caution, this assumes at least one firmware in file
-    libklug_mdu_ein_ping(lib, 0uz, libklug_zsu_firmware_iterator_get_id(fw_it));
+    libklug_mdu_ein_ping(lib, 0uz, libklug_zsu_get_firmware_id(zsu, fwIndex));
     // Inverted success because of ping
     if (success(libklug_result(lib))) {
       found = true;
       break;
     }
 
-  } while (libklug_zsu_firmware_iterator_next(fw_it));
+  } while (fwIndex++ < maxFwIndex);
   if (found)
-    std::cout << "Found decoder "
-              << libklug_zsu_firmware_iterator_get_name(fw_it) << " with ID "
-              << std::hex << libklug_zsu_firmware_iterator_get_id(fw_it)
-              << std::dec << std::endl;
+    std::cout << "Found decoder " << libklug_zsu_get_firmware_name(zsu, fwIndex)
+              << " with ID " << std::hex
+              << libklug_zsu_get_firmware_id(zsu, fwIndex) << std::dec
+              << std::endl;
   else {
     std::cout << "Unable to find decoder " << std::endl;
     return -1;
   }
 
-  libklug_mdu_ein_zsu_salsa20_iv(lib, fw_it);
+  libklug_mdu_ein_zsu_salsa20_iv(lib, zsu, fwIndex);
   r = libklug_result(lib);
   if (!success(r)) {
     std::cout << "Unable to init Salsa20" << std::endl;
@@ -99,7 +99,7 @@ int main() {
   }
   std::cout << "Salsa20 initialized" << std::endl;
 
-  libklug_mdu_ein_zsu_erase(lib, fw_it);
+  libklug_mdu_ein_zsu_erase(lib, zsu, fwIndex);
   r = libklug_result(lib);
   if (!success(r)) {
     std::cout << "Unable to erase flash" << std::endl;
@@ -115,7 +115,7 @@ int main() {
   std::cout << "Flash erased" << std::endl;
 
   // std::cout << "Progress" << std::endl;
-  long const blocks{libklug_zsu_firmware_iterator_get_blocks(fw_it)};
+  long const blocks{libklug_zsu_get_firmware_block_count(zsu, fwIndex)};
   double progress{0.0};
   unsigned int retry{0uz};
   for (long i{0}; i < blocks; i++) {
@@ -128,7 +128,7 @@ int main() {
     //   else std::cout << " ";
     // }
 
-    libklug_mdu_ein_zsu_update(lib, fw_it, i);
+    libklug_mdu_ein_zsu_update(lib, zsu, fwIndex, i);
     r = libklug_result(lib);
     if (!success(r)) {
       if (retry >= max_retries) {
@@ -146,7 +146,7 @@ int main() {
   }
   std::cout << std::endl;
 
-  libklug_mdu_ein_zsu_crc32_start(lib, fw_it);
+  libklug_mdu_ein_zsu_crc32_start(lib, zsu, fwIndex);
   r = libklug_result(lib);
   if (!success(r)) {
     std::cout << "Unable to init CRC32 verification" << std::endl;

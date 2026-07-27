@@ -12,14 +12,11 @@
 #include "libklug/internal/bridge/bridge.hpp"
 #include "libklug/internal/bridge/bridge_zpp.hpp"
 #include "libklug/internal/bridge/bridge_zsu.hpp"
-#include "libklug/internal/managed_iterator.hpp"
 #include "libklug/result/dispatch.hpp"
 
 bridge::Bridge* to_bridge(libklug_handle handle) {
   return reinterpret_cast<bridge::Bridge*>(handle);
 }
-
-using FirmwareIterator = internal::ManagedIterator<std::vector<zsu::Firmware>>;
 
 /** ---------------------------------------------------
  *  Bridge
@@ -208,28 +205,32 @@ int libklug_mdu_ein_zpp_exit_reset(libklug_handle handle) {
 }
 
 int libklug_mdu_ein_zsu_salsa20_iv(libklug_handle handle,
-                                   firmware_iterator_handle firmware) {
+                                   zsu_handle zsu,
+                                   size_t firmware_index) {
   return to_bridge(handle)->mdu_ein().zsuSalsa20IV(
-    reinterpret_cast<FirmwareIterator*>(firmware)->get());
+    reinterpret_cast<zsu::File*>(zsu)->firmwares.at(firmware_index));
 }
 
 int libklug_mdu_ein_zsu_erase(libklug_handle handle,
-                              firmware_iterator_handle firmware) {
+                              zsu_handle zsu,
+                              size_t firmware_index) {
   return to_bridge(handle)->mdu_ein().zsuErase(
-    reinterpret_cast<FirmwareIterator*>(firmware)->get());
+    reinterpret_cast<zsu::File*>(zsu)->firmwares.at(firmware_index));
 }
 
 int libklug_mdu_ein_zsu_update(libklug_handle handle,
-                               firmware_iterator_handle firmware,
+                               zsu_handle zsu,
+                               size_t firmware_index,
                                uint32_t index) {
   return to_bridge(handle)->mdu_ein().zsuUpdate(
-    reinterpret_cast<FirmwareIterator*>(firmware)->get(), index);
+    reinterpret_cast<zsu::File*>(zsu)->firmwares.at(firmware_index), index);
 }
 
 int libklug_mdu_ein_zsu_crc32_start(libklug_handle handle,
-                                    firmware_iterator_handle firmware) {
+                                    zsu_handle zsu,
+                                    size_t firmware_index) {
   return to_bridge(handle)->mdu_ein().zsuCRC32Start(
-    reinterpret_cast<FirmwareIterator*>(firmware)->get());
+    reinterpret_cast<zsu::File*>(zsu)->firmwares.at(firmware_index));
 }
 
 int libklug_mdu_ein_zsu_crc32_result(libklug_handle handle) {
@@ -289,75 +290,67 @@ void libklug_zsu_release(zsu_handle zsu) {
   return bridge::ZSU::release(reinterpret_cast<zsu::File*>(zsu));
 }
 
-firmware_iterator_handle
-libklug_zsu_firmware_iterator_create_begin(zsu_handle zsu) {
-  return reinterpret_cast<firmware_iterator_handle>(
-    new FirmwareIterator(reinterpret_cast<zsu::File*>(zsu)->firmwares));
+uint32_t libklug_zsu_get_firmware_count(zsu_handle const zsu) {
+  assert(zsu);
+  return reinterpret_cast<zsu::File*>(zsu)->firmwares.size();
 }
 
-firmware_iterator_handle
-libklug_zsu_firmware_iterator_create_end(zsu_handle zsu) {
-  return reinterpret_cast<firmware_iterator_handle>(
-    new FirmwareIterator(reinterpret_cast<zsu::File*>(zsu)->firmwares, bool{}));
+uint32_t libklug_zsu_get_firmware_id(zsu_handle const zsu,
+                                     size_t const firmware_index) {
+  assert(zsu);
+  return reinterpret_cast<zsu::File*>(zsu)->firmwares.at(firmware_index).id;
 }
 
-void libklug_zsu_destroy_firmware_iterator(firmware_iterator_handle fw) {
-  delete reinterpret_cast<FirmwareIterator*>(fw);
-}
-
-int libklug_zsu_firmware_iterator_next(firmware_iterator_handle firmware) {
-  assert(firmware);
-  return reinterpret_cast<FirmwareIterator*>(firmware)->next();
-}
-
-int libklug_zsu_firmware_iterator_previous(firmware_iterator_handle firmware) {
-  assert(firmware);
-  return reinterpret_cast<FirmwareIterator*>(firmware)->previous();
-}
-
-int libklug_zsu_firmware_iterator_equals(firmware_iterator_handle const lhs,
-                                         firmware_iterator_handle const rhs) {
-  assert(lhs && rhs);
-  return reinterpret_cast<FirmwareIterator const*>(lhs)->equals(
-    *reinterpret_cast<FirmwareIterator const*>(rhs));
-}
-
-uint32_t
-libklug_zsu_firmware_iterator_get_id(firmware_iterator_handle firmware) {
-  assert(firmware);
-  return reinterpret_cast<FirmwareIterator*>(firmware)->get().id;
+char const* libklug_zsu_get_firmware_name(zsu_handle const zsu,
+                                          size_t const firmware_index) {
+  assert(zsu);
+  return reinterpret_cast<zsu::File*>(zsu)
+    ->firmwares.at(firmware_index)
+    .name.data();
 }
 
 char const*
-libklug_zsu_firmware_iterator_get_name(firmware_iterator_handle firmware) {
-  assert(firmware);
-  return reinterpret_cast<FirmwareIterator*>(firmware)->get().name.data();
-}
-
-char const* libklug_zsu_firmware_iterator_get_version_major(
-  firmware_iterator_handle firmware) {
-  assert(firmware);
-  return reinterpret_cast<FirmwareIterator*>(firmware)
-    ->get()
+libklug_zsu_get_firmware_major_version(zsu_handle const zsu,
+                                       size_t const firmware_index) {
+  assert(zsu);
+  return reinterpret_cast<zsu::File*>(zsu)
+    ->firmwares.at(firmware_index)
     .major_version.data();
 }
 
-char const* libklug_zsu_firmware_iterator_get_version_minor(
-  firmware_iterator_handle firmware) {
-  assert(firmware);
-  return reinterpret_cast<FirmwareIterator*>(firmware)
-    ->get()
+char const*
+libklug_zsu_get_firmware_minor_version(zsu_handle const zsu,
+                                       size_t const firmware_index) {
+  assert(zsu);
+  return reinterpret_cast<zsu::File*>(zsu)
+    ->firmwares.at(firmware_index)
     .minor_version.data();
 }
 
-int libklug_zsu_firmware_iterator_get_type(firmware_iterator_handle firmware) {
-  assert(firmware);
-  return reinterpret_cast<FirmwareIterator*>(firmware)->get().type;
+int libklug_zsu_get_firmware_type(zsu_handle const zsu,
+                                  size_t const firmware_index) {
+  assert(zsu);
+  return reinterpret_cast<zsu::File*>(zsu)->firmwares.at(firmware_index).type;
 }
 
-uint32_t
-libklug_zsu_firmware_iterator_get_blocks(firmware_iterator_handle firmware) {
-  assert(firmware);
+uint32_t libklug_zsu_get_firmware_block_count(zsu_handle const zsu,
+                                              size_t const firmware_index) {
+  assert(zsu);
   return bridge::ZSU::blocks(
-    reinterpret_cast<FirmwareIterator*>(firmware)->get());
+    reinterpret_cast<zsu::File*>(zsu)->firmwares.at(firmware_index));
+}
+uint8_t const* libklug_zsu_get_firmware_data(zsu_handle const zsu,
+                                             size_t const firmware_index) {
+  assert(zsu);
+  return reinterpret_cast<zsu::File*>(zsu)
+    ->firmwares.at(firmware_index)
+    .bin.data();
+}
+
+size_t libklug_zsu_get_firmware_data_size(zsu_handle const zsu,
+                                          size_t const firmware_index) {
+  assert(zsu);
+  return reinterpret_cast<zsu::File*>(zsu)
+    ->firmwares.at(firmware_index)
+    .bin.size();
 }

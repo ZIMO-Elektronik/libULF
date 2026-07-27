@@ -149,6 +149,10 @@ struct ZSU {
    * then again to C++. Which means it is neither perfect, nor good. But it
    * works and its better than throwing around a raw handle.
    *
+   * \note To make this stl compliant, we'd need to create a type `Firmware` and
+   * set it as a base type. However, then every dereferencing would create a
+   * copy of `_zsu` and `_fwIndex`.
+   *
    * \warning When a firmware is chosen, the Iterator shouldn't be incremented
    * or decremented. This WILL move to a new firmware which can't be checked and
    * may or may not destroy the decoder as a result. This shoud be
@@ -159,40 +163,62 @@ struct ZSU {
     friend class ZSU;
     friend class MDU_EIN;
 
-    // Delete all CTors.. Or just don't construct this manually
+    // Construct/copy/destroy
     FirmwareIterator() = delete;
-    FirmwareIterator(FirmwareIterator const&) = delete;
-    FirmwareIterator& operator=(FirmwareIterator const&) = delete;
-    FirmwareIterator(FirmwareIterator&& source) : _fwIt{source._fwIt} {
-      source._fwIt = nullptr;
+    FirmwareIterator(FirmwareIterator const&) = default;
+    FirmwareIterator& operator=(FirmwareIterator const&) = default;
+    FirmwareIterator(FirmwareIterator&& source)
+      : _zsu{source._zsu}, _fwIndex{source._fwIndex} {
+      source._zsu = nullptr;
     }
-    FirmwareIterator& operator=(FirmwareIterator&&) = delete;
-    ~FirmwareIterator() {
-      if (_fwIt) libklug_zsu_destroy_firmware_iterator(_fwIt);
+    FirmwareIterator& operator=(FirmwareIterator&& source) {
+      _zsu = source._zsu;
+      _fwIndex = source._fwIndex;
+      source._zsu = nullptr;
+      return *this;
     }
+    ~FirmwareIterator() = default;
 
     /**
      * Pre-increment
      *
-     * \note By desing, there is no post-increment
-     *
      * \return FirmwareIterator&
      */
     FirmwareIterator& operator++() {
-      libklug_zsu_firmware_iterator_next(_fwIt);
+      _fwIndex++;
       return *this;
+    }
+
+    /**
+     * Post-increment
+     *
+     * \return FirmwareIterator
+     */
+    FirmwareIterator operator++(int) {
+      auto retval{*this};
+      _fwIndex++;
+      return retval;
     }
 
     /**
      * Pre-decrement
      *
-     * \note By desing, there is no post-decrement
-     *
      * \return FirmwareIterator&
      */
     FirmwareIterator& operator--() {
-      libklug_zsu_firmware_iterator_previous(_fwIt);
+      _fwIndex--;
       return *this;
+    }
+
+    /**
+     * Post-incement
+     *
+     * \return FirmwareIterator
+     */
+    FirmwareIterator operator--(int) {
+      auto retval{*this};
+      _fwIndex--;
+      return retval;
     }
 
     /**
@@ -203,28 +229,23 @@ struct ZSU {
      * \return false  Not equal
      */
     bool operator==(FirmwareIterator const& rhs) const {
-      return libklug_zsu_firmware_iterator_equals(
-        static_cast<firmware_iterator_handle const>(*this),
-        static_cast<firmware_iterator_handle const>(rhs));
+      return _zsu == rhs._zsu && _fwIndex == rhs._fwIndex;
     }
-
-    FirmwareIterator operator++(int) = delete;
-    FirmwareIterator operator--(int) = delete;
 
     /**
      * Get the ID of the decoder matching the current firmware
      *
      * \return uint32_t Decoder ID
      */
-    uint32_t id() { return libklug_zsu_firmware_iterator_get_id(_fwIt); }
+    uint32_t id() const { return libklug_zsu_get_firmware_id(_zsu, _fwIndex); }
 
     /**
      * Get the name of the decoder matching the current firmware
      *
      * \return std::string_view Decoder name
      */
-    std::string_view name() {
-      return {libklug_zsu_firmware_iterator_get_name(_fwIt)};
+    std::string_view name() const {
+      return {libklug_zsu_get_firmware_name(_zsu, _fwIndex)};
     }
 
     /**
@@ -232,8 +253,8 @@ struct ZSU {
      *
      * \return std::string_view Major version
      */
-    std::string_view versionMajor() {
-      return {libklug_zsu_firmware_iterator_get_version_major(_fwIt)};
+    std::string_view versionMajor() const {
+      return {libklug_zsu_get_firmware_major_version(_zsu, _fwIndex)};
     }
 
     /**
@@ -241,8 +262,8 @@ struct ZSU {
      *
      * \return std::string_view Minor version
      */
-    std::string_view versionMinor() {
-      return {libklug_zsu_firmware_iterator_get_version_minor(_fwIt)};
+    std::string_view versionMinor() const {
+      return {libklug_zsu_get_firmware_minor_version(_zsu, _fwIndex)};
     }
 
     /**
@@ -253,38 +274,44 @@ struct ZSU {
      *
      * \return int Bootloader type
      */
-    int type() { return libklug_zsu_firmware_iterator_get_type(_fwIt); }
+    int type() const { return libklug_zsu_get_firmware_type(_zsu, _fwIndex); }
 
     /**
      * Get the total flash block count of the current firmware
      *
      * \return unsigned int Block cound
      */
-    unsigned int blocks() {
-      return libklug_zsu_firmware_iterator_get_blocks(_fwIt);
+    unsigned int blockCount() const {
+      return libklug_zsu_get_firmware_block_count(_zsu, _fwIndex);
+    }
+
+    /**
+     * Get the flash data of the current firmware
+     *
+     * \return std::span data
+     */
+    std::span<uint8_t const> data() const {
+      return {libklug_zsu_get_firmware_data(_zsu, _fwIndex),
+              libklug_zsu_get_firmware_data_size(_zsu, _fwIndex)};
     }
 
   private:
     // Internal CTors
-    FirmwareIterator(zsu_handle zsu)
-      : _fwIt{libklug_zsu_firmware_iterator_create_begin(zsu)} {}
-    FirmwareIterator(zsu_handle zsu, bool)
-      : _fwIt{libklug_zsu_firmware_iterator_create_end(zsu)} {}
+    FirmwareIterator(zsu_handle zsu, size_t fwIndex = 0uz)
+      : _zsu{zsu}, _fwIndex{fwIndex} {}
 
-    // Internal convenience cast operators
-    explicit operator firmware_iterator_handle() { return _fwIt; }
-    explicit operator firmware_iterator_handle const() const { return _fwIt; }
-
-    firmware_iterator_handle _fwIt; ///< Underlying iterator handle
+    zsu_handle _zsu;         ///< Underlying ZSU handle
+    unsigned int _fwIndex{}; ///< Firmware index
   };
 
   using iterator = FirmwareIterator;
+  using const_iterator = FirmwareIterator;
 
   /**
    * CTor
    *
-   * \warning Since reading the file at path may fail, use of \ref ZSU::valid is
-   * recommended.
+   * \warning Since reading the file at path may fail, use of \ref ZSU::valid
+   * is recommended.
    *
    * \param path Path to ZSU
    */
@@ -320,7 +347,9 @@ struct ZSU {
    *
    * \return iterator End iterator
    */
-  iterator end() { return FirmwareIterator{_zsu, bool{}}; }
+  iterator end() {
+    return FirmwareIterator{_zsu, libklug_zsu_get_firmware_count(_zsu)};
+  }
 
 private:
   // Internal convenience cast operator
@@ -765,7 +794,7 @@ struct MDU_EIN {
    */
   bool zsuSalsa20Iv(ZSU::FirmwareIterator& firmware) {
     return libklug_mdu_ein_zsu_salsa20_iv(
-      _lib, static_cast<firmware_iterator_handle>(firmware));
+      _lib, firmware._zsu, firmware._fwIndex);
   }
 
   /**
@@ -780,8 +809,7 @@ struct MDU_EIN {
    * \return false  Busy
    */
   bool zsuErase(ZSU::FirmwareIterator& firmware) {
-    return libklug_mdu_ein_zsu_erase(
-      _lib, static_cast<firmware_iterator_handle>(firmware));
+    return libklug_mdu_ein_zsu_erase(_lib, firmware._zsu, firmware._fwIndex);
   }
 
   /**
@@ -798,7 +826,7 @@ struct MDU_EIN {
    */
   bool zsuUpdate(ZSU::FirmwareIterator& firmware, uint32_t index) {
     return libklug_mdu_ein_zsu_update(
-      _lib, static_cast<firmware_iterator_handle>(firmware), index);
+      _lib, firmware._zsu, firmware._fwIndex, index);
   }
 
   /**
@@ -814,7 +842,7 @@ struct MDU_EIN {
    */
   bool zsuCrc32Start(ZSU::FirmwareIterator& firmware) {
     return libklug_mdu_ein_zsu_crc32_start(
-      _lib, static_cast<firmware_iterator_handle>(firmware));
+      _lib, firmware._zsu, firmware._fwIndex);
   }
 
   /**
@@ -933,8 +961,8 @@ struct LibKLUG {
    *
    * \warning
    * Unsetting while a transfer is running may result in UB. An example is, if
-   * the transfer is complete but the thread was interrupted withing the callack
-   * execution.
+   * the transfer is complete but the thread was interrupted withing the
+   * callack execution.
    *
    */
   void unsetCallback() { return _cb_wrapper.unsetCallback(); }
@@ -942,8 +970,8 @@ struct LibKLUG {
   /**
    * Get last result
    *
-   * \warning Calling this before any transmission was started will result in a
-   * deadlock.
+   * \warning Calling this before any transmission was started will result in
+   * a deadlock.
    *
    * \return res::Result result
    */

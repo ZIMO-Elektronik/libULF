@@ -23,7 +23,6 @@ extern "C" {
 typedef struct libklug_instance* libklug_handle;
 typedef struct zpp_instance* zpp_handle;
 typedef struct zsu_instance* zsu_handle;
-typedef struct firmware_iterator_instance* firmware_iterator_handle;
 
 /** ---------------------------------------------------
  *  Bridge
@@ -459,14 +458,18 @@ int libklug_mdu_ein_zpp_update_end(libklug_handle handle, zpp_handle zpp);
 int libklug_mdu_ein_zpp_exit_reset(libklug_handle handle);
 
 int libklug_mdu_ein_zsu_salsa20_iv(libklug_handle handle,
-                                   firmware_iterator_handle firmware);
+                                   zsu_handle zsu,
+                                   size_t firmware_index);
 int libklug_mdu_ein_zsu_erase(libklug_handle handle,
-                              firmware_iterator_handle firmware);
+                              zsu_handle zsu,
+                              size_t firmware_index);
 int libklug_mdu_ein_zsu_update(libklug_handle handle,
-                               firmware_iterator_handle firmware,
+                               zsu_handle zsu,
+                               size_t firmware_index,
                                uint32_t index);
 int libklug_mdu_ein_zsu_crc32_start(libklug_handle handle,
-                                    firmware_iterator_handle firmware);
+                                    zsu_handle zsu,
+                                    size_t firmware_index);
 int libklug_mdu_ein_zsu_crc32_result(libklug_handle handle);
 int libklug_mdu_ein_zsu_crc32_result_exit(libklug_handle handle);
 
@@ -489,31 +492,25 @@ char const* libklug_zpp_email(zpp_handle zpp);
 zsu_handle libklug_zsu_read(char const* c, size_t length);
 void libklug_zsu_release(zsu_handle zsu);
 
-// Lifetime of iterator
-firmware_iterator_handle
-libklug_zsu_firmware_iterator_create_begin(zsu_handle zsu);
-firmware_iterator_handle
-libklug_zsu_firmware_iterator_create_end(zsu_handle zsu);
-void libklug_zsu_destroy_firmware_iterator(firmware_iterator_handle fw);
-
-// Ops with iterator
-int libklug_zsu_firmware_iterator_next(firmware_iterator_handle firmware);
-int libklug_zsu_firmware_iterator_previous(firmware_iterator_handle firmware);
-int libklug_zsu_firmware_iterator_equals(firmware_iterator_handle lhs,
-                                         firmware_iterator_handle rhs);
+uint32_t libklug_zsu_get_firmware_count(zsu_handle const zsu);
 
 // Ops on firmware
-uint32_t
-libklug_zsu_firmware_iterator_get_id(firmware_iterator_handle firmware);
-char const*
-libklug_zsu_firmware_iterator_get_name(firmware_iterator_handle firmware);
-char const* libklug_zsu_firmware_iterator_get_version_major(
-  firmware_iterator_handle firmware);
-char const* libklug_zsu_firmware_iterator_get_version_minor(
-  firmware_iterator_handle firmware);
-int libklug_zsu_firmware_iterator_get_type(firmware_iterator_handle firmware);
-uint32_t
-libklug_zsu_firmware_iterator_get_blocks(firmware_iterator_handle firmware);
+uint32_t libklug_zsu_get_firmware_id(zsu_handle const zsu,
+                                     size_t const firmware_index);
+char const* libklug_zsu_get_firmware_name(zsu_handle const zsu,
+                                          size_t const firmware_index);
+char const* libklug_zsu_get_firmware_major_version(zsu_handle const zsu,
+                                                   size_t const firmware_index);
+char const* libklug_zsu_get_firmware_minor_version(zsu_handle const zsu,
+                                                   size_t const firmware_index);
+int libklug_zsu_get_firmware_type(zsu_handle const zsu,
+                                  size_t const firmware_index);
+uint32_t libklug_zsu_get_firmware_block_count(zsu_handle const zsu,
+                                              size_t const firmware_index);
+uint8_t const* libklug_zsu_get_firmware_data(zsu_handle const zsu,
+                                             size_t const firmware_index);
+size_t libklug_zsu_get_firmware_data_size(zsu_handle const zsu,
+                                          size_t const firmware_index);
 
 #ifdef __cplusplus
 }
