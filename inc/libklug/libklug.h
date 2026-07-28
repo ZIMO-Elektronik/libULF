@@ -120,23 +120,6 @@ void libklug_register_cb(libklug_handle handle,
 result libklug_job_await(libklug_handle handle);
 
 /**
- * Get result of last operation
- *
- * \details
- * Since most operations communicating with an ULF_COM device are async, the
- * result can be retrieved here.
- *
- * \warning
- * It is illegal to pass NULL. Passing an invalid handle results in UB and
- * should be avoided
- *
- * \param handle  libklug handle
- *
- * \return result Result of last operation
- */
-result libklug_job_result(libklug_handle handle);
-
-/**
  * Poll job
  *
  * \details

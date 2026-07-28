@@ -979,16 +979,6 @@ struct LibKLUG {
   res::Result jobAwait() { return res::dispatch(libklug_job_await(_lib)); }
 
   /**
-   * Get result of current job
-   *
-   * \warning Calling this before any transmission was started will result in a
-   * deadlock.
-   *
-   * \return res::Result result
-   */
-  res::Result jobResult() { return res::dispatch(libklug_job_result(_lib)); }
-
-  /**
    * Poll current job
    *
    * \return true   Result available
