@@ -126,6 +126,12 @@ result libklug_job_await(libklug_handle handle);
  * Since most operations communicating with an ULF_COM device are async, the
  * result can be retrieved here.
  *
+ * \note
+ * To actually get the result `libklug_job_await` still has to be called
+ *
+ * \todo
+ * Maybe add a function to hide the fact like `libklug_job_get`
+ *
  * \warning
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided

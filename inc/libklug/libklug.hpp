@@ -981,6 +981,12 @@ struct LibKLUG {
   /**
    * Poll current job
    *
+   * \note
+   * To actually get the result, a call to `jobAwait` is still necessary
+   *
+   * \todo
+   * Maybe add a method to hide that fact like `get`
+   *
    * \return true   Result available
    * \return false  No result yet
    */
