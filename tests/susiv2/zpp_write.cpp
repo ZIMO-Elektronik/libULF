@@ -10,23 +10,22 @@ using testing::Ge;
 using testing::InSequence;
 using testing::Return;
 
-constexpr auto flash{helper::sequence<256u>};
-constexpr auto address{0uz};
-
-TEST_F(TestSUSIV2, zpp_write_payload) {
-  auto const payload{ulf::susiv2::packet2frame<
-    ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
-    zusi::make_zpp_write_packet(flash.size() - 1u, 0uz, flash))};
-  auto const expected{helper::range2span(payload)};
-
+TEST_F(TestSUSIV2, zpp_update_payload) {
   {
     InSequence i;
-    EXPECT_CALL(conn, _write(RM(expected), _)).Times(1);
-    EXPECT_CALL(conn, _read_all(_, _, _, _)).Times(1);
+    EXPECT_CALL(
+      conn,
+      _write(RM(ulf::susiv2::packet2frame<std::vector<uint8_t>>(
+               zusi::make_zpp_write_packet(
+                 255uz,
+                 0uz,
+                 std::span<uint8_t const, 256uz>{zpp.flash.data(), 256uz}))),
+             _));
+    EXPECT_CALL(conn, _read_all(_, _, _, _));
   }
 
-  lib.susiv2().zppWrite(address, flash);
-  lib.result();
+  libklug_susiv2_zpp_write(libHandle, zppHandle, 0uz);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestSUSIV2, zpp_write_result_success) {
@@ -36,25 +35,25 @@ TEST_F(TestSUSIV2, zpp_write_result_success) {
   ON_CALL(conn, _read_all(_, Ge(r.size()), _, _))
     .WillByDefault(helper::susiv2::receive_ack);
 
-  lib.susiv2().zppWrite(address, flash);
-  auto const result{lib.result()};
+  libklug_susiv2_zpp_write(libHandle, zppHandle, 0uz);
+  auto const result{libklug_job_await(libHandle)};
 
-  ASSERT_TRUE(std::holds_alternative<res::Status>(result));
-  ASSERT_TRUE(std::get<res::Status>(result));
+  ASSERT_EQ(result.type, result_type::status);
+  ASSERT_TRUE(result.data.success);
 }
 
 TEST_F(TestSUSIV2, zpp_write_write_error) {
   assertTransmitErrorCalls<true>();
 
-  lib.susiv2().zppWrite(address, flash);
-  lib.result();
+  libklug_susiv2_zpp_write(libHandle, zppHandle, 0uz);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestSUSIV2, zpp_write_write_error_result) {
   throwTransmitException();
 
-  lib.susiv2().zppWrite(address, flash);
-  auto const result{lib.result()};
+  libklug_susiv2_zpp_write(libHandle, zppHandle, 0uz);
+  auto const result{libklug_job_await(libHandle)};
 
   assertTransmitReceiveErrorResult(result);
 }
@@ -62,15 +61,15 @@ TEST_F(TestSUSIV2, zpp_write_write_error_result) {
 TEST_F(TestSUSIV2, zpp_write_receive_error) {
   assertReceiveErrorCalls<true>();
 
-  lib.susiv2().zppWrite(address, flash);
-  lib.result();
+  libklug_susiv2_zpp_write(libHandle, zppHandle, 0uz);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestSUSIV2, zpp_write_receive_error_result) {
   throwReceiveException();
 
-  lib.susiv2().zppWrite(address, flash);
-  auto const result{lib.result()};
+  libklug_susiv2_zpp_write(libHandle, zppHandle, 0uz);
+  auto const result{libklug_job_await(libHandle)};
 
   assertTransmitReceiveErrorResult(result);
 }

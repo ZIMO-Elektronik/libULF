@@ -85,8 +85,8 @@ TEST_F(TestMDU_EIN, cv_read_payload) {
     EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
   }
 
-  lib.mdu_ein().cvRead(cv_address);
-  lib.result();
+  libklug_mdu_ein_cv_read(libHandle, cv_address);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestMDU_EIN, cv_read_result_success) {
@@ -103,26 +103,26 @@ TEST_F(TestMDU_EIN, cv_read_result_success) {
     .WillOnce(helper::mdu::receive_ack)  //
     .WillOnce(helper::mdu::receive_nak); //
 
-  lib.mdu_ein().cvRead(cv_address);
-  auto const result{lib.result()};
+  libklug_mdu_ein_cv_read(libHandle, cv_address);
+  auto const result{libklug_job_await(libHandle)};
 
-  ASSERT_TRUE(std::holds_alternative<res::Cv>(result));
-  ASSERT_EQ(std::get<res::Cv>(result), cv_value);
+  ASSERT_EQ(result.type, result_type::cv);
+  ASSERT_EQ(result.data.value, cv_value);
 }
 
 /// \note Technically, we should test this against every transfer
 TEST_F(TestMDU_EIN, cv_read_write_error) {
   assertTransmitErrorCalls();
 
-  lib.susiv2().cvRead(cv_value);
-  lib.result();
+  libklug_mdu_ein_cv_read(libHandle, cv_address);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestMDU_EIN, cv_read_write_error_result) {
   throwTransmitException();
 
-  lib.mdu_ein().cvRead(cv_address);
-  auto const result{lib.result()};
+  libklug_mdu_ein_cv_read(libHandle, cv_address);
+  auto const result{libklug_job_await(libHandle)};
 
   assertTransmitReceiveErrorResult(result);
 }
@@ -130,15 +130,15 @@ TEST_F(TestMDU_EIN, cv_read_write_error_result) {
 TEST_F(TestMDU_EIN, cv_read_receive_error) {
   assertReceiveErrorCalls();
 
-  lib.mdu_ein().cvRead(cv_address);
-  lib.result();
+  libklug_mdu_ein_cv_read(libHandle, cv_address);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestMDU_EIN, cv_read_receive_error_result) {
   throwReceiveException();
 
-  lib.mdu_ein().cvRead(cv_address);
-  auto const result{lib.result()};
+  libklug_mdu_ein_cv_read(libHandle, cv_address);
+  auto const result{libklug_job_await(libHandle)};
 
   assertTransmitReceiveErrorResult(result);
 }

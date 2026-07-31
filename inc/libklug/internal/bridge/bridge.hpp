@@ -53,7 +53,8 @@ struct Bridge {
 
   void registerCB(std::unique_ptr<callback::IFunctor> cb);
   void deregisterCB();
-  res::Result result();
+
+  std::future<res::Result&>& future();
 
   int open(uint16_t vid = 0x1FC9u, uint16_t pid = 0x81C1u);
   int openFd(int Fd);

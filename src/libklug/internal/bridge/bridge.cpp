@@ -52,14 +52,7 @@ void Bridge::deregisterCB() {
  *
  * \todo Uhm... Refactor
  */
-res::Result Bridge::result() {
-  _ctx.result.wait();
-  try {
-    return _ctx.result.get();
-  } catch (except::generic_error const& e) {
-    return static_cast<res::Error>(e);
-  }
-}
+std::future<res::Result&>& Bridge::future() { return _ctx.result; }
 
 /**
  * Open usb device

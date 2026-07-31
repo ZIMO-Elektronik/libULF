@@ -1,8 +1,9 @@
 # CHANGELOG
 
-## TBD
+## 0.1.0
 
-- ***Breaking*** Change:  ZSU firmware iterator api no longer allocates
+- ***Breaking*** Change: Allow polling and await for result
+- ***Breaking*** Change: ZSU firmware iterator api no longer allocates
 
 ## 0.0.2
 

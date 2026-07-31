@@ -28,33 +28,33 @@ TEST_F(TestMDU_EIN, cv_write_payload) {
     EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
   }
 
-  lib.mdu_ein().cvWrite(cv_address, cv_value);
-  lib.result();
+  libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestMDU_EIN, cv_write_result_success) {
   ON_CALL(conn, _read_until(_, _, _, _, _))
     .WillByDefault(helper::mdu::receive_ack);
 
-  lib.mdu_ein().cvWrite(cv_address, cv_value);
-  auto const result{lib.result()};
+  libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value);
+  auto const result{libklug_job_await(libHandle)};
 
-  ASSERT_TRUE(std::holds_alternative<res::Status>(result));
-  ASSERT_TRUE(std::get<res::Status>(result));
+  ASSERT_EQ(result.type, result_type::status);
+  ASSERT_TRUE(result.data.success);
 }
 
 TEST_F(TestMDU_EIN, cv_write_write_error) {
   assertTransmitErrorCalls();
 
-  lib.mdu_ein().cvWrite(cv_address, cv_value);
-  lib.result();
+  libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestMDU_EIN, cv_write_write_error_result) {
   throwTransmitException();
 
-  lib.mdu_ein().cvWrite(cv_address, cv_value);
-  auto const result{lib.result()};
+  libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value);
+  auto const result{libklug_job_await(libHandle)};
 
   assertTransmitReceiveErrorResult(result);
 }
@@ -62,15 +62,15 @@ TEST_F(TestMDU_EIN, cv_write_write_error_result) {
 TEST_F(TestMDU_EIN, cv_write_receive_error) {
   assertReceiveErrorCalls();
 
-  lib.mdu_ein().cvWrite(cv_address, cv_value);
-  lib.result();
+  libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestMDU_EIN, cv_write_receive_error_result) {
   throwReceiveException();
 
-  lib.mdu_ein().cvWrite(cv_address, cv_value);
-  auto const result{lib.result()};
+  libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value);
+  auto const result{libklug_job_await(libHandle)};
 
   assertTransmitReceiveErrorResult(result);
 }

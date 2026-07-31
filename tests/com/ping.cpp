@@ -20,8 +20,8 @@ TEST_F(TestCOM, ping_payload) {
     EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
   }
 
-  lib.com().ping();
-  lib.result();
+  libklug_com_ping(libHandle);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestCOM, ping_result) {
@@ -39,47 +39,25 @@ TEST_F(TestCOM, ping_result) {
         return 0;
       });
 
-  lib.com().ping();
-  auto const result{lib.result()};
+  libklug_com_ping(libHandle);
+  auto const result{libklug_job_await(libHandle)};
 
-  ASSERT_TRUE(std::holds_alternative<res::String>(result));
-  ASSERT_EQ(std::get<res::String>(result), expected);
+  ASSERT_EQ(result.type, result_type::string);
+  ASSERT_EQ(std::string_view{result.data.string}, expected);
 }
-
-// TEST_F(TestCOM, ping_invalid_format) {
-//  using std::operator""sv;
-//
-//  auto received{"Super duper real device v2.0.255"sv};
-//
-//  auto const r{helper::string_view2span(received)};
-//  ON_CALL(conn, _receive(_, _, _, _))
-//   .WillByDefault(
-//     [&](uint8_t* buf, uint32_t len, int* rx_ed, uint32_t timeout) {
-//       assert(len >= r.size());
-//       std::ranges::copy(r, buf);
-//       *rx_ed = r.size();
-//       return 0;
-//     });
-//
-//  lib.com().ping();
-//  auto const result{lib.result()};
-//
-//  ASSERT_TRUE(std::holds_alternative<res::Error>(result));
-//  ASSERT_EQ(std::get<res::Error>(result), err::Error::format);
-//}
 
 TEST_F(TestCOM, ping_transmit_error) {
   assertTransmitErrorCalls();
 
-  lib.com().ping();
-  lib.result();
+  libklug_com_ping(libHandle);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestCOM, ping_transmit_error_result) {
   throwTransmitException();
 
-  lib.com().ping();
-  auto const result{lib.result()};
+  libklug_com_ping(libHandle);
+  auto const result{libklug_job_await(libHandle)};
 
   assertTransmitReceiveErrorResult(result);
 }
@@ -87,15 +65,15 @@ TEST_F(TestCOM, ping_transmit_error_result) {
 TEST_F(TestCOM, ping_receive_error) {
   assertReceiveErrorCalls();
 
-  lib.com().ping();
-  lib.result();
+  libklug_com_ping(libHandle);
+  libklug_job_await(libHandle);
 }
 
 TEST_F(TestCOM, ping_receive_error_result) {
   throwReceiveException();
 
-  lib.com().ping();
-  auto const result{lib.result()};
+  libklug_com_ping(libHandle);
+  auto const result{libklug_job_await(libHandle)};
 
   assertTransmitReceiveErrorResult(result);
 }

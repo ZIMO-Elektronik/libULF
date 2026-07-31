@@ -60,10 +60,10 @@ void Worker::loop() {
 
     try {
       _t->execute();
-      auto r{_t->evaluate()};
+      _r = std::make_unique<res::Result>(_t->evaluate());
       _t.reset();
-      _promise.set_value(r);
-      if (_ctx.cb) (*_ctx.cb)(r);
+      _promise.set_value(*_r);
+      if (_ctx.cb) (*_ctx.cb)(*_r);
     } catch (except::generic_error e) {
       _t.reset();
       LOGE("{}", e.what());
