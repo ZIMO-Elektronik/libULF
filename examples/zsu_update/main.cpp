@@ -23,6 +23,8 @@ bool success(result r) {
   return r.data.success == LIBKLUG_TRUE;
 }
 
+/*
+
 int main() {
   auto lib{setup::connect()};
   if (!lib) return -1;
@@ -164,3 +166,5 @@ int main() {
 
   return 0;
 }
+
+*/

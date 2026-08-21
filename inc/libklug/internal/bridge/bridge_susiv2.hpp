@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <expected>
 #include <zpp/zpp.hpp>
 #include "bridge_context.hpp"
 #include "bridge_worker.hpp"
@@ -22,15 +23,16 @@ namespace bridge {
 struct SUSIV2 {
   SUSIV2(Context& ctx, Worker& worker, ZPP& zpp);
 
-  bool cvRead(uint16_t cv);
-  bool cvWrite(uint16_t cv, uint8_t value);
-  bool zppErase();
-  bool zppWrite(uint32_t address, std::span<uint8_t const> block);
-  bool zppWrite(zpp::File* file, uint32_t index);
-  bool features();
-  bool exit(bool reboot, bool cv8_reset);
-  bool zppLcDcQuery(uint32_t dev_code);
-  bool zppLcDcQuery(zpp::File* file);
+  std::expected<uint8_t, err::Error> cvRead(uint16_t cv);
+  std::expected<bool, err::Error> cvWrite(uint16_t cv, uint8_t value);
+  std::expected<bool, err::Error> zppErase();
+  std::expected<bool, err::Error> zppWrite(uint32_t address,
+                                           std::span<uint8_t const> block);
+  std::expected<bool, err::Error> zppWrite(zpp::File* file, uint32_t index);
+  std::expected<bool, err::Error> features();
+  std::expected<bool, err::Error> exit(bool reboot, bool cv8_reset);
+  std::expected<bool, err::Error> zppLcDcQuery(uint32_t dev_code);
+  std::expected<bool, err::Error> zppLcDcQuery(zpp::File* file);
 
 private:
   Context& _ctx;   ///< Bridge context

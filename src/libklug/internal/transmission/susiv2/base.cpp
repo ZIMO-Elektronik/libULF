@@ -48,9 +48,21 @@ res::Result Base::evaluate() {
   return res::Status{true};
 }
 
+/**
+ * Evaluate a bool
+ *
+ * \retval bool                 Evaluated bool
+ * \retval err::Error::format   Format mismatch
+ */
+std::expected<bool, err::Error> Base::evaluateBool() {
+  if (!valid()) return std::unexpected(err::Error::format);
+  return _response.front() == ulf::susiv2::ack;
+}
+
 bool Base::valid() {
   return _response.size() >= 1uz && _response.size() <= 6uz &&
-         _response.front() == ulf::susiv2::ack;
+         (_response.front() == ulf::susiv2::ack ||
+          _response.front() == ulf::susiv2::nak);
 }
 
 } // namespace transmission::susiv2

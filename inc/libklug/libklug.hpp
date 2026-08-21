@@ -22,6 +22,7 @@
 #pragma once
 
 #include <cassert>
+#include <expected>
 #include <filesystem>
 #include <functional>
 #include <optional>
@@ -390,7 +391,13 @@ struct COM {
    * \return true   Started
    * \return false  Busy
    */
-  bool ping() { return libklug_com_ping(_lib) > 0; }
+  std::expected<std::string, err::Error> ping() {
+    std::string r{};
+    r.reserve(32uz);
+    if (libklug_com_ping(_lib, r.data(), r.capacity()) == libklug_error::ok)
+      return r;
+    return std::unexpected(err::Error::unknown);
+  }
 
   /**
    * Start RESET transmission
@@ -401,7 +408,11 @@ struct COM {
    * \return true   Started
    * \return false  Busy
    */
-  bool reset() { return libklug_com_reset(_lib) > 0; }
+  std::expected<bool, err::Error> reset() {
+    int r{};
+    if (libklug_com_reset(_lib, &r) == libklug_error::ok) return r;
+    return std::unexpected(err::Error::unknown);
+  }
 
   /**
    * Start SUSIV2 transmission
@@ -412,7 +423,11 @@ struct COM {
    * \return true   Started
    * \return false  Busy
    */
-  bool susiv2() { return libklug_com_susiv2(_lib) > 0; }
+  std::expected<bool, err::Error> susiv2() {
+    int r{};
+    if (libklug_com_susiv2(_lib, &r) == libklug_error::ok) return r;
+    return std::unexpected(err::Error::unknown);
+  }
 
   /**
    * Start MDU_EIN transmission
@@ -423,7 +438,11 @@ struct COM {
    * \return true   Started
    * \return false  Busy
    */
-  bool mdu_ein() { return libklug_com_mdu_ein(_lib) > 0; }
+  std::expected<bool, err::Error> mdu_ein() {
+    int r{};
+    if (libklug_com_mdu_ein(_lib, &r) == libklug_error::ok) return r;
+    return std::unexpected(err::Error::unknown);
+  }
 
 private:
   // Internal CTor

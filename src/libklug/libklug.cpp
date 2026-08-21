@@ -19,6 +19,25 @@ bridge::Bridge* to_bridge(libklug_handle handle) {
   return reinterpret_cast<bridge::Bridge*>(handle);
 }
 
+zpp::File* to_zpp(zpp_handle handle) {
+  return reinterpret_cast<zpp::File*>(handle);
+}
+
+zsu::File* to_zsu(zsu_handle handle) {
+  return reinterpret_cast<zsu::File*>(handle);
+}
+
+/// Template helper to dry code
+template<typename F, typename R>
+libklug_error execute(F&& operation, R* success) {
+  auto const r{std::forward<F>(operation)};
+  if (r) {
+    *success = *r;
+    return libklug_error::ok;
+  }
+  return libklug_error::unknown;
+}
+
 /** ---------------------------------------------------
  *  Bridge
  *  ---------------------------------------------------
@@ -29,28 +48,6 @@ libklug_handle libklug_create(void) {
 }
 
 void libklug_destroy(libklug_handle handle) { delete to_bridge(handle); }
-
-void libklug_register_cb(libklug_handle handle,
-                         bridge_callback cb,
-                         void* user_data) {
-  to_bridge(handle)->registerCB(
-    std::make_unique<callback::Functor>(cb, user_data));
-}
-
-result libklug_job_await(libklug_handle handle) {
-  try {
-    return res::dispatch(to_bridge(handle)->future().get());
-  } catch (except::generic_error const& e) {
-    return res::dispatch(static_cast<res::Error>(e));
-  } catch (...) { return res::dispatch(res::Error(err::Error::unknown)); }
-}
-
-int libklug_job_poll(libklug_handle handle) {
-  return to_bridge(handle)->future().wait_for(std::chrono::seconds(0)) ==
-             std::future_status::ready
-           ? LIBKLUG_TRUE
-           : LIBKLUG_FALSE;
-}
 
 int libklug_init(libklug_handle handle) { return to_bridge(handle)->init(); }
 
@@ -79,20 +76,25 @@ void libklug_close(libklug_handle handle) { return to_bridge(handle)->close(); }
  *  ---------------------------------------------------
  */
 
-int libklug_com_ping(libklug_handle handle) {
-  return to_bridge(handle)->com().ping();
+libklug_error libklug_com_ping(libklug_handle hlib, char* buf, size_t len) {
+  auto const r{to_bridge(hlib)->com().ping()};
+  if (r) {
+    std::copy_n(r->begin(), std::min(len, r->size()), buf);
+    return libklug_error::ok;
+  }
+  return libklug_error::unknown;
 }
 
-int libklug_com_reset(libklug_handle handle) {
-  return to_bridge(handle)->com().reset();
+libklug_error libklug_com_reset(libklug_handle hlib, int* success) {
+  return execute([&]() { return to_bridge(hlib)->com().reset(); }, success);
 }
 
-int libklug_com_susiv2(libklug_handle handle) {
-  return to_bridge(handle)->com().susiv2();
+libklug_error libklug_com_susiv2(libklug_handle hlib, int* success) {
+  return execute([&]() { return to_bridge(hlib)->com().susiv2(); }, success);
 }
 
-int libklug_com_mdu_ein(libklug_handle handle) {
-  return to_bridge(handle)->com().mdu_ein();
+libklug_error libklug_com_mdu_ein(libklug_handle hlib, int* success) {
+  return execute([&]() { return to_bridge(hlib)->com().mdu_ein(); }, success);
 }
 
 /** ---------------------------------------------------
@@ -100,38 +102,56 @@ int libklug_com_mdu_ein(libklug_handle handle) {
  *  ---------------------------------------------------
  */
 
-int libklug_susiv2_cv_read(libklug_handle handle, uint16_t cv) {
-  return to_bridge(handle)->susiv2().cvRead(cv);
+libklug_error
+libklug_susiv2_cv_read(libklug_handle hlib, uint16_t cv, uint8_t* value) {
+  return execute([&]() { return to_bridge(hlib)->susiv2().cvRead(cv); }, value);
 }
 
-int libklug_susiv2_cv_write(libklug_handle handle, uint16_t cv, uint8_t value) {
-  return to_bridge(handle)->susiv2().cvWrite(cv, value);
+libklug_error libklug_susiv2_cv_write(libklug_handle hlib,
+                                      uint16_t cv,
+                                      uint8_t value,
+                                      int* success) {
+  return execute([&]() { return to_bridge(hlib)->susiv2().cvWrite(cv, value); },
+                 success);
 }
 
-int libklug_susiv2_zpp_erase(libklug_handle handle) {
-  return to_bridge(handle)->susiv2().zppErase();
+libklug_error libklug_susiv2_zpp_erase(libklug_handle hlib, int* success) {
+  return execute([&]() { return to_bridge(hlib)->susiv2().zppErase(); },
+                 success);
 }
 
-int libklug_susiv2_zpp_write(libklug_handle handle,
-                             zpp_handle file_handle,
-                             uint32_t index) {
-  return to_bridge(handle)->susiv2().zppWrite(
-    reinterpret_cast<zpp::File*>(file_handle), index);
+libklug_error libklug_susiv2_zpp_write(libklug_handle hlib,
+                                       zpp_handle hzpp,
+                                       uint32_t index,
+                                       int* success) {
+  return execute(
+    [&]() { return to_bridge(hlib)->susiv2().zppWrite(to_zpp(hzpp), index); },
+    success);
 }
 
-int libklug_susiv2_features(libklug_handle handle) {
-  return to_bridge(handle)->susiv2().features();
+libklug_error libklug_susiv2_features(libklug_handle hlib, int* success) {
+  return execute([&]() { return to_bridge(hlib)->susiv2().features(); },
+                 success);
 }
 
-int libklug_susiv2_exit(libklug_handle handle, int reboot, int cv8_reset) {
-  return to_bridge(handle)->susiv2().exit(reboot == 0 ? false : true,
-                                          cv8_reset == 0 ? false : true);
+libklug_error libklug_susiv2_exit(libklug_handle hlib,
+                                  int reboot,
+                                  int cv8_reset,
+                                  int* success) {
+  return execute(
+    [&]() {
+      to_bridge(hlib)->susiv2().exit(reboot == 0 ? false : true,
+                                     cv8_reset == 0 ? false : true);
+    },
+    success);
 }
 
-int libklug_susiv2_zpp_lc_dc_query(libklug_handle handle,
-                                   zpp_handle file_handle) {
-  return to_bridge(handle)->susiv2().zppLcDcQuery(
-    reinterpret_cast<zpp::File*>(file_handle));
+libklug_error libklug_susiv2_zpp_lc_dc_query(libklug_handle hlib,
+                                             zpp_handle hzpp,
+                                             int* success) {
+  return execute(
+    [&]() { return to_bridge(hlib)->susiv2().zppLcDcQuery(to_zpp(hzpp)); },
+    success);
 }
 
 /** ---------------------------------------------------

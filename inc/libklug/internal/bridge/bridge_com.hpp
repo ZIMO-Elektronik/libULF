@@ -9,6 +9,7 @@
 #pragma once
 
 #include <algorithm>
+#include <expected>
 #include "bridge_context.hpp"
 #include "bridge_worker.hpp"
 
@@ -21,10 +22,10 @@ namespace bridge {
 struct COM {
   COM(Context& ctx, Worker& worker);
 
-  bool ping();
-  bool reset();
-  bool susiv2();
-  bool mdu_ein();
+  std::expected<std::string, err::Error> ping();
+  std::expected<bool, err::Error> reset();
+  std::expected<bool, err::Error> susiv2();
+  std::expected<bool, err::Error> mdu_ein();
 
 private:
   Context& _ctx;   ///< Bridge context

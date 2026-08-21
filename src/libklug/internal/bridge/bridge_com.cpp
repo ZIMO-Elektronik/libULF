@@ -25,55 +25,55 @@ COM::COM(Context& ctx, Worker& worker) : _ctx{ctx}, _worker{worker} {
 }
 
 /**
- * PING (async)
+ * PING
  *
- * \return true   Success
- * \return false  Busy
+ * \return std::string  Ping response
+ * \return err::Error   Error
  */
-bool COM::ping() {
-  auto const r{_worker.emplace<transmission::com::Base>(
-    _ctx.connection, "PING\r", internal::config::timeout::com::ping)};
-  if (!r) LOG_WARN("COM ping transmission not emplaced, worker busy");
-  return r;
+std::expected<std::string, err::Error> COM::ping() {
+  transmission::com::Base t{
+    _ctx.connection, "PING\r", internal::config::timeout::com::ping};
+  t.execute();
+  return t.evaluateString();
 }
 
 /**
- * RESET (async)
+ * RESET
  *
- * \return true   Success
- * \return false  Busy
+ * \return bool         Response
+ * \return err::Error   Error
  */
-bool COM::reset() {
-  auto const r{_worker.emplace<transmission::com::Base>(
-    _ctx.connection, "RESET\r", internal::config::timeout::com::reset)};
-  if (!r) LOG_WARN("COM reset transmission not emplaced, worker busy");
-  return r;
+std::expected<bool, err::Error> COM::reset() {
+  transmission::com::Base t{
+    _ctx.connection, "RESET\r", internal::config::timeout::com::reset};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * SUSIV2 (async)
+ * SUSIV2
  *
- * \return true   Success
- * \return false  Busy
+ * \return bool         Response
+ * \return err::Error   Error
  */
-bool COM::susiv2() {
-  auto const r{_worker.emplace<transmission::com::Base>(
-    _ctx.connection, "SUSIV2\r", internal::config::timeout::com::susiv2)};
-  if (!r) LOG_WARN("COM susiv2 transmission not emplaced, worker busy");
-  return r;
+std::expected<bool, err::Error> COM::susiv2() {
+  transmission::com::Base t{
+    _ctx.connection, "SUSIV2\r", internal::config::timeout::com::susiv2};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * MDU_EIN (async)
+ * MDU_EIN
  *
- * \return true   Success
- * \return false  Busy
+ * \return bool         Response
+ * \return err::Error   Error
  */
-bool COM::mdu_ein() {
-  auto const r{_worker.emplace<transmission::com::Base>(
-    _ctx.connection, "MDU_EIN\r", internal::config::timeout::com::mdu_ein)};
-  if (!r) LOG_WARN("COM mdu_ein transmission not emplaced, worker busy");
-  return r;
+std::expected<bool, err::Error> COM::mdu_ein() {
+  transmission::com::Base t{
+    _ctx.connection, "MDU_EIN\r", internal::config::timeout::com::mdu_ein};
+  t.execute();
+  return t.evaluateBool();
 }
 
 } // namespace bridge

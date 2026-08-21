@@ -113,4 +113,12 @@ void TransmissionBase::receive() {
   else _conn->read_all(_response, _timeout);
 }
 
+std::expected<std::string, err::Error> TransmissionBase::evaluateString() {
+  return {};
+}
+std::expected<bool, err::Error> TransmissionBase::evaluateBool() { return {}; }
+std::expected<uint8_t, err::Error> TransmissionBase::evaluateByte() {
+  return {};
+}
+
 } // namespace transmission

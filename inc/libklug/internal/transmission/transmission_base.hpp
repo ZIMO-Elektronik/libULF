@@ -51,6 +51,10 @@ struct TransmissionBase : ITransmission {
 
   virtual void execute() override;
 
+  virtual std::expected<std::string, err::Error> evaluateString() override;
+  virtual std::expected<bool, err::Error> evaluateBool() override;
+  virtual std::expected<uint8_t, err::Error> evaluateByte() override;
+
 protected:
   void transmit();
   void receive();

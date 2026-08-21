@@ -24,19 +24,20 @@ SUSIV2::SUSIV2(Context& ctx, Worker& worker, ZPP& zpp)
   : _ctx{ctx}, _worker{worker}, _zpp{zpp} {}
 
 /**
- * Cv Read (async)
+ * Cv Read
  *
  * \param cv  Cv address
  * \return true   Success
  * \return false  Busy
  */
-bool SUSIV2::cvRead(uint16_t cv) {
-  return _worker.emplace<transmission::susiv2::CvRead>(
-    _ctx.connection, 2000uz, cv);
+std::expected<uint8_t, err::Error> SUSIV2::cvRead(uint16_t cv) {
+  transmission::susiv2::CvRead t{_ctx.connection, 2000uz, cv};
+  t.execute();
+  return t.evaluateByte();
 }
 
 /**
- * Cv Write (async)
+ * Cv Write
  *
  * \param cv    Cv address
  * \param value Cv value
@@ -45,9 +46,9 @@ bool SUSIV2::cvRead(uint16_t cv) {
  *
  * \todo Implement
  */
-bool SUSIV2::cvWrite(uint16_t cv, uint8_t value) {
+std::expected<bool, err::Error> SUSIV2::cvWrite(uint16_t cv, uint8_t value) {
   assert(false);
-  return -1;
+  return std::unexpected(err::Error::unknown);
 }
 
 /**
@@ -56,13 +57,15 @@ bool SUSIV2::cvWrite(uint16_t cv, uint8_t value) {
  * \return true   Success
  * \return false  Busy
  */
-bool SUSIV2::zppErase() {
-  return _worker.emplace<transmission::susiv2::Base>(
+std::expected<bool, err::Error> SUSIV2::zppErase() {
+  transmission::susiv2::Base t{
     _ctx.connection,
     ulf::susiv2::packet2frame<
       ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
       zusi::make_zpp_erase_packet()),
-    200000u);
+    200000u};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
@@ -73,13 +76,16 @@ bool SUSIV2::zppErase() {
  * \return true   Success
  * \return false  Busy
  */
-bool SUSIV2::zppWrite(uint32_t address, std::span<uint8_t const> block) {
-  return _worker.emplace<transmission::susiv2::Base>(
+std::expected<bool, err::Error>
+SUSIV2::zppWrite(uint32_t address, std::span<uint8_t const> block) {
+  transmission::susiv2::Base t{
     _ctx.connection,
     ulf::susiv2::packet2frame<
       ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
       zusi::make_zpp_write_packet(block.size() - 1u, address, block)),
-    2000u);
+    2000u};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
@@ -90,7 +96,8 @@ bool SUSIV2::zppWrite(uint32_t address, std::span<uint8_t const> block) {
  * \return true   Success
  * \return false  Busy
  */
-bool SUSIV2::zppWrite(zpp::File* file, uint32_t index) {
+std::expected<bool, err::Error> SUSIV2::zppWrite(zpp::File* file,
+                                                 uint32_t index) {
   auto const block{_zpp.block(file, index)};
   return zppWrite(block.first, block.second);
 }
@@ -101,13 +108,15 @@ bool SUSIV2::zppWrite(zpp::File* file, uint32_t index) {
  * \return true   Success
  * \return false  Busy
  */
-bool SUSIV2::features() {
-  return _worker.emplace<transmission::susiv2::Base>(
+std::expected<bool, err::Error> SUSIV2::features() {
+  transmission::susiv2::Base t{
     _ctx.connection,
     ulf::susiv2::packet2frame<
       ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
       zusi::make_features_packet()),
-    2000uz);
+    2000uz};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
@@ -118,13 +127,15 @@ bool SUSIV2::features() {
  * \return true   Success
  * \return false  Busy
  */
-bool SUSIV2::exit(bool reboot, bool cv8_reset) {
-  return _worker.emplace<transmission::susiv2::Base>(
+std::expected<bool, err::Error> SUSIV2::exit(bool reboot, bool cv8_reset) {
+  transmission::susiv2::Base t{
     _ctx.connection,
     ulf::susiv2::packet2frame<
       ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
       zusi::make_exit_packet(0xFC | (reboot << 0u) | (cv8_reset << 1u))),
-    2000uz);
+    2000uz};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
@@ -134,13 +145,15 @@ bool SUSIV2::exit(bool reboot, bool cv8_reset) {
  * \return true   Success
  * \return false  Busy
  */
-bool SUSIV2::zppLcDcQuery(uint32_t dev_code) {
-  return _worker.emplace<transmission::susiv2::Base>(
+std::expected<bool, err::Error> SUSIV2::zppLcDcQuery(uint32_t dev_code) {
+  transmission::susiv2::Base t{
     _ctx.connection,
     ulf::susiv2::packet2frame<
       ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
       zusi::make_zpp_lc_dc_query_packet(dev_code)),
-    2000uz);
+    2000uz};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
@@ -150,7 +163,7 @@ bool SUSIV2::zppLcDcQuery(uint32_t dev_code) {
  * \return true   Success
  * \return false  Busy
  */
-bool SUSIV2::zppLcDcQuery(zpp::File* file) {
+std::expected<bool, err::Error> SUSIV2::zppLcDcQuery(zpp::File* file) {
   return zppLcDcQuery(zusi::data2uint32(file->developer_code.data()));
 }
 

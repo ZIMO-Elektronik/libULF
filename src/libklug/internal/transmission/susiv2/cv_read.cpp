@@ -41,4 +41,15 @@ res::Result CvRead::evaluate() {
   return res::Cv{_response[1u]};
 }
 
+/**
+ * Evaluate a byte
+ *
+ * \retval uint8_t              Evaluated byte
+ * \retval err::Error::format   Format mismatch
+ */
+std::expected<uint8_t, err::Error> CvRead::evaluateByte() {
+  if (!valid()) return std::unexpected(err::Error::format);
+  return _response[1u];
+}
+
 } // namespace transmission::susiv2

@@ -61,4 +61,27 @@ res::Result Base::evaluate() {
                      _response.size()} == "OK\r"sv};
 }
 
+std::expected<std::string, err::Error> Base::evaluateString() {
+  using std::operator""sv;
+  if (std::string_view{std::bit_cast<char const*>(_payload.data()),
+                       _payload.size()} == "PING\r"sv) {
+    return res::String{std::string_view{
+      reinterpret_cast<char const*>(_response.data()), _response.size()}};
+  }
+
+  return std::unexpected(err::Error::unknown);
+}
+
+std::expected<bool, err::Error> Base::evaluateBool() {
+  using std::operator""sv;
+  if (std::string_view{std::bit_cast<char const*>(_payload.data()),
+                       _payload.size()} == "OK\r"sv)
+    return true;
+  else if (std::string_view{std::bit_cast<char const*>(_payload.data()),
+                            _payload.size()} == "NOT OK\r"sv)
+    return false;
+
+  return std::unexpected(err::Error::unknown);
+}
+
 } // namespace transmission::com

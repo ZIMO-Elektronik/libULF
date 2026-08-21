@@ -7,6 +7,7 @@
 #include <paths.hpp>
 #include <string_view>
 #include "setup.hpp"
+/*
 
 int main() {
   auto handle{setup::connect()};
@@ -92,3 +93,5 @@ int main() {
   libklug_zpp_release(z_handle);
   setup::disconnect(handle);
 }
+
+*/

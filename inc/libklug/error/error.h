@@ -11,3 +11,9 @@
 #define LIBKLUG_ERROR_NO 0x00
 
 #define LIBKLUG_ERROR_FORMAT 0x01
+
+typedef enum libklug_error_t {
+  ok = 0,
+
+  unknown = 255,
+} libklug_error;
