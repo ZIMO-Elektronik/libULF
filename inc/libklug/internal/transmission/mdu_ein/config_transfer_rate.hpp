@@ -33,6 +33,9 @@ struct ConfigTransferRate : public ITransmission {
   virtual void execute() final;
 
   virtual res::Result evaluate() final;
+  virtual std::expected<std::string, err::Error> evaluateString() final;
+  virtual std::expected<bool, err::Error> evaluateBool() final;
+  virtual std::expected<uint8_t, err::Error> evaluateByte() final;
 
 private:
   res::Result packet();

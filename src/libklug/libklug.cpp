@@ -8,6 +8,7 @@
 
 #include "libklug/libklug.h"
 #include <cassert>
+#include <functional>
 #include "libklug/callback/functor.hpp"
 #include "libklug/internal/bridge/bridge.hpp"
 #include "libklug/internal/bridge/bridge_zpp.hpp"
@@ -30,7 +31,7 @@ zsu::File* to_zsu(zsu_handle handle) {
 /// Template helper to dry code
 template<typename F, typename R>
 libklug_error execute(F&& operation, R* success) {
-  auto const r{std::forward<F>(operation)};
+  auto const r{std::invoke(operation)};
   if (r) {
     *success = *r;
     return libklug_error::ok;
@@ -140,8 +141,8 @@ libklug_error libklug_susiv2_exit(libklug_handle hlib,
                                   int* success) {
   return execute(
     [&]() {
-      to_bridge(hlib)->susiv2().exit(reboot == 0 ? false : true,
-                                     cv8_reset == 0 ? false : true);
+      return to_bridge(hlib)->susiv2().exit(reboot == 0 ? false : true,
+                                            cv8_reset == 0 ? false : true);
     },
     success);
 }
@@ -159,118 +160,174 @@ libklug_error libklug_susiv2_zpp_lc_dc_query(libklug_handle hlib,
  *  ---------------------------------------------------
  */
 
-int libklug_mdu_ein_enter_mdu(libklug_handle handle) {
-  return to_bridge(handle)->mdu_ein().enterMDU();
+libklug_error libklug_mdu_ein_enter_mdu(libklug_handle hlib, int* success) {
+  return execute([&]() { return to_bridge(hlib)->mdu_ein().enterMDU(); },
+                 success);
 }
 
-int libklug_mdu_ein_enter_dcc_zsu(libklug_handle handle,
-                                  uint32_t id,
-                                  uint32_t sn,
-                                  int done) {
-  return to_bridge(handle)->mdu_ein().enterDCCZSU(id, sn, done > 0);
+libklug_error libklug_mdu_ein_enter_dcc_zsu(
+  libklug_handle hlib, uint32_t id, uint32_t sn, int done, int* success) {
+  return execute(
+    [&]() { return to_bridge(hlib)->mdu_ein().enterDCCZSU(id, sn, done > 0); },
+    success);
 }
 
-int libklug_mdu_ein_enter_dcc_zpp(libklug_handle handle,
-                                  uint32_t sn,
-                                  int done) {
-  return to_bridge(handle)->mdu_ein().enterDCCZPP(sn, done > 0);
+libklug_error libklug_mdu_ein_enter_dcc_zpp(libklug_handle hlib,
+                                            uint32_t sn,
+                                            int done,
+                                            int* success) {
+  return execute(
+    [&]() { return to_bridge(hlib)->mdu_ein().enterDCCZPP(sn, done > 0); },
+    success);
 }
 
-int libklug_mdu_ein_ping(libklug_handle handle, uint32_t sn, uint32_t id) {
-  return to_bridge(handle)->mdu_ein().ping(sn, id);
+libklug_error libklug_mdu_ein_ping(libklug_handle hlib,
+                                   uint32_t sn,
+                                   uint32_t id,
+                                   int* success) {
+  return execute([&]() { return to_bridge(hlib)->mdu_ein().ping(sn, id); },
+                 success);
 }
 
-int libklug_mdu_ein_ping_all(libklug_handle handle) {
-  return to_bridge(handle)->mdu_ein().ping();
+libklug_error libklug_mdu_ein_ping_all(libklug_handle hlib, int* success) {
+  return execute([&]() { return to_bridge(hlib)->mdu_ein().ping(); }, success);
 }
 
-int libklug_mdu_ein_config_transfer_rate(libklug_handle handle,
-                                         uint8_t transfer_rate) {
+libklug_error libklug_mdu_ein_config_transfer_rate(libklug_handle hlib,
+                                                   uint8_t transfer_rate,
+                                                   int* success) {
   assert(transfer_rate >= 0u && transfer_rate <= 4u);
-  return to_bridge(handle)->mdu_ein().configTransferRate(
-    static_cast<mdu::TransferRate>(transfer_rate));
+  return execute(
+    [&]() {
+      return to_bridge(hlib)->mdu_ein().configTransferRate(
+        static_cast<mdu::TransferRate>(transfer_rate));
+    },
+    success);
 }
 
-int libklug_mdu_ein_cv_read(libklug_handle handle, uint16_t cv) {
-  return to_bridge(handle)->mdu_ein().cvRead(cv);
+libklug_error
+libklug_mdu_ein_cv_read(libklug_handle hlib, uint16_t cv, uint8_t* success) {
+  return execute([&]() { return to_bridge(hlib)->mdu_ein().cvRead(cv); },
+                 success);
 }
 
-int libklug_mdu_ein_cv_write(libklug_handle handle,
-                             uint16_t cv,
-                             uint8_t value) {
-  return to_bridge(handle)->mdu_ein().cvWrite(cv, value);
+libklug_error libklug_mdu_ein_cv_write(libklug_handle hlib,
+                                       uint16_t cv,
+                                       uint8_t value,
+                                       int* success) {
+  return execute(
+    [&]() { return to_bridge(hlib)->mdu_ein().cvWrite(cv, value); }, success);
 }
 
-int libklug_mdu_ein_busy(libklug_handle handle) {
-  return to_bridge(handle)->mdu_ein().busy();
+libklug_error libklug_mdu_ein_busy(libklug_handle hlib, int* success) {
+  return execute([&]() { return to_bridge(hlib)->mdu_ein().busy(); }, success);
 }
 
-int libklug_mdu_ein_zpp_valid_query(libklug_handle handle, zpp_handle zpp) {
-  return to_bridge(handle)->mdu_ein().zppValidQuery(
-    reinterpret_cast<zpp::File*>(zpp));
+libklug_error libklug_mdu_ein_zpp_valid_query(libklug_handle hlib,
+                                              zpp_handle hzpp,
+                                              int* success) {
+  return execute(
+    [&]() { return to_bridge(hlib)->mdu_ein().zppValidQuery(to_zpp(hzpp)); },
+    success);
 }
 
-int libklug_mdu_ein_zpp_lc_dc_query(libklug_handle handle, zpp_handle zpp) {
-  return to_bridge(handle)->mdu_ein().zppLcDcQuery(
-    reinterpret_cast<zpp::File*>(zpp));
+libklug_error libklug_mdu_ein_zpp_lc_dc_query(libklug_handle hlib,
+                                              zpp_handle hzpp,
+                                              int* success) {
+  return execute(
+    [&]() { return to_bridge(hlib)->mdu_ein().zppLcDcQuery(to_zpp(hzpp)); },
+    success);
 }
 
-int libklug_mdu_ein_zpp_erase(libklug_handle handle, zpp_handle zpp) {
-  return to_bridge(handle)->mdu_ein().zppErase(
-    reinterpret_cast<zpp::File*>(zpp));
+libklug_error
+libklug_mdu_ein_zpp_erase(libklug_handle hlib, zpp_handle hzpp, int* success) {
+  return execute(
+    [&]() { return to_bridge(hlib)->mdu_ein().zppErase(to_zpp(hzpp)); },
+    success);
 }
 
-int libklug_mdu_ein_zpp_update(libklug_handle handle,
-                               zpp_handle zpp,
-                               uint32_t index) {
-  return to_bridge(handle)->mdu_ein().zppUpdate(
-    reinterpret_cast<zpp::File*>(zpp), index);
+libklug_error libklug_mdu_ein_zpp_update(libklug_handle hlib,
+                                         zpp_handle hzpp,
+                                         uint32_t index,
+                                         int* success) {
+  return execute(
+    [&]() { return to_bridge(hlib)->mdu_ein().zppUpdate(to_zpp(hzpp), index); },
+    success);
 }
 
-int libklug_mdu_ein_zpp_update_end(libklug_handle handle, zpp_handle zpp) {
-  return to_bridge(handle)->mdu_ein().zppUpdateEnd(
-    reinterpret_cast<zpp::File*>(zpp));
+libklug_error libklug_mdu_ein_zpp_update_end(libklug_handle hlib,
+                                             zpp_handle hzpp,
+                                             int* success) {
+  return execute(
+    [&]() { return to_bridge(hlib)->mdu_ein().zppUpdateEnd(to_zpp(hzpp)); },
+    success);
 }
 
-int libklug_mdu_ein_zpp_exit_reset(libklug_handle handle) {
-  return to_bridge(handle)->mdu_ein().zppExitReset();
+libklug_error libklug_mdu_ein_zpp_exit_reset(libklug_handle hlib,
+                                             int* success) {
+  return execute([&]() { return to_bridge(hlib)->mdu_ein().zppExitReset(); },
+                 success);
 }
 
-int libklug_mdu_ein_zsu_salsa20_iv(libklug_handle handle,
-                                   zsu_handle zsu,
-                                   size_t firmware_index) {
-  return to_bridge(handle)->mdu_ein().zsuSalsa20IV(
-    reinterpret_cast<zsu::File*>(zsu)->firmwares.at(firmware_index));
+libklug_error libklug_mdu_ein_zsu_salsa20_iv(libklug_handle hlib,
+                                             zsu_handle hzsu,
+                                             size_t firmware_index,
+                                             int* success) {
+  return execute(
+    [&]() {
+      return to_bridge(hlib)->mdu_ein().zsuSalsa20IV(
+        to_zsu(hzsu)->firmwares.at(firmware_index));
+    },
+    success);
 }
 
-int libklug_mdu_ein_zsu_erase(libklug_handle handle,
-                              zsu_handle zsu,
-                              size_t firmware_index) {
-  return to_bridge(handle)->mdu_ein().zsuErase(
-    reinterpret_cast<zsu::File*>(zsu)->firmwares.at(firmware_index));
+libklug_error libklug_mdu_ein_zsu_erase(libklug_handle hlib,
+                                        zsu_handle hzsu,
+                                        size_t firmware_index,
+                                        int* success) {
+  return execute(
+    [&]() {
+      return to_bridge(hlib)->mdu_ein().zsuErase(
+        to_zsu(hzsu)->firmwares.at(firmware_index));
+    },
+    success);
 }
 
-int libklug_mdu_ein_zsu_update(libklug_handle handle,
-                               zsu_handle zsu,
-                               size_t firmware_index,
-                               uint32_t index) {
-  return to_bridge(handle)->mdu_ein().zsuUpdate(
-    reinterpret_cast<zsu::File*>(zsu)->firmwares.at(firmware_index), index);
+libklug_error libklug_mdu_ein_zsu_update(libklug_handle hlib,
+                                         zsu_handle hzsu,
+                                         size_t firmware_index,
+                                         uint32_t index,
+                                         int* success) {
+  return execute(
+    [&]() {
+      return to_bridge(hlib)->mdu_ein().zsuUpdate(
+        to_zsu(hzsu)->firmwares.at(firmware_index), index);
+    },
+    success);
 }
 
-int libklug_mdu_ein_zsu_crc32_start(libklug_handle handle,
-                                    zsu_handle zsu,
-                                    size_t firmware_index) {
-  return to_bridge(handle)->mdu_ein().zsuCRC32Start(
-    reinterpret_cast<zsu::File*>(zsu)->firmwares.at(firmware_index));
+libklug_error libklug_mdu_ein_zsu_crc32_start(libklug_handle hlib,
+                                              zsu_handle hzsu,
+                                              size_t firmware_index,
+                                              int* success) {
+  return execute(
+    [&]() {
+      return to_bridge(hlib)->mdu_ein().zsuCRC32Start(
+        to_zsu(hzsu)->firmwares.at(firmware_index));
+    },
+    success);
 }
 
-int libklug_mdu_ein_zsu_crc32_result(libklug_handle handle) {
-  return to_bridge(handle)->mdu_ein().zsuCRC32Result();
+libklug_error libklug_mdu_ein_zsu_crc32_result(libklug_handle hlib,
+                                               int* success) {
+  return execute([&]() { return to_bridge(hlib)->mdu_ein().zsuCRC32Result(); },
+                 success);
 }
 
-int libklug_mdu_ein_zsu_crc32_result_exit(libklug_handle handle) {
-  return to_bridge(handle)->mdu_ein().zsuCRC32ResultExit();
+libklug_error libklug_mdu_ein_zsu_crc32_result_exit(libklug_handle hlib,
+                                                    int* success) {
+  return execute([&]() { return to_bridge(hlib)->mdu_ein().zsuCRC32Result(); },
+                 success);
 }
 
 /** ---------------------------------------------------

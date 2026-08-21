@@ -28,6 +28,7 @@ struct Base : public TransmissionBase {
   virtual ~Base() = default;
 
   virtual res::Result evaluate() override;
+  virtual std::expected<bool, err::Error> evaluateBool() override;
 
 protected:
   bool valid();

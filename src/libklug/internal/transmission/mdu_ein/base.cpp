@@ -49,6 +49,17 @@ res::Result Base::evaluate() {
 }
 
 /**
+ * Evaluate a bool
+ *
+ * \retval bool                 Evaluated bool
+ * \retval err::Error::format   Format mismatch
+ */
+std::expected<bool, err::Error> Base::evaluateBool() {
+  if (!valid()) return std::unexpected(err::Error::format);
+  return _response[0] == ulf::mdu_ein::ack && _response[2] == ulf::mdu_ein::ack;
+}
+
+/**
  * Response valid
  *
  * \return true   Valid

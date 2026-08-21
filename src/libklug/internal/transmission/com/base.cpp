@@ -61,6 +61,12 @@ res::Result Base::evaluate() {
                      _response.size()} == "OK\r"sv};
 }
 
+/**
+ * Evaluate a string
+ *
+ * \retval std::string          Evaluated bool
+ * \retval err::Error::format   Format mismatch
+ */
 std::expected<std::string, err::Error> Base::evaluateString() {
   using std::operator""sv;
   if (std::string_view{std::bit_cast<char const*>(_payload.data()),
@@ -72,6 +78,12 @@ std::expected<std::string, err::Error> Base::evaluateString() {
   return std::unexpected(err::Error::unknown);
 }
 
+/**
+ * Evaluate a bool
+ *
+ * \retval bool                 Evaluated bool
+ * \retval err::Error::format   Format mismatch
+ */
 std::expected<bool, err::Error> Base::evaluateBool() {
   using std::operator""sv;
   if (std::string_view{std::bit_cast<char const*>(_payload.data()),

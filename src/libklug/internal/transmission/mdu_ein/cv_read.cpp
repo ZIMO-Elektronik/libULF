@@ -50,6 +50,20 @@ void CvRead::execute() {
   }
 }
 
+/// Stub
+std::expected<std::string, err::Error> CvRead::evaluateString() {
+  assert(false);
+  return {};
+}
+
+/// Stub
+std::expected<bool, err::Error> CvRead::evaluateBool() {
+  assert(false);
+  return {};
+}
+
+std::expected<uint8_t, err::Error> CvRead::evaluateByte() { return _value; }
+
 /**
  * Evaluate Cv Read
  *

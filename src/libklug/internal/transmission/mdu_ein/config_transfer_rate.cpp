@@ -49,6 +49,22 @@ void ConfigTransferRate::execute() {
 
 res::Result ConfigTransferRate::evaluate() { return res::Status{_result}; }
 
+/// Stub
+std::expected<std::string, err::Error> ConfigTransferRate::evaluateString() {
+  assert(false);
+  return {};
+}
+
+std::expected<bool, err::Error> ConfigTransferRate::evaluateBool() {
+  return _result;
+}
+
+/// Stub
+std::expected<uint8_t, err::Error> ConfigTransferRate::evaluateByte() {
+  assert(false);
+  return {};
+}
+
 res::Result ConfigTransferRate::packet() {
   Base t{
     _conn,
