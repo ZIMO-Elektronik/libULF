@@ -17,59 +17,56 @@ TEST_F(TestMDU_EIN, zsu_salsa20_iv_payload) {
     EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
   }
 
-  libklug_mdu_ein_zsu_salsa20_iv(libHandle, zsuHandle, fwIndex);
-  libklug_job_await(libHandle);
+  int r{};
+  libklug_mdu_ein_zsu_salsa20_iv(libHandle, zsuHandle, fwIndex, &r);
 }
 
 TEST_F(TestMDU_EIN, zsu_salsa20_iv_result_success) {
   ON_CALL(conn, _read_until(_, _, _, _, _))
     .WillByDefault(helper::mdu::receive_ack);
 
-  libklug_mdu_ein_zsu_salsa20_iv(libHandle, zsuHandle, fwIndex);
-  auto const result{libklug_job_await(libHandle)};
-
-  ASSERT_EQ(result.type, result_type::status);
-  ASSERT_EQ(result.data.success, LIBKLUG_TRUE);
+  int r{};
+  ASSERT_EQ(libklug_mdu_ein_zsu_salsa20_iv(libHandle, zsuHandle, fwIndex, &r),
+            libklug_error::ok);
+  ASSERT_TRUE(r);
 }
 
 TEST_F(TestMDU_EIN, zsu_salsa20_iv_result_no_success) {
   ON_CALL(conn, _read_until(_, _, _, _, _))
     .WillByDefault(helper::mdu::receive_nak);
 
-  libklug_mdu_ein_zsu_salsa20_iv(libHandle, zsuHandle, fwIndex);
-  auto const result{libklug_job_await(libHandle)};
-
-  ASSERT_EQ(result.type, result_type::status);
-  ASSERT_EQ(result.data.success, LIBKLUG_FALSE);
+  int r{};
+  ASSERT_EQ(libklug_mdu_ein_zsu_salsa20_iv(libHandle, zsuHandle, fwIndex, &r),
+            libklug_error::ok);
+  ASSERT_FALSE(r);
 }
 
 TEST_F(TestMDU_EIN, zsu_salsa20_iv_write_error) {
   assertTransmitErrorCalls();
 
-  libklug_mdu_ein_zsu_salsa20_iv(libHandle, zsuHandle, fwIndex);
-  libklug_job_await(libHandle);
+  int r{};
+  libklug_mdu_ein_zsu_salsa20_iv(libHandle, zsuHandle, fwIndex, &r);
 }
 
 TEST_F(TestMDU_EIN, zsu_salsa20_iv_write_error_result) {
   throwTransmitException();
 
-  libklug_mdu_ein_zsu_salsa20_iv(libHandle, zsuHandle, fwIndex);
-  auto const result{libklug_job_await(libHandle)};
-
-  assertTransmitReceiveErrorResult(result);
+  int r{};
+  ASSERT_NE(libklug_mdu_ein_zsu_salsa20_iv(libHandle, zsuHandle, fwIndex, &r),
+            libklug_error::ok);
 }
 
 TEST_F(TestMDU_EIN, zsu_salsa20_iv_receive_error) {
   assertReceiveErrorCalls();
 
-  libklug_mdu_ein_zsu_salsa20_iv(libHandle, zsuHandle, fwIndex);
-  libklug_job_await(libHandle);
+  int r{};
+  libklug_mdu_ein_zsu_salsa20_iv(libHandle, zsuHandle, fwIndex, &r);
 }
 
 TEST_F(TestMDU_EIN, zsu_salsa20_iv_receive_error_result) {
   throwReceiveException();
-  libklug_mdu_ein_zsu_salsa20_iv(libHandle, zsuHandle, fwIndex);
-  auto const result{libklug_job_await(libHandle)};
 
-  assertTransmitReceiveErrorResult(result);
+  int r{};
+  ASSERT_NE(libklug_mdu_ein_zsu_salsa20_iv(libHandle, zsuHandle, fwIndex, &r),
+            libklug_error::ok);
 }

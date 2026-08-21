@@ -240,7 +240,7 @@ void libklug_close(libklug_handle handle);
  *
  * \return libklug_error
  */
-libklug_error libklug_com_ping(libklug_handle hlib, char* buf, size_t len);
+libklug_error libklug_com_ping(libklug_handle hlib, char* buf, size_t* len);
 
 /**
  * Reset device (async)

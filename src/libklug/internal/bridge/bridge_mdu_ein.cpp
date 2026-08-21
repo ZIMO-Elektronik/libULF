@@ -140,10 +140,10 @@ std::expected<bool, err::Error> MDU_EIN::binaryTreeSearch() {
  * \return true   Success
  * \return false  Busy
  */
-std::expected<bool, err::Error> MDU_EIN::cvRead(uint16_t cv) {
+std::expected<uint8_t, err::Error> MDU_EIN::cvRead(uint16_t cv) {
   transmission::mdu_ein::CvRead t{_ctx.connection, cv};
   t.execute();
-  return t.evaluateBool();
+  return t.evaluateByte();
 }
 
 /**

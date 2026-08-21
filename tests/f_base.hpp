@@ -59,15 +59,4 @@ struct TestBase : public testing::Test {
       .WillByDefault(Throw(
         except::generic_error{error, "A very important error message"sv}));
   }
-
-  void assertTransmitReceiveErrorResult(result const& result,
-                                        err::Error error = err::Error::usb) {
-    ASSERT_EQ(result.type, result_type::error);
-    ASSERT_EQ(result.data.error, std::to_underlying(error));
-  }
-  void assertTransmitReceiveErrorResult(res::Result const& result,
-                                        err::Error error = err::Error::usb) {
-    ASSERT_TRUE(std::holds_alternative<res::Error>(result));
-    ASSERT_EQ(std::get<res::Error>(result), error);
-  }
 };

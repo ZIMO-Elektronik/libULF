@@ -85,8 +85,8 @@ TEST_F(TestMDU_EIN, cv_read_payload) {
     EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
   }
 
-  libklug_mdu_ein_cv_read(libHandle, cv_address);
-  libklug_job_await(libHandle);
+  uint8_t r{};
+  libklug_mdu_ein_cv_read(libHandle, cv_address, &r);
 }
 
 TEST_F(TestMDU_EIN, cv_read_result_success) {
@@ -103,42 +103,39 @@ TEST_F(TestMDU_EIN, cv_read_result_success) {
     .WillOnce(helper::mdu::receive_ack)  //
     .WillOnce(helper::mdu::receive_nak); //
 
-  libklug_mdu_ein_cv_read(libHandle, cv_address);
-  auto const result{libklug_job_await(libHandle)};
-
-  ASSERT_EQ(result.type, result_type::cv);
-  ASSERT_EQ(result.data.value, cv_value);
+  uint8_t r{};
+  ASSERT_EQ(libklug_mdu_ein_cv_read(libHandle, cv_address, &r),
+            libklug_error::ok);
+  ASSERT_EQ(r, cv_value);
 }
 
 /// \note Technically, we should test this against every transfer
 TEST_F(TestMDU_EIN, cv_read_write_error) {
   assertTransmitErrorCalls();
 
-  libklug_mdu_ein_cv_read(libHandle, cv_address);
-  libklug_job_await(libHandle);
+  uint8_t r{};
+  libklug_mdu_ein_cv_read(libHandle, cv_address, &r);
 }
 
 TEST_F(TestMDU_EIN, cv_read_write_error_result) {
   throwTransmitException();
 
-  libklug_mdu_ein_cv_read(libHandle, cv_address);
-  auto const result{libklug_job_await(libHandle)};
-
-  assertTransmitReceiveErrorResult(result);
+  uint8_t r{};
+  ASSERT_NE(libklug_mdu_ein_cv_read(libHandle, cv_address, &r),
+            libklug_error::ok);
 }
 
 TEST_F(TestMDU_EIN, cv_read_receive_error) {
   assertReceiveErrorCalls();
 
-  libklug_mdu_ein_cv_read(libHandle, cv_address);
-  libklug_job_await(libHandle);
+  uint8_t r{};
+  libklug_mdu_ein_cv_read(libHandle, cv_address, &r);
 }
 
 TEST_F(TestMDU_EIN, cv_read_receive_error_result) {
   throwReceiveException();
 
-  libklug_mdu_ein_cv_read(libHandle, cv_address);
-  auto const result{libklug_job_await(libHandle)};
-
-  assertTransmitReceiveErrorResult(result);
+  uint8_t r{};
+  ASSERT_NE(libklug_mdu_ein_cv_read(libHandle, cv_address, &r),
+            libklug_error::ok);
 }

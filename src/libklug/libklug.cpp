@@ -31,12 +31,14 @@ zsu::File* to_zsu(zsu_handle handle) {
 /// Template helper to dry code
 template<typename F, typename R>
 libklug_error execute(F&& operation, R* success) {
-  auto const r{std::invoke(operation)};
-  if (r) {
-    *success = *r;
-    return libklug_error::ok;
-  }
-  return libklug_error::unknown;
+  try {
+    auto const r{std::invoke(operation)};
+    if (r) {
+      *success = *r;
+      return libklug_error::ok;
+    }
+    return libklug_error::unknown;
+  } catch (...) { return libklug_error::unknown; }
 }
 
 /** ---------------------------------------------------
@@ -77,13 +79,16 @@ void libklug_close(libklug_handle handle) { return to_bridge(handle)->close(); }
  *  ---------------------------------------------------
  */
 
-libklug_error libklug_com_ping(libklug_handle hlib, char* buf, size_t len) {
-  auto const r{to_bridge(hlib)->com().ping()};
-  if (r) {
-    std::copy_n(r->begin(), std::min(len, r->size()), buf);
-    return libklug_error::ok;
-  }
-  return libklug_error::unknown;
+libklug_error libklug_com_ping(libklug_handle hlib, char* buf, size_t* len) {
+  try {
+    auto const r{to_bridge(hlib)->com().ping()};
+    if (r) {
+      std::copy_n(r->begin(), std::min(*len, r->size()), buf);
+      *len = std::min(*len, r->size());
+      return libklug_error::ok;
+    }
+    return libklug_error::unknown;
+  } catch (...) { return libklug_error::unknown; }
 }
 
 libklug_error libklug_com_reset(libklug_handle hlib, int* success) {
@@ -326,8 +331,8 @@ libklug_error libklug_mdu_ein_zsu_crc32_result(libklug_handle hlib,
 
 libklug_error libklug_mdu_ein_zsu_crc32_result_exit(libklug_handle hlib,
                                                     int* success) {
-  return execute([&]() { return to_bridge(hlib)->mdu_ein().zsuCRC32Result(); },
-                 success);
+  return execute(
+    [&]() { return to_bridge(hlib)->mdu_ein().zsuCRC32ResultExit(); }, success);
 }
 
 /** ---------------------------------------------------

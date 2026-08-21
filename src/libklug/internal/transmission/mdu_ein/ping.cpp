@@ -49,4 +49,18 @@ res::Result Ping::evaluate() {
                      _response[2] == ulf::mdu_ein::nak};
 }
 
+/**
+ * Evaluate a bool
+ *
+ * \note
+ * This is the inverse operation, since a decoder naks when it responds
+ *
+ * \retval bool                 Evaluated bool
+ * \retval err::Error::format   Format mismatch
+ */
+std::expected<bool, err::Error> Ping::evaluateBool() {
+  if (!valid()) return std::unexpected(err::Error::format);
+  return _response[0] == ulf::mdu_ein::ack && _response[2] == ulf::mdu_ein::nak;
+}
+
 } // namespace transmission::mdu_ein

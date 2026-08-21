@@ -35,7 +35,7 @@ struct MDU_EIN {
   std::expected<bool, err::Error>
   configTransferRate(mdu::TransferRate transfer_rate);
   std::expected<bool, err::Error> binaryTreeSearch();
-  std::expected<bool, err::Error> cvRead(uint16_t cv);
+  std::expected<uint8_t, err::Error> cvRead(uint16_t cv);
   std::expected<bool, err::Error> cvWrite(uint16_t cv, uint8_t value);
   std::expected<bool, err::Error> busy();
 

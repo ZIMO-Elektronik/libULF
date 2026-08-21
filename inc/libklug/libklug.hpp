@@ -393,9 +393,12 @@ struct COM {
    */
   std::expected<std::string, err::Error> ping() {
     std::string r{};
-    r.reserve(32uz);
-    if (libklug_com_ping(_lib, r.data(), r.capacity()) == libklug_error::ok)
+    r.resize(128uz);
+    size_t s{r.size()};
+    if (libklug_com_ping(_lib, r.data(), &s) == libklug_error::ok) {
+      r.resize(s);
       return r;
+    }
     return std::unexpected(err::Error::unknown);
   }
 
