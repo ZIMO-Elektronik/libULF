@@ -33,8 +33,6 @@ struct Context {
   bool valid() const;
   bool transmission(transmission::TransmissionBase* t);
   transmission::TransmissionBase* transmission();
-  std::unique_ptr<callback::IFunctor> cb; ///< Callback
-  std::future<res::Result&> result;       ///< Last result
 
 private:
   std::mutex mut_transmission;                   ///< Transmission mutex

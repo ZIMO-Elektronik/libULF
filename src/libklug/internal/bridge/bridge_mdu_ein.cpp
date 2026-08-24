@@ -22,8 +22,8 @@ namespace bridge {
  * \param ctx     Context
  * \param worker  Worker
  */
-MDU_EIN::MDU_EIN(Context& ctx, Worker& worker, ZPP& zpp, ZSU& zsu)
-  : _ctx{ctx}, _worker{worker}, _zpp{zpp}, _zsu{zsu} {}
+MDU_EIN::MDU_EIN(Context& ctx, ZPP& zpp, ZSU& zsu)
+  : _ctx{ctx}, _zpp{zpp}, _zsu{zsu} {}
 
 /**
  * MDU entry (async)

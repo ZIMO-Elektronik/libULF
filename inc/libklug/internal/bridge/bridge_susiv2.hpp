@@ -11,7 +11,6 @@
 #include <expected>
 #include <zpp/zpp.hpp>
 #include "bridge_context.hpp"
-#include "bridge_worker.hpp"
 #include "bridge_zpp.hpp"
 
 namespace bridge {
@@ -21,7 +20,7 @@ namespace bridge {
  *
  */
 struct SUSIV2 {
-  SUSIV2(Context& ctx, Worker& worker, ZPP& zpp);
+  SUSIV2(Context& ctx, ZPP& zpp);
 
   std::expected<uint8_t, err::Error> cvRead(uint16_t cv);
   std::expected<bool, err::Error> cvWrite(uint16_t cv, uint8_t value);
@@ -35,9 +34,8 @@ struct SUSIV2 {
   std::expected<bool, err::Error> zppLcDcQuery(zpp::File* file);
 
 private:
-  Context& _ctx;   ///< Bridge context
-  Worker& _worker; ///< Worker
-  ZPP& _zpp;       ///< ZPP bridge
+  Context& _ctx; ///< Bridge context
+  ZPP& _zpp;     ///< ZPP bridge
 };
 
 } // namespace bridge

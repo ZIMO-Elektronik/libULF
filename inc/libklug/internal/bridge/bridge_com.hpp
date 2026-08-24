@@ -11,7 +11,6 @@
 #include <algorithm>
 #include <expected>
 #include "bridge_context.hpp"
-#include "bridge_worker.hpp"
 
 namespace bridge {
 
@@ -20,7 +19,7 @@ namespace bridge {
  *
  */
 struct COM {
-  COM(Context& ctx, Worker& worker);
+  COM(Context& ctx);
 
   std::expected<std::string, err::Error> ping();
   std::expected<bool, err::Error> reset();
@@ -28,8 +27,7 @@ struct COM {
   std::expected<bool, err::Error> mdu_ein();
 
 private:
-  Context& _ctx;   ///< Bridge context
-  Worker& _worker; ///< Worker
+  Context& _ctx; ///< Bridge context
 };
 
 } // namespace bridge

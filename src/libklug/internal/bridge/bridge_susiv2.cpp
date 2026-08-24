@@ -20,8 +20,7 @@ namespace bridge {
  * \param ctx     Context
  * \param worker  Worker
  */
-SUSIV2::SUSIV2(Context& ctx, Worker& worker, ZPP& zpp)
-  : _ctx{ctx}, _worker{worker}, _zpp{zpp} {}
+SUSIV2::SUSIV2(Context& ctx, ZPP& zpp) : _ctx{ctx}, _zpp{zpp} {}
 
 /**
  * Cv Read

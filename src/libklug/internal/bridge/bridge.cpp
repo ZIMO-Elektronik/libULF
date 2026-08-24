@@ -24,37 +24,6 @@ Bridge::Bridge(std::shared_ptr<internal::IConnection> conn) : _ctx{conn} {}
 int Bridge::init() { return _ctx.connection->init(); }
 
 /**
- * Register callback
- *
- * \param cb Callback
- *
- * \todo Replace raw cb with funktor
- */
-void Bridge::registerCB(std::unique_ptr<callback::IFunctor> cb) {
-  _ctx.cb = std::move(cb);
-}
-
-/**
- * Deregister callback
- *
- * \todo Not thread safe, does it neet to be?
- */
-void Bridge::deregisterCB() {
-  if (_ctx.cb) _ctx.cb.reset();
-}
-
-/**
- * Wait and get result
- *
- * \return result_t Result
- *
- * \warning Waiting for a result without a pending operation will wait forever
- *
- * \todo Uhm... Refactor
- */
-std::future<res::Result&>& Bridge::future() { return _ctx.result; }
-
-/**
  * Open usb device
  *
  * \param vid   VID

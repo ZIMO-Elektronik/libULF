@@ -20,9 +20,7 @@ namespace bridge {
  * \param ctx     Context
  * \param worker  Worker
  */
-COM::COM(Context& ctx, Worker& worker) : _ctx{ctx}, _worker{worker} {
-  LOG_INFO("COM bridge created");
-}
+COM::COM(Context& ctx) : _ctx{ctx} { LOG_INFO("COM bridge created"); }
 
 /**
  * PING

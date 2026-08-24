@@ -10,7 +10,6 @@
 
 #include <mdu/transfer_rate.hpp>
 #include "bridge_context.hpp"
-#include "bridge_worker.hpp"
 #include "bridge_zpp.hpp"
 #include "bridge_zsu.hpp"
 
@@ -21,7 +20,7 @@ namespace bridge {
  *
  */
 struct MDU_EIN {
-  MDU_EIN(Context& ctx, Worker& worker, ZPP& zpp, ZSU& zsu);
+  MDU_EIN(Context& ctx, ZPP& zpp, ZSU& zsu);
 
   // Entry
   std::expected<bool, err::Error> enterMDU();
@@ -75,10 +74,9 @@ struct MDU_EIN {
   std::expected<bool, err::Error> zsuCRC32ResultExit();
 
 private:
-  Context& _ctx;   ///< Bridge context
-  Worker& _worker; ///< Worker
-  ZPP& _zpp;       ///< ZPP
-  ZSU& _zsu;       ///< ZSU
+  Context& _ctx; ///< Bridge context
+  ZPP& _zpp;     ///< ZPP
+  ZSU& _zsu;     ///< ZSU
 };
 
 } // namespace bridge
