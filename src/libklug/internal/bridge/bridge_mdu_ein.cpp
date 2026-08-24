@@ -20,16 +20,16 @@ namespace bridge {
  * CTor
  *
  * \param ctx     Context
- * \param worker  Worker
  */
 MDU_EIN::MDU_EIN(Context& ctx, ZPP& zpp, ZSU& zsu)
   : _ctx{ctx}, _zpp{zpp}, _zsu{zsu} {}
 
 /**
- * MDU entry (async)
+ * MDU entry
  *
- * \return true   Success
- * \return false  Busy
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> MDU_EIN::enterMDU() {
   std::array<uint8_t, 16u> payload{};
@@ -42,13 +42,15 @@ std::expected<bool, err::Error> MDU_EIN::enterMDU() {
 }
 
 /**
- * DCC ZSU entry (async)
+ * DCC ZSU entry
  *
  * \param id    Decoder ID
  * \param sn    Decoder SN
  * \param done  true, if entry is done
- * \return true   Success
- * \return false  Busy
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error>
 MDU_EIN::enterDCCZSU(uint32_t id, uint32_t sn, bool done) {
@@ -68,12 +70,14 @@ MDU_EIN::enterDCCZSU(uint32_t id, uint32_t sn, bool done) {
 }
 
 /**
- * DCC ZPP entry (async)
+ * DCC ZPP entry
  *
  * \param sn    Decoder SN
  * \param done  True, if entry is done
- * \return true   Success
- * \return false  Busy
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> MDU_EIN::enterDCCZPP(uint32_t sn, bool done) {
   std::vector<uint8_t> payload{};
@@ -91,12 +95,14 @@ std::expected<bool, err::Error> MDU_EIN::enterDCCZPP(uint32_t sn, bool done) {
 }
 
 /**
- * Ping (async)
+ * Ping
  *
  * \param sn  Decoder SN
  * \param id  Decoder ID
- * \return true   Success
- * \return false  Busy
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> MDU_EIN::ping(uint32_t sn, uint32_t id) {
   transmission::mdu_ein::Ping t{
@@ -108,11 +114,13 @@ std::expected<bool, err::Error> MDU_EIN::ping(uint32_t sn, uint32_t id) {
 }
 
 /**
- * Config Transfer Rate (async)
+ * Config Transfer Rate
  *
  * \param transfer_rate Transfer Rate
- * \return true   Success
- * \return false  Busy
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error>
 MDU_EIN::configTransferRate(mdu::TransferRate transfer_rate) {
@@ -122,10 +130,12 @@ MDU_EIN::configTransferRate(mdu::TransferRate transfer_rate) {
 }
 
 /**
- * Binary Tree Search (async)
+ * Binary Tree Search
  *
- * \return true
- * \return false
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
+ *
  * \todo Implement
  */
 std::expected<bool, err::Error> MDU_EIN::binaryTreeSearch() {
@@ -134,11 +144,12 @@ std::expected<bool, err::Error> MDU_EIN::binaryTreeSearch() {
 }
 
 /**
- * Cv Read (async)
+ * Cv Read
  *
  * \param cv  Cv address
- * \return true   Success
- * \return false  Busy
+ *
+ * \return uint8_t      CV value
+ * \return err::Error   Transfer Error
  */
 std::expected<uint8_t, err::Error> MDU_EIN::cvRead(uint16_t cv) {
   transmission::mdu_ein::CvRead t{_ctx.connection, cv};
@@ -147,12 +158,14 @@ std::expected<uint8_t, err::Error> MDU_EIN::cvRead(uint16_t cv) {
 }
 
 /**
- * Cv Write (async)
+ * Cv Write
  *
  * \param cv    Cv address
  * \param value Cv value
- * \return true   Success
- * \return false  Busy
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> MDU_EIN::cvWrite(uint16_t cv, uint8_t value) {
   transmission::mdu_ein::Base t{
@@ -164,10 +177,11 @@ std::expected<bool, err::Error> MDU_EIN::cvWrite(uint16_t cv, uint8_t value) {
 }
 
 /**
- * Busy (async)
+ * Busy
  *
- * \return true  Success
- * \return false Busy
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> MDU_EIN::busy() {
   transmission::mdu_ein::Base t{
@@ -179,11 +193,14 @@ std::expected<bool, err::Error> MDU_EIN::busy() {
 }
 
 /**
- * ZPP Valid Query (async)
+ * ZPP Valid Query
  *
  * \param id    ZPP Id
  * \param size  ZPP size
- * \todo Implement, Library implementation of packet factory also missing
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> MDU_EIN::zppValidQuery(std::string_view id,
                                                        uint32_t size) {
@@ -196,21 +213,26 @@ std::expected<bool, err::Error> MDU_EIN::zppValidQuery(std::string_view id,
 }
 
 /**
- * ZPP Valid Query (async)
+ * ZPP Valid Query
  *
  * \param file  ZPP File
- * \return Forwarded
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> MDU_EIN::zppValidQuery(zpp::File* file) {
   return zppValidQuery(file->id, file->flash.size());
 }
 
 /**
- * ZPP LC DC Query (async)
+ * ZPP LC DC Query
  *
  * \param dev_code Developer code
- * \return false
- * \todo Implement, Library implementation of packet factory also missing
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error>
 MDU_EIN::zppLcDcQuery(std::span<uint8_t const, 4uz> dev_code) {
@@ -223,22 +245,27 @@ MDU_EIN::zppLcDcQuery(std::span<uint8_t const, 4uz> dev_code) {
 }
 
 /**
- * ZPP LC DC Query (async)
+ * ZPP LC DC Query
  *
  * \param file ZPP File
- * \return Forwarded
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> MDU_EIN::zppLcDcQuery(zpp::File* file) {
   return zppLcDcQuery(file->developer_code);
 }
 
 /**
- *  ZPP Erase (async)
+ *  ZPP Erase
  *
  * \param start_address Start Address
  * \param end_address   End Address
- * \return false
- * \todo Implement, Library implementation of packet factory also missing
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> MDU_EIN::zppErase(uint32_t start_address,
                                                   uint32_t end_address) {
@@ -252,22 +279,27 @@ std::expected<bool, err::Error> MDU_EIN::zppErase(uint32_t start_address,
 }
 
 /**
- * ZPP Erase (async)
+ * ZPP Erase
  *
  * \param file ZPP File
- * \return Forwarded
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> MDU_EIN::zppErase(zpp::File* file) {
   return zppErase(0uz, file->flash.size() - 1u);
 }
 
 /**
- * ZPP Update (async)
+ * ZPP Update
  *
  * \param address Block Address
  * \param block   Block
- * \return false
- * \todo Implement, Library implementation of packet factory also missing
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error>
 MDU_EIN::zppUpdate(uint32_t address, std::span<uint8_t const, 256uz> block) {
@@ -280,11 +312,14 @@ MDU_EIN::zppUpdate(uint32_t address, std::span<uint8_t const, 256uz> block) {
 }
 
 /**
- * ZPP Update (async)
+ * ZPP Update
  *
  * \param file  ZPP File
  * \param index Block index
- * \return Forwarded
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> MDU_EIN::zppUpdate(zpp::File* file,
                                                    uint32_t index) {
@@ -293,12 +328,14 @@ std::expected<bool, err::Error> MDU_EIN::zppUpdate(zpp::File* file,
 }
 
 /**
- * ZPP Update End (async)
+ * ZPP Update End
  *
  * \param start_address Start Address
  * \param end_address   End Address
- * \return false
- * \todo Implement, Library implementation of packet factory also missing
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> MDU_EIN::zppUpdateEnd(uint32_t start_address,
                                                       uint32_t end_address) {
@@ -311,20 +348,24 @@ std::expected<bool, err::Error> MDU_EIN::zppUpdateEnd(uint32_t start_address,
 }
 
 /**
- * ZPP Update End (async)
+ * ZPP Update End
  *
  * \param file  ZPP File
- * \return Forwarded
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> MDU_EIN::zppUpdateEnd(zpp::File* file) {
   return zppUpdateEnd(0uz, file->flash.size() - 1uz);
 }
 
 /**
- * ZPP Exit and Reset (async)
+ * ZPP Exit and Reset
  *
- * \return false
- * \todo Implement, Library implementation of packet factory also missing
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> MDU_EIN::zppExitReset() {
   assert(false);
@@ -332,11 +373,13 @@ std::expected<bool, err::Error> MDU_EIN::zppExitReset() {
 }
 
 /**
- * ZSU Init Salsa20 (async)
+ * ZSU Init Salsa20
  *
  * \param iv  IV
- * \return true   Success
- * \return false  Busy
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error>
 MDU_EIN::zsuSalsa20IV(std::span<uint8_t const, 8uz> iv) {
@@ -349,12 +392,15 @@ MDU_EIN::zsuSalsa20IV(std::span<uint8_t const, 8uz> iv) {
 }
 
 /**
- * ZSU Init Salsa20 (asnyc)
+ * ZSU Init Salsa20
  *
  * \note If the Firmware does not contain an IV, the op will return an error
  *
  * \param firmware  Firmware
- * \return Forwarded
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error>
 MDU_EIN::zsuSalsa20IV(zsu::Firmware const& firmware) {
@@ -363,12 +409,14 @@ MDU_EIN::zsuSalsa20IV(zsu::Firmware const& firmware) {
 }
 
 /**
- * ZSU Erase (async)
+ * ZSU Erase
  *
  * \param start_address Start Address
  * \param end_address   End Address
- * \return true   Success
- * \return false  Busy
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> MDU_EIN::zsuErase(uint32_t start_address,
                                                   uint32_t end_address) {
@@ -382,10 +430,13 @@ std::expected<bool, err::Error> MDU_EIN::zsuErase(uint32_t start_address,
 }
 
 /**
- * ZSU Erase (async)
+ * ZSU Erase
  *
  * \param firmware  Firmware
- * \return true  Forwarded
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error>
 MDU_EIN::zsuErase(zsu::Firmware const& firmware) {
@@ -393,12 +444,14 @@ MDU_EIN::zsuErase(zsu::Firmware const& firmware) {
 }
 
 /**
- * ZSU Update (async)
+ * ZSU Update
  *
  * \param address Address
  * \param block   Block
- * \return true   Success
- * \return false  Busy
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error>
 MDU_EIN::zsuUpdate(uint32_t address, std::span<uint8_t const, 64uz> block) {
@@ -411,11 +464,14 @@ MDU_EIN::zsuUpdate(uint32_t address, std::span<uint8_t const, 64uz> block) {
 }
 
 /**
- * ZSU Update (async)
+ * ZSU Update
  *
  * \param firmware Address
  * \param index    Block Index
- * \return Forwarded
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error>
 MDU_EIN::zsuUpdate(zsu::Firmware const& firmware, uint32_t index) {
@@ -424,13 +480,15 @@ MDU_EIN::zsuUpdate(zsu::Firmware const& firmware, uint32_t index) {
 }
 
 /**
- * ZSU CRC32 start (async)
+ * ZSU CRC32 start
  *
  * \param start_address Start address
  * \param end_address   End address
  * \param crc           CRC32
- * \return true   Success
- * \return false  Busy
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> MDU_EIN::zsuCRC32Start(uint32_t start_address,
                                                        uint32_t end_address,
@@ -445,10 +503,13 @@ std::expected<bool, err::Error> MDU_EIN::zsuCRC32Start(uint32_t start_address,
 }
 
 /**
- * ZSU CRC32 start (async)
+ * ZSU CRC32 start
  *
  * \param firmware Firmware
- * \return Forwarded
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error>
 MDU_EIN::zsuCRC32Start(zsu::Firmware const& firmware) {
@@ -457,10 +518,11 @@ MDU_EIN::zsuCRC32Start(zsu::Firmware const& firmware) {
 }
 
 /**
- * ZSU CRC32 result (async)
+ * ZSU CRC32 result
  *
- * \return true   Success
- * \return false  Busy
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> MDU_EIN::zsuCRC32Result() {
   transmission::mdu_ein::Base t{
@@ -472,10 +534,11 @@ std::expected<bool, err::Error> MDU_EIN::zsuCRC32Result() {
 }
 
 /**
- * ZSU CRC32 result and exit (async)
+ * ZSU CRC32 result and exit
  *
- * \return true   Success
- * \return false  Busy
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> MDU_EIN::zsuCRC32ResultExit() {
   transmission::mdu_ein::Base t{

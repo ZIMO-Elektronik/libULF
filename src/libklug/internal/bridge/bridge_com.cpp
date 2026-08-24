@@ -18,15 +18,15 @@ namespace bridge {
  * CTor
  *
  * \param ctx     Context
- * \param worker  Worker
  */
 COM::COM(Context& ctx) : _ctx{ctx} { LOG_INFO("COM bridge created"); }
 
 /**
  * PING
  *
- * \return std::string  Ping response
- * \return err::Error   Error
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<std::string, err::Error> COM::ping() {
   transmission::com::Base t{
@@ -38,8 +38,9 @@ std::expected<std::string, err::Error> COM::ping() {
 /**
  * RESET
  *
- * \return bool         Response
- * \return err::Error   Error
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> COM::reset() {
   transmission::com::Base t{
@@ -51,8 +52,9 @@ std::expected<bool, err::Error> COM::reset() {
 /**
  * SUSIV2
  *
- * \return bool         Response
- * \return err::Error   Error
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> COM::susiv2() {
   transmission::com::Base t{
@@ -64,8 +66,9 @@ std::expected<bool, err::Error> COM::susiv2() {
 /**
  * MDU_EIN
  *
- * \return bool         Response
- * \return err::Error   Error
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> COM::mdu_ein() {
   transmission::com::Base t{

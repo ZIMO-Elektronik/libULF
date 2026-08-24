@@ -383,13 +383,10 @@ struct COM {
   ~COM() = default;
 
   /**
-   * Start PING transmission
+   * PING
    *
-   * \details At some point after start, this will produce a \ref res::String
-   * result containing the response string.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return std::string  Response
+   * \return err::Error   Error
    */
   std::expected<std::string, err::Error> ping() {
     std::string r{};
@@ -403,13 +400,10 @@ struct COM {
   }
 
   /**
-   * Start RESET transmission
+   * RESET
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> reset() {
     int r{};
@@ -418,13 +412,10 @@ struct COM {
   }
 
   /**
-   * Start SUSIV2 transmission
+   * SUSIV2
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> susiv2() {
     int r{};
@@ -433,13 +424,10 @@ struct COM {
   }
 
   /**
-   * Start MDU_EIN transmission
+   * MDU_EIN
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> mdu_ein() {
     int r{};
@@ -474,15 +462,12 @@ struct SUSIV2 {
   ~SUSIV2() = default;
 
   /**
-   * Starts a Cv read transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Cv
-   * result.
+   * CV read
    *
    * \param cv    Cv address to read
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return uint8_t      Response
+   * \return err::Error   Error
    */
   std::expected<uint8_t, err::Error> cvRead(uint16_t cv) {
     uint8_t r{};
@@ -492,16 +477,13 @@ struct SUSIV2 {
   }
 
   /**
-   * Starts a Cv write transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * CV write
    *
    * \param cv    Cv address to write
    * \param value Cv value to write
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> cvWrite(uint16_t cv, uint8_t value) {
     int r{};
@@ -510,13 +492,10 @@ struct SUSIV2 {
   }
 
   /**
-   * Starts a ZPP erase transmission
+   * ZPP erase
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> zppErase() {
     int r{};
@@ -525,15 +504,13 @@ struct SUSIV2 {
   }
 
   /**
-   * Starts a ZPP write transmission
+   * ZPP write
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * \param zpp     ZPP
+   * \param index   Block index
    *
-   * \param zpp
-   * \param index
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> zppWrite(ZPP& zpp, uint32_t index) {
     int r{};
@@ -544,13 +521,10 @@ struct SUSIV2 {
   }
 
   /**
-   * Starts a Features transmission
+   * Features
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> features() {
     int r{};
@@ -559,16 +533,13 @@ struct SUSIV2 {
   }
 
   /**
-   * Starts an Exit transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * Exit
    *
    * \param reboot      Reboot decoder
    * \param cv8_reset   Cv8 reset (reload CVs from flash)
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> exit(bool reboot, bool cv8_reset) {
     int r{};
@@ -578,15 +549,12 @@ struct SUSIV2 {
   }
 
   /**
-   * Starts a ZPP LC DC Query
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZPP LC DC
    *
    * \param zpp   ZPP
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> zppLcDcQuery(ZPP& zpp) {
     int r{};
@@ -623,13 +591,10 @@ struct MDU_EIN {
   ~MDU_EIN() = default;
 
   /**
-   * Starts a MDU (Powercycle) entry transmission
+   * MDU (Powercycle) entry
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> enterMDU() {
     int r{};
@@ -638,16 +603,14 @@ struct MDU_EIN {
   }
 
   /**
-   * Starts a DCC ZSU entry transmission
+   * DCC ZSU entry
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * \param id    Decoder ID
+   * \param sh    Decoder serial number
+   * \param done  `true` done with entry, `false` more [id,sn] pairs will follow
    *
-   * \todo This needs be able to send at least a pair of sn and id. Currently,
-   * the lib auto-sends zero for both.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error>
   enterDCCZSU(uint32_t id = 0uz, uint32_t sn = 0uz, bool done = true) {
@@ -658,13 +621,13 @@ struct MDU_EIN {
   }
 
   /**
-   * Starts a DCC ZPP entry transmission
+   * DCC ZPP entry
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * \param sn    Decoder ID
+   * \param done  `true` done with entry, `false` more sn will follow
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> enterDCCZPP(uint32_t sn = 0uz,
                                               bool done = true) {
@@ -675,16 +638,13 @@ struct MDU_EIN {
   }
 
   /**
-   * Starts a ping transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * Ping
    *
    * \param sn  Decoder serial number
    * \param id  Decoder ID
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> ping(uint32_t sn, uint32_t id) {
     int r{};
@@ -693,10 +653,7 @@ struct MDU_EIN {
   }
 
   /**
-   * Starts a config transfer rate transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * Config transfer rate
    *
    * \note Both, the decoder speed and device speed will be updated. If the
    * update fails, device speed will be set to fallback.
@@ -706,8 +663,8 @@ struct MDU_EIN {
    *
    * \param speed   Speed to set
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> configTransferRate(mdu::Speed speed) {
     int r{};
@@ -718,15 +675,12 @@ struct MDU_EIN {
   }
 
   /**
-   * Starts a Cv read transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Cv
-   * result.
+   * CV read
    *
    * \param cv  Cv address to read
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return uint8_t      Response
+   * \return err::Error   Error
    */
   std::expected<uint8_t, err::Error> cvRead(uint16_t cv) {
     uint8_t r{};
@@ -735,16 +689,13 @@ struct MDU_EIN {
   }
 
   /**
-   * Starts a Cv write transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * CV write
    *
    * \param cv    Cv address to write
    * \param value Cv value to write
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> cvWrite(uint16_t cv, uint8_t value) {
     int r{};
@@ -753,13 +704,10 @@ struct MDU_EIN {
   }
 
   /**
-   * Starts a busy transmission
+   * Busy
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> busy() {
     int r{};
@@ -768,15 +716,12 @@ struct MDU_EIN {
   }
 
   /**
-   * Starts a ZPP valid query transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZPP valid query
    *
    * \param zpp   ZPP
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> zppValidQuery(ZPP& zpp) {
     int r{};
@@ -787,15 +732,12 @@ struct MDU_EIN {
   }
 
   /**
-   * Starts a ZPP LC DC query transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZPP LC DC query
    *
    * \param zpp   ZPP
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> zppLcDcQuery(ZPP& zpp) {
     int r{};
@@ -806,15 +748,12 @@ struct MDU_EIN {
   }
 
   /**
-   * Starts a ZPP erase transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZPP erase
    *
    * \param zpp ZPP
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> zppErase(ZPP& zpp) {
     int r{};
@@ -825,16 +764,13 @@ struct MDU_EIN {
   }
 
   /**
-   * Starts a ZPP update transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZPP update
    *
    * \param zpp   ZPP
    * \param index Block index
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> zppUpdate(ZPP& zpp, uint32_t index) {
     int r{};
@@ -845,15 +781,12 @@ struct MDU_EIN {
   }
 
   /**
-   * Starts a ZPP update end transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZPP update end
    *
    * \param zpp ZPP
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> zppUpdateEnd(ZPP& zpp) {
     int r{};
@@ -864,13 +797,10 @@ struct MDU_EIN {
   }
 
   /**
-   * Starts a ZPP exit reset transmission
+   * ZPP exit reset
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> zppExitReset() {
     int r{};
@@ -879,15 +809,12 @@ struct MDU_EIN {
   }
 
   /**
-   * Starts a ZSU salsa20 init transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZSU salsa20
    *
    * \param firmware  FirmwareIterator
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error>
   zsuSalsa20Iv(ZSU::FirmwareIterator& firmware) {
@@ -899,15 +826,12 @@ struct MDU_EIN {
   }
 
   /**
-   * Starts a ZSU erase transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZSU erase
    *
    * \param firmware  FirmwareIterator
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> zsuErase(ZSU::FirmwareIterator& firmware) {
     int r{};
@@ -918,16 +842,13 @@ struct MDU_EIN {
   }
 
   /**
-   * Starts a ZSU update transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZSU update
    *
    * \param firmware  FirmwareIterator
    * \param index     Block index
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> zsuUpdate(ZSU::FirmwareIterator& firmware,
                                             uint32_t index) {
@@ -939,15 +860,12 @@ struct MDU_EIN {
   }
 
   /**
-   * Starts a ZSU crc32 start transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZSU crc32 start
    *
    * \param firmware  FirmwareIterator
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error>
   zsuCrc32Start(ZSU::FirmwareIterator& firmware) {
@@ -959,13 +877,10 @@ struct MDU_EIN {
   }
 
   /**
-   * Starts a ZSU crc32 result transmission
+   * ZSU crc32 result
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> zsuCrc32Result() {
     int r{};
@@ -974,13 +889,10 @@ struct MDU_EIN {
   }
 
   /**
-   * Starts a ZSU crc32 result and exit transmission
+   * ZSU crc32 result and exit
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
   std::expected<bool, err::Error> zsuCrc32ResultExit() {
     int r{};

@@ -223,7 +223,7 @@ void libklug_close(libklug_handle handle);
  */
 
 /**
- * Ping device (async)
+ * Ping device
  *
  * \details
  * Performs an [ULF_COM](https://github.com/ZIMO-Elektronik/ULF_COM) Ping.
@@ -232,18 +232,18 @@ void libklug_close(libklug_handle handle);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \result
- * This will produce a result_type::String on success
+ * \param [inout] handle  libklug handle
+ * \param [out]   buf     The buffer to copy the result string to
+ * \param [inout] len     The size of the buffer. On success, `len` will contain
+ *                        the actual byte count copied
  *
- * \param handle  libklug handle
- * \param buf     The buffer to copy the result string to
- *
- * \return libklug_error
+ * \retval ok             Success
+ * \return libklug_error  Error
  */
 libklug_error libklug_com_ping(libklug_handle hlib, char* buf, size_t* len);
 
 /**
- * Reset device (async)
+ * Reset device
  *
  * \details
  * Performs an [ULF_COM](https://github.com/ZIMO-Elektronik/ULF_COM) Reset.
@@ -252,17 +252,16 @@ libklug_error libklug_com_ping(libklug_handle hlib, char* buf, size_t* len);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \result
- * This will produce a result_type::Status on success
+ * \param [inout] handle  libklug handle
+ * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
  *
- * \param handle  libklug handle
- *
- * \return libklug_error
+ * \retval ok             Success
+ * \return libklug_error  Error
  */
 libklug_error libklug_com_reset(libklug_handle hlib, int* success);
 
 /**
- * Enter SUSIV2 Mode (async)
+ * Enter SUSIV2 Mode
  *
  * \details
  * Performs an [ULF_COM](https://github.com/ZIMO-Elektronik/ULF_COM) SUSIV2.
@@ -271,17 +270,16 @@ libklug_error libklug_com_reset(libklug_handle hlib, int* success);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \result
- * This will produce a result_type::Status on success
+ * \param [inout] handle  libklug handle
+ * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
  *
- * \param handle  libklug handle
- *
- * \return libklug_error
+ * \retval ok             Success
+ * \return libklug_error  Error
  */
 libklug_error libklug_com_susiv2(libklug_handle hlib, int* success);
 
 /**
- * Enter MDU_EIN Mode (async)
+ * Enter MDU_EIN Mode
  *
  * \details
  * Performs an [ULF_COM](https://github.com/ZIMO-Elektronik/ULF_COM) MDU_EIN.
@@ -290,12 +288,11 @@ libklug_error libklug_com_susiv2(libklug_handle hlib, int* success);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \result
- * This will produce a result_type::Status on success
+ * \param [inout] handle  libklug handle
+ * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
  *
- * \param handle  libklug handle
- *
- * \return libklug_error
+ * \retval ok             Success
+ * \return libklug_error  Error
  */
 libklug_error libklug_com_mdu_ein(libklug_handle hlib, int* success);
 
@@ -305,7 +302,7 @@ libklug_error libklug_com_mdu_ein(libklug_handle hlib, int* success);
  */
 
 /**
- * CvRead (async)
+ * CvRead
  *
  * \details
  * Read a single Cv using
@@ -315,13 +312,12 @@ libklug_error libklug_com_mdu_ein(libklug_handle hlib, int* success);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \result
- * This will produce a result_type::Cv on success
+ * \param [inout] handle  libklug handle
+ * \param [in]    cv      Cv address (zero-based, meaning Cv - 1)
+ * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
  *
- * \param handle  libklug handle
- * \param cv      Cv address (zero-based, meaning Cv - 1)
- *
- * \return libklug_error
+ * \retval ok             Success
+ * \return libklug_error  Error
  */
 libklug_error
 libklug_susiv2_cv_read(libklug_handle handle, uint16_t cv, uint8_t* value);
@@ -340,12 +336,10 @@ libklug_susiv2_cv_read(libklug_handle handle, uint16_t cv, uint8_t* value);
  * \warning
  * Not implemented Yet
  *
- * \result
- * This will produce a result_type::Status on success
- *
- * \param handle  libklug handle
- * \param cv      Cv address (zero based, meaning Cv - 1)
- * \param value   Cv value
+ * \param [inout] handle  libklug handle
+ * \param [in]    cv      Cv address (zero based, meaning Cv - 1)
+ * \param [in]    value   Cv value
+ * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
  *
  * \return libklug_error
  */

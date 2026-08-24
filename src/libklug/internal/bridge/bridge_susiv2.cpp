@@ -18,7 +18,6 @@ namespace bridge {
  * CTor
  *
  * \param ctx     Context
- * \param worker  Worker
  */
 SUSIV2::SUSIV2(Context& ctx, ZPP& zpp) : _ctx{ctx}, _zpp{zpp} {}
 
@@ -26,8 +25,9 @@ SUSIV2::SUSIV2(Context& ctx, ZPP& zpp) : _ctx{ctx}, _zpp{zpp} {}
  * Cv Read
  *
  * \param cv  Cv address
- * \return true   Success
- * \return false  Busy
+ *
+ * \return uint8_t      CV value
+ * \return err::Error   Transfer Error
  */
 std::expected<uint8_t, err::Error> SUSIV2::cvRead(uint16_t cv) {
   transmission::susiv2::CvRead t{_ctx.connection, 2000uz, cv};
@@ -40,8 +40,10 @@ std::expected<uint8_t, err::Error> SUSIV2::cvRead(uint16_t cv) {
  *
  * \param cv    Cv address
  * \param value Cv value
- * \return true   Success
- * \return false  Busy
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  *
  * \todo Implement
  */
@@ -51,10 +53,11 @@ std::expected<bool, err::Error> SUSIV2::cvWrite(uint16_t cv, uint8_t value) {
 }
 
 /**
- * ZPP erase (async)
+ * ZPP erase
  *
- * \return true   Success
- * \return false  Busy
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> SUSIV2::zppErase() {
   transmission::susiv2::Base t{
@@ -68,12 +71,14 @@ std::expected<bool, err::Error> SUSIV2::zppErase() {
 }
 
 /**
- * ZPP write (async)
+ * ZPP write
  *
  * \param address Block address
  * \param block   Block
- * \return true   Success
- * \return false  Busy
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error>
 SUSIV2::zppWrite(uint32_t address, std::span<uint8_t const> block) {
@@ -88,12 +93,14 @@ SUSIV2::zppWrite(uint32_t address, std::span<uint8_t const> block) {
 }
 
 /**
- * ZPP write (async) from file
+ * ZPP write from file
  *
  * \param file  ZPP file
  * \param index Block index
- * \return true   Success
- * \return false  Busy
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> SUSIV2::zppWrite(zpp::File* file,
                                                  uint32_t index) {
@@ -102,10 +109,11 @@ std::expected<bool, err::Error> SUSIV2::zppWrite(zpp::File* file,
 }
 
 /**
- * Feature request (async)
+ * Feature request
  *
- * \return true   Success
- * \return false  Busy
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> SUSIV2::features() {
   transmission::susiv2::Base t{
@@ -119,12 +127,14 @@ std::expected<bool, err::Error> SUSIV2::features() {
 }
 
 /**
- * Exit (async)
+ * Exit
  *
  * \param reboot    Decoder reboot
  * \param cv8_reset Decoder Cv8 reset
- * \return true   Success
- * \return false  Busy
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> SUSIV2::exit(bool reboot, bool cv8_reset) {
   transmission::susiv2::Base t{
@@ -138,11 +148,13 @@ std::expected<bool, err::Error> SUSIV2::exit(bool reboot, bool cv8_reset) {
 }
 
 /**
- * LC DC query (async)
+ * LC DC query
  *
  * \param dev_code Developer code
- * \return true   Success
- * \return false  Busy
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> SUSIV2::zppLcDcQuery(uint32_t dev_code) {
   transmission::susiv2::Base t{
@@ -156,11 +168,13 @@ std::expected<bool, err::Error> SUSIV2::zppLcDcQuery(uint32_t dev_code) {
 }
 
 /**
- * LC DC query (async)
+ * LC DC query
  *
  * \param file  ZPP file
- * \return true   Success
- * \return false  Busy
+ *
+ * \retval true         Success
+ * \retval false        Error
+ * \return err::Error   Transfer Error
  */
 std::expected<bool, err::Error> SUSIV2::zppLcDcQuery(zpp::File* file) {
   return zppLcDcQuery(zusi::data2uint32(file->developer_code.data()));

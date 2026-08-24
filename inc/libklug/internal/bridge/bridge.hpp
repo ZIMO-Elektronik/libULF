@@ -26,10 +26,7 @@ namespace bridge {
  * transfers in a controllable context
  *
  * \details This class is an attempt to provide all necessary ULF_COM update and
- * soundload protocols behind a singular interface. As a concept, all
- * transmissions run asynchronous via the \ref Bridge::Worker object. The result
- * can either be waited upon using \ref Bridge::result, or get it delivered when
- * registering a callback with \ref Bridge::registerCB.
+ * soundload protocols behind a singular interface.
  *
  * \note The bridge needs to be fully connected and configured to be usable. Two
  * open bridges result in UB, since the ULF_COM transmissions are synchronous by
