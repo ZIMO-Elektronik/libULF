@@ -55,6 +55,9 @@ sudo udevadm trigger
 
 ### Android
 
+> [!NOTE]
+> After the API change, the JNI is hopelessly broken and in need of fixing
+
 The Native side of the JNI bridge is provided by the library. However, a matching java / kotlin class (e.g. NativeLib and NativeResult) need to be provided by the user. Additionally, some options need to be set for the cmake build.
 
 It is recommended to set these in gradle, so that they are simply added during the app build process.
