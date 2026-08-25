@@ -28,16 +28,32 @@ zsu::File* to_zsu(zsu_handle handle) {
   return reinterpret_cast<zsu::File*>(handle);
 }
 
+/// Template helper to cover `int` and `uint8_t` results
+template<typename F, typename O>
+requires std::same_as<O, int> || std::same_as<O, uint8_t>
+libklug_error execute_impl(F&& operation, O* out) {
+  auto const res{std::invoke(operation)};
+  *out = res;
+  return libklug_error::ok;
+}
+
+/// Template helper to cover `string` result
+template<typename F>
+libklug_error execute_impl(F&& operation, char* d_out, size_t* l_out) {
+  std::string const res{std::invoke(operation)};
+  std::copy_n(res.begin(), std::min(*l_out, res.size()), d_out);
+  *l_out = std::min(*l_out, res.size());
+  return libklug_error::ok;
+}
+
 /// Template helper to dry code
-template<typename F, typename R>
-libklug_error execute(F&& operation, R* success) {
+template<typename F, typename... Args>
+libklug_error execute(F&& operation, Args&&... args) {
   try {
-    auto const r{std::invoke(operation)};
-    if (r) {
-      *success = *r;
-      return libklug_error::ok;
-    }
-    return libklug_error::unknown;
+    return execute_impl(std::forward<F>(operation),
+                        std::forward<Args>(args)...);
+  } catch (except::generic_error const& e_g) {
+    return static_cast<libklug_error>(static_cast<err::Error>(e_g));
   } catch (...) { return libklug_error::unknown; }
 }
 
@@ -80,15 +96,7 @@ void libklug_close(libklug_handle handle) { return to_bridge(handle)->close(); }
  */
 
 libklug_error libklug_com_ping(libklug_handle hlib, char* buf, size_t* len) {
-  try {
-    auto const r{to_bridge(hlib)->com().ping()};
-    if (r) {
-      std::copy_n(r->begin(), std::min(*len, r->size()), buf);
-      *len = std::min(*len, r->size());
-      return libklug_error::ok;
-    }
-    return libklug_error::unknown;
-  } catch (...) { return libklug_error::unknown; }
+  return execute([&]() { return to_bridge(hlib)->com().ping(); }, buf, len);
 }
 
 libklug_error libklug_com_reset(libklug_handle hlib, int* success) {

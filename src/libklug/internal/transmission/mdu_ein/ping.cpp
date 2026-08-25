@@ -10,6 +10,8 @@
 #include <libklug/result/wrapper/error.hpp>
 #include <libklug/result/wrapper/status.hpp>
 #include <ulf/mdu_ein.hpp>
+#include <utility>
+#include "libklug/internal/exception/e_generic.hpp"
 
 namespace transmission::mdu_ein {
 
@@ -58,8 +60,12 @@ res::Result Ping::evaluate() {
  * \retval bool                 Evaluated bool
  * \retval err::Error::format   Format mismatch
  */
-std::expected<bool, err::Error> Ping::evaluateBool() {
-  if (!valid()) return std::unexpected(err::Error::format);
+bool Ping::evaluateBool() {
+  using std::operator""sv;
+  if (!valid()) {
+    throw except::generic_error{err::Error::format, "Format Mismatch"sv};
+    std::unreachable();
+  }
   return _response[0] == ulf::mdu_ein::ack && _response[2] == ulf::mdu_ein::nak;
 }
 

@@ -20,7 +20,7 @@ struct CvRead : public Base {
   virtual ~CvRead() = default;
 
   virtual res::Result evaluate() override;
-  virtual std::expected<uint8_t, err::Error> evaluateByte() override;
+  virtual uint8_t evaluateByte() override;
 };
 
 } // namespace transmission::susiv2

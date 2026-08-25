@@ -7,9 +7,12 @@
  */
 
 #include "libklug/internal/transmission/mdu_ein/base.hpp"
-#include <libklug/result/wrapper/error.hpp>
-#include <libklug/result/wrapper/status.hpp>
 #include <ulf/mdu_ein.hpp>
+#include <utility>
+#include "libklug/internal/exception/e_generic.hpp"
+#include "libklug/result/wrapper/error.hpp"
+#include "libklug/result/wrapper/status.hpp"
+
 namespace transmission::mdu_ein {
 
 /**
@@ -54,8 +57,12 @@ res::Result Base::evaluate() {
  * \retval bool                 Evaluated bool
  * \retval err::Error::format   Format mismatch
  */
-std::expected<bool, err::Error> Base::evaluateBool() {
-  if (!valid()) return std::unexpected(err::Error::format);
+bool Base::evaluateBool() {
+  using std::operator""sv;
+  if (!valid()) {
+    throw except::generic_error{err::Error::format, "Format mismatch"sv};
+    std::unreachable();
+  }
   return _response[0] == ulf::mdu_ein::ack && _response[2] == ulf::mdu_ein::ack;
 }
 

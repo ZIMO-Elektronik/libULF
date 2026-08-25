@@ -32,9 +32,9 @@ struct ITransmission {
 
   virtual res::Result evaluate() = 0;
 
-  virtual std::expected<std::string, err::Error> evaluateString() = 0;
-  virtual std::expected<bool, err::Error> evaluateBool() = 0;
-  virtual std::expected<uint8_t, err::Error> evaluateByte() = 0;
+  virtual std::string evaluateString() = 0;
+  virtual bool evaluateBool() = 0;
+  virtual uint8_t evaluateByte() = 0;
 };
 
 } // namespace transmission

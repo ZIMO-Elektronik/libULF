@@ -50,19 +50,19 @@ void ConfigTransferRate::execute() {
 res::Result ConfigTransferRate::evaluate() { return res::Status{_result}; }
 
 /// Stub
-std::expected<std::string, err::Error> ConfigTransferRate::evaluateString() {
-  assert(false);
-  return {};
+std::string ConfigTransferRate::evaluateString() {
+  using std::operator""sv;
+  throw except::generic_error{err::Error::unknown, "Missing Implementation"sv};
+  std::unreachable();
 }
 
-std::expected<bool, err::Error> ConfigTransferRate::evaluateBool() {
-  return _result;
-}
+bool ConfigTransferRate::evaluateBool() { return _result; }
 
 /// Stub
-std::expected<uint8_t, err::Error> ConfigTransferRate::evaluateByte() {
-  assert(false);
-  return {};
+uint8_t ConfigTransferRate::evaluateByte() {
+  using std::operator""sv;
+  throw except::generic_error{err::Error::unknown, "Missing Implementation"sv};
+  std::unreachable();
 }
 
 res::Result ConfigTransferRate::packet() {

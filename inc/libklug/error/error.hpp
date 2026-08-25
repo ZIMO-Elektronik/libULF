@@ -12,18 +12,16 @@
 
 namespace err {
 
-enum class Error : uint8_t {
-  none = 0x00, ///< No error
+enum class Error : int {
+  ok = 0, ///< No error
 
-  format = 0x01, ///< Response format invalid
+  format = 1, ///< Response format invalid
+  nak = 2,    ///< Nak
+  crc = 3,    ///< Bad crc
 
-  nak = 0x02, ///< Nak
+  usb = 4, ///< Usb backend error
 
-  crc = 0x03, ///< Bad crc
-
-  usb = 0x04, ///< Usb backend error
-
-  unknown = 0xFF, ///< Unknown error
+  unknown = 255, ///< Unknown error
 };
 
 } // namespace err

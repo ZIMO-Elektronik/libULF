@@ -27,7 +27,7 @@ struct Ping : public Base {
   virtual ~Ping() = default;
 
   virtual res::Result evaluate() override;
-  virtual std::expected<bool, err::Error> evaluateBool() override;
+  virtual bool evaluateBool() override;
 };
 
 } // namespace transmission::mdu_ein

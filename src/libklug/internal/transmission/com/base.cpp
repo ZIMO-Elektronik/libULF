@@ -7,6 +7,8 @@
  */
 
 #include "libklug/internal/transmission/com/base.hpp"
+#include <utility>
+#include "libklug/internal/exception/e_generic.hpp"
 #include "libklug/internal/logging.hpp"
 
 std::array<char, 64> tmp_buffer;
@@ -67,7 +69,7 @@ res::Result Base::evaluate() {
  * \retval std::string          Evaluated bool
  * \retval err::Error::format   Format mismatch
  */
-std::expected<std::string, err::Error> Base::evaluateString() {
+std::string Base::evaluateString() {
   return std::string{reinterpret_cast<char const*>(_response.data()),
                      _response.size()};
 }
@@ -78,7 +80,7 @@ std::expected<std::string, err::Error> Base::evaluateString() {
  * \retval bool                 Evaluated bool
  * \retval err::Error::format   Format mismatch
  */
-std::expected<bool, err::Error> Base::evaluateBool() {
+bool Base::evaluateBool() {
   using std::operator""sv;
   if (std::string_view{std::bit_cast<char const*>(_response.data()),
                        _response.size()} == "OK\r"sv)
@@ -87,7 +89,8 @@ std::expected<bool, err::Error> Base::evaluateBool() {
                             _response.size()} == "NOT_OK\r"sv)
     return false;
 
-  return std::unexpected(err::Error::unknown);
+  throw except::generic_error{err::Error::format, "Format mismatch"sv};
+  std::unreachable();
 }
 
 } // namespace transmission::com

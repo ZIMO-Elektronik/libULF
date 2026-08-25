@@ -17,8 +17,11 @@ namespace err {
 constexpr std::string_view error2string(Error e) {
   using std::operator""sv;
   switch (e) {
-    case Error::none: return "No Error"sv;
+    case Error::ok: return "No Error"sv;
     case Error::format: return "Format Error"sv;
+    case Error::nak: return "Nak Received"sv;
+    case Error::crc: return "Bad CRC"sv;
+    case Error::usb: return "USB Backend error"sv;
     default: return "Non-listed or unknown Error"sv;
   }
 }

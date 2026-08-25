@@ -30,8 +30,8 @@ struct Base : public TransmissionBase {
 
   virtual res::Result evaluate() override;
 
-  virtual std::expected<std::string, err::Error> evaluateString() override;
-  virtual std::expected<bool, err::Error> evaluateBool() override;
+  virtual std::string evaluateString() override;
+  virtual bool evaluateBool() override;
 };
 
 } // namespace transmission::com

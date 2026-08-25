@@ -8,7 +8,9 @@
 
 #include "libklug/internal/bridge/bridge_susiv2.hpp"
 #include <ulf/susiv2.hpp>
+#include <utility>
 #include <zusi/zusi.hpp>
+#include "libklug/internal/exception/e_generic.hpp"
 #include "libklug/internal/transmission/susiv2/base.hpp"
 #include "libklug/internal/transmission/susiv2/cv_read.hpp"
 
@@ -24,12 +26,14 @@ SUSIV2::SUSIV2(Context& ctx, ZPP& zpp) : _ctx{ctx}, _zpp{zpp} {}
 /**
  * Cv Read
  *
+ * \note
+ * Will throw an exception on error
+ *
  * \param cv  Cv address
  *
- * \return uint8_t      CV value
- * \return err::Error   Transfer Error
+ * \return uint8_t Response
  */
-std::expected<uint8_t, err::Error> SUSIV2::cvRead(uint16_t cv) {
+uint8_t SUSIV2::cvRead(uint16_t cv) {
   transmission::susiv2::CvRead t{_ctx.connection, 2000uz, cv};
   t.execute();
   return t.evaluateByte();
@@ -38,28 +42,31 @@ std::expected<uint8_t, err::Error> SUSIV2::cvRead(uint16_t cv) {
 /**
  * Cv Write
  *
+ * \note
+ * Will throw an exception on error
+ *
  * \param cv    Cv address
  * \param value Cv value
  *
- * \retval true         Success
- * \retval false        Error
- * \return err::Error   Transfer Error
+ * \return bool Response
  *
  * \todo Implement
  */
-std::expected<bool, err::Error> SUSIV2::cvWrite(uint16_t cv, uint8_t value) {
-  assert(false);
-  return std::unexpected(err::Error::unknown);
+bool SUSIV2::cvWrite(uint16_t cv, uint8_t value) {
+  using std::operator""sv;
+  throw except::generic_error{err::Error::unknown, "Missing Implementation"sv};
+  std::unreachable();
 }
 
 /**
  * ZPP erase
  *
- * \retval true         Success
- * \retval false        Error
- * \return err::Error   Transfer Error
+ * \note
+ * Will throw an exception on error
+ *
+ * \return bool Response
  */
-std::expected<bool, err::Error> SUSIV2::zppErase() {
+bool SUSIV2::zppErase() {
   transmission::susiv2::Base t{
     _ctx.connection,
     ulf::susiv2::packet2frame<
@@ -73,15 +80,15 @@ std::expected<bool, err::Error> SUSIV2::zppErase() {
 /**
  * ZPP write
  *
+ * \note
+ * Will throw an exception on error
+ *
  * \param address Block address
  * \param block   Block
  *
- * \retval true         Success
- * \retval false        Error
- * \return err::Error   Transfer Error
+ * \return bool Response
  */
-std::expected<bool, err::Error>
-SUSIV2::zppWrite(uint32_t address, std::span<uint8_t const> block) {
+bool SUSIV2::zppWrite(uint32_t address, std::span<uint8_t const> block) {
   transmission::susiv2::Base t{
     _ctx.connection,
     ulf::susiv2::packet2frame<
@@ -95,15 +102,15 @@ SUSIV2::zppWrite(uint32_t address, std::span<uint8_t const> block) {
 /**
  * ZPP write from file
  *
+ * \note
+ * Will throw an exception on error
+ *
  * \param file  ZPP file
  * \param index Block index
  *
- * \retval true         Success
- * \retval false        Error
- * \return err::Error   Transfer Error
+ * \return bool Response
  */
-std::expected<bool, err::Error> SUSIV2::zppWrite(zpp::File* file,
-                                                 uint32_t index) {
+bool SUSIV2::zppWrite(zpp::File* file, uint32_t index) {
   auto const block{_zpp.block(file, index)};
   return zppWrite(block.first, block.second);
 }
@@ -111,11 +118,12 @@ std::expected<bool, err::Error> SUSIV2::zppWrite(zpp::File* file,
 /**
  * Feature request
  *
- * \retval true         Success
- * \retval false        Error
- * \return err::Error   Transfer Error
+ * \note
+ * Will throw an exception on error
+ *
+ * \return bool Response
  */
-std::expected<bool, err::Error> SUSIV2::features() {
+bool SUSIV2::features() {
   transmission::susiv2::Base t{
     _ctx.connection,
     ulf::susiv2::packet2frame<
@@ -129,14 +137,15 @@ std::expected<bool, err::Error> SUSIV2::features() {
 /**
  * Exit
  *
+ * \note
+ * Will throw an exception on error
+ *
  * \param reboot    Decoder reboot
  * \param cv8_reset Decoder Cv8 reset
  *
- * \retval true         Success
- * \retval false        Error
- * \return err::Error   Transfer Error
+ * \return bool Response
  */
-std::expected<bool, err::Error> SUSIV2::exit(bool reboot, bool cv8_reset) {
+bool SUSIV2::exit(bool reboot, bool cv8_reset) {
   transmission::susiv2::Base t{
     _ctx.connection,
     ulf::susiv2::packet2frame<
@@ -150,13 +159,14 @@ std::expected<bool, err::Error> SUSIV2::exit(bool reboot, bool cv8_reset) {
 /**
  * LC DC query
  *
+ * \note
+ * Will throw an exception on error
+ *
  * \param dev_code Developer code
  *
- * \retval true         Success
- * \retval false        Error
- * \return err::Error   Transfer Error
+ * \return bool Response
  */
-std::expected<bool, err::Error> SUSIV2::zppLcDcQuery(uint32_t dev_code) {
+bool SUSIV2::zppLcDcQuery(uint32_t dev_code) {
   transmission::susiv2::Base t{
     _ctx.connection,
     ulf::susiv2::packet2frame<
@@ -170,13 +180,14 @@ std::expected<bool, err::Error> SUSIV2::zppLcDcQuery(uint32_t dev_code) {
 /**
  * LC DC query
  *
+ * \note
+ * Will throw an exception on error
+ *
  * \param file  ZPP file
  *
- * \retval true         Success
- * \retval false        Error
- * \return err::Error   Transfer Error
+ * \return bool Response
  */
-std::expected<bool, err::Error> SUSIV2::zppLcDcQuery(zpp::File* file) {
+bool SUSIV2::zppLcDcQuery(zpp::File* file) {
   return zppLcDcQuery(zusi::data2uint32(file->developer_code.data()));
 }
 

@@ -21,10 +21,10 @@ namespace bridge {
 struct COM {
   COM(Context& ctx);
 
-  std::expected<std::string, err::Error> ping();
-  std::expected<bool, err::Error> reset();
-  std::expected<bool, err::Error> susiv2();
-  std::expected<bool, err::Error> mdu_ein();
+  std::string ping();
+  bool reset();
+  bool susiv2();
+  bool mdu_ein();
 
 private:
   Context& _ctx; ///< Bridge context

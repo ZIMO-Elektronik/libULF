@@ -24,11 +24,12 @@ COM::COM(Context& ctx) : _ctx{ctx} { LOG_INFO("COM bridge created"); }
 /**
  * PING
  *
- * \retval true         Success
- * \retval false        Error
- * \return err::Error   Transfer Error
+ * \note
+ * Will throw an exception on error
+ *
+ * \retval std::string  Response
  */
-std::expected<std::string, err::Error> COM::ping() {
+std::string COM::ping() {
   transmission::com::Base t{
     _ctx.connection, "PING\r", internal::config::timeout::com::ping};
   t.execute();
@@ -38,11 +39,12 @@ std::expected<std::string, err::Error> COM::ping() {
 /**
  * RESET
  *
- * \retval true         Success
- * \retval false        Error
- * \return err::Error   Transfer Error
+ * \note
+ * Will throw an exception on error
+ *
+ * \return bool Response
  */
-std::expected<bool, err::Error> COM::reset() {
+bool COM::reset() {
   transmission::com::Base t{
     _ctx.connection, "RESET\r", internal::config::timeout::com::reset};
   t.execute();
@@ -52,11 +54,12 @@ std::expected<bool, err::Error> COM::reset() {
 /**
  * SUSIV2
  *
- * \retval true         Success
- * \retval false        Error
- * \return err::Error   Transfer Error
+ * \note
+ * Will throw an exception on error
+ *
+ * \return bool Response
  */
-std::expected<bool, err::Error> COM::susiv2() {
+bool COM::susiv2() {
   transmission::com::Base t{
     _ctx.connection, "SUSIV2\r", internal::config::timeout::com::susiv2};
   t.execute();
@@ -66,11 +69,12 @@ std::expected<bool, err::Error> COM::susiv2() {
 /**
  * MDU_EIN
  *
- * \retval true         Success
- * \retval false        Error
- * \return err::Error   Transfer Error
+ * \note
+ * Will throw an exception on error
+ *
+ * \return bool Response
  */
-std::expected<bool, err::Error> COM::mdu_ein() {
+bool COM::mdu_ein() {
   transmission::com::Base t{
     _ctx.connection, "MDU_EIN\r", internal::config::timeout::com::mdu_ein};
   t.execute();

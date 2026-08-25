@@ -8,6 +8,8 @@
 
 #include "libklug/internal/transmission/susiv2/base.hpp"
 #include <ulf/susiv2.hpp>
+#include <utility>
+#include "libklug/internal/exception/e_generic.hpp"
 
 namespace transmission::susiv2 {
 
@@ -54,8 +56,12 @@ res::Result Base::evaluate() {
  * \retval bool                 Evaluated bool
  * \retval err::Error::format   Format mismatch
  */
-std::expected<bool, err::Error> Base::evaluateBool() {
-  if (!valid()) return std::unexpected(err::Error::format);
+bool Base::evaluateBool() {
+  using std::operator""sv;
+  if (!valid()) {
+    throw except::generic_error{err::Error::format, "Format Mismatch"sv};
+    std::unreachable();
+  }
   return _response.front() == ulf::susiv2::ack;
 }
 

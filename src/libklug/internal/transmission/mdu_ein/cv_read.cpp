@@ -9,6 +9,7 @@
 #include "libklug/internal/transmission/mdu_ein/cv_read.hpp"
 #include <format>
 #include <ulf/mdu_ein.hpp>
+#include <utility>
 #include "libklug/internal/exception/e_generic.hpp"
 #include "libklug/internal/transmission/mdu_ein/base.hpp"
 
@@ -51,18 +52,20 @@ void CvRead::execute() {
 }
 
 /// Stub
-std::expected<std::string, err::Error> CvRead::evaluateString() {
-  assert(false);
-  return {};
+std::string CvRead::evaluateString() {
+  using std::operator""sv;
+  throw except::generic_error{err::Error::unknown, "Missing Implementation"sv};
+  std::unreachable();
 }
 
 /// Stub
-std::expected<bool, err::Error> CvRead::evaluateBool() {
-  assert(false);
-  return {};
+bool CvRead::evaluateBool() {
+  using std::operator""sv;
+  throw except::generic_error{err::Error::unknown, "Missing Implementation"sv};
+  std::unreachable();
 }
 
-std::expected<uint8_t, err::Error> CvRead::evaluateByte() { return _value; }
+uint8_t CvRead::evaluateByte() { return _value; }
 
 /**
  * Evaluate Cv Read

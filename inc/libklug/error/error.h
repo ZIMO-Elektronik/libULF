@@ -13,7 +13,13 @@
 #define LIBKLUG_ERROR_FORMAT 0x01
 
 typedef enum libklug_error_t {
-  ok = 0,
+  ok = 0, ///< No Error
+
+  format = 1, ///< Protocol format invalid
+  nak = 2,    ///< Nak
+  crc = 3,    ///< Bad crc
+
+  usb = 4, ///< Usb backend error
 
   unknown = 255,
 } libklug_error;
