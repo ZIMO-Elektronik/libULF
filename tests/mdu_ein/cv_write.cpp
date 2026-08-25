@@ -28,49 +28,46 @@ TEST_F(TestMDU_EIN, cv_write_payload) {
     EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
   }
 
-  libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value);
-  libklug_job_await(libHandle);
+  int r{};
+  libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value, &r);
 }
 
 TEST_F(TestMDU_EIN, cv_write_result_success) {
   ON_CALL(conn, _read_until(_, _, _, _, _))
     .WillByDefault(helper::mdu::receive_ack);
 
-  libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value);
-  auto const result{libklug_job_await(libHandle)};
-
-  ASSERT_EQ(result.type, result_type::status);
-  ASSERT_TRUE(result.data.success);
+  int r{};
+  ASSERT_EQ(libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value, &r),
+            libklug_error::ok);
+  ASSERT_TRUE(r);
 }
 
 TEST_F(TestMDU_EIN, cv_write_write_error) {
   assertTransmitErrorCalls();
 
-  libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value);
-  libklug_job_await(libHandle);
+  int r{};
+  libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value, &r);
 }
 
 TEST_F(TestMDU_EIN, cv_write_write_error_result) {
   throwTransmitException();
 
-  libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value);
-  auto const result{libklug_job_await(libHandle)};
-
-  assertTransmitReceiveErrorResult(result);
+  int r{};
+  ASSERT_NE(libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value, &r),
+            libklug_error::ok);
 }
 
 TEST_F(TestMDU_EIN, cv_write_receive_error) {
   assertReceiveErrorCalls();
 
-  libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value);
-  libklug_job_await(libHandle);
+  int r{};
+  libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value, &r);
 }
 
 TEST_F(TestMDU_EIN, cv_write_receive_error_result) {
   throwReceiveException();
 
-  libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value);
-  auto const result{libklug_job_await(libHandle)};
-
-  assertTransmitReceiveErrorResult(result);
+  int r{};
+  ASSERT_NE(libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value, &r),
+            libklug_error::ok);
 }

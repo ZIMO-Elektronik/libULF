@@ -7,6 +7,8 @@
  */
 
 #include "libklug/internal/transmission/com/base.hpp"
+#include <utility>
+#include "libklug/internal/exception/e_generic.hpp"
 #include "libklug/internal/logging.hpp"
 
 std::array<char, 64> tmp_buffer;
@@ -42,23 +44,33 @@ Base::Base(std::shared_ptr<internal::IConnection> conn,
   : TransmissionBase{conn, payload, 'r', timeout} {}
 
 /**
- * Evaluate
+ * Evaluate a string
  *
- * \return result_t Result
- * \todo Make a ping struct
+ * \retval std::string          Evaluated bool
+ * \retval err::Error::format   Format mismatch
  */
-res::Result Base::evaluate() {
-  using std::operator""sv;
-  if (std::string_view{std::bit_cast<char const*>(_payload.data()),
-                       _payload.size()} == "PING\r"sv) {
-    return res::String{std::string_view{
-      reinterpret_cast<char const*>(_response.data()), _response.size()}};
-  }
+std::string Base::evaluateString() {
+  return std::string{reinterpret_cast<char const*>(_response.data()),
+                     _response.size()};
+}
 
-  // Everything else is just bool
-  return res::Status{
-    std::string_view{std::bit_cast<char const*>(_response.data()),
-                     _response.size()} == "OK\r"sv};
+/**
+ * Evaluate a bool
+ *
+ * \retval bool                 Evaluated bool
+ * \retval err::Error::format   Format mismatch
+ */
+bool Base::evaluateBool() {
+  using std::operator""sv;
+  if (std::string_view{std::bit_cast<char const*>(_response.data()),
+                       _response.size()} == "OK\r"sv)
+    return true;
+  else if (std::string_view{std::bit_cast<char const*>(_response.data()),
+                            _response.size()} == "NOT_OK\r"sv)
+    return false;
+
+  throw except::generic_error{err::Error::format, "Format mismatch"sv};
+  std::unreachable();
 }
 
 } // namespace transmission::com

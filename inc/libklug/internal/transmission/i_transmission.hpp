@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <expected>
 #include "libklug/result/result.hpp"
 
 namespace transmission {
@@ -29,7 +30,9 @@ struct ITransmission {
 
   virtual void execute() = 0;
 
-  virtual res::Result evaluate() = 0;
+  virtual std::string evaluateString() = 0;
+  virtual bool evaluateBool() = 0;
+  virtual uint8_t evaluateByte() = 0;
 };
 
 } // namespace transmission

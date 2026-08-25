@@ -32,11 +32,13 @@ struct ConfigTransferRate : public ITransmission {
 
   virtual void execute() final;
 
-  virtual res::Result evaluate() final;
+  virtual std::string evaluateString() final;
+  virtual bool evaluateBool() final;
+  virtual uint8_t evaluateByte() final;
 
 private:
-  res::Result packet();
-  res::Result special(bool fallback);
+  bool packet();
+  bool special(bool fallback);
 
   std::shared_ptr<internal::IConnection> _conn; ///< Connection
   mdu::TransferRate _speed;                     ///< Speed

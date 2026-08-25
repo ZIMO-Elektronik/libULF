@@ -18,6 +18,7 @@ extern "C" {
 #endif
 
 #include "callback/callback.h"
+#include "error/error.h"
 
 // Opaque poninters
 typedef struct libklug_instance* libklug_handle;
@@ -59,90 +60,6 @@ libklug_handle libklug_create();
  */
 void libklug_destroy(libklug_handle handle);
 
-// --- Callback and result --- //
-
-/**
- * Register a callback
- *
- * \details
- * Provided callback will be registered on the given libklug object.
- *
- * \note
- * The callback should be something that can be called async without crashing.
- * As an example, providing a callback on Android without precautions will
- * result in a crash upon call.
- *
- * \note
- * This will automatically deregister any previously registered cb
- *
- * \warning
- * It is illegal to pass NULL, Passing an invalid handle or callback results in
- * UB and should be avoided
- *
- * \todo
- * Add some form of manual deregister
- *
- * \param handle    libklug handle
- * \param cb        Callback
- * \param user_data Passed into callback on call
- */
-void libklug_register_cb(libklug_handle handle,
-                         bridge_callback cb,
-                         void* user_data);
-
-/**
- * Get result of last operation
- *
- * \details
- * Since most operations communicating with an ULF_COM device are async, the
- * result can be polled here.
- *
- * \note
- * This will hang UNTIL a result is available.
- *
- * \warning
- * It is illegal to pass NULL. Passing an invalid handle results in UB and
- * should be avoided
- *
- * \warning
- * Calling this without a pending result will result in an infinite wait
- *
- * \todo
- * Modify backend so using this wont result in an infinite wait...
- *
- * \todo
- * Add more methods of polling
- *
- * \param handle  libklug handle
- *
- * \return result Result of last operation
- */
-result libklug_job_await(libklug_handle handle);
-
-/**
- * Poll job
- *
- * \details
- * Since most operations communicating with an ULF_COM device are async, the
- * result can be retrieved here.
- *
- * \note
- * To actually get the result `libklug_job_await` still has to be called
- *
- * \todo
- * Maybe add a function to hide the fact like `libklug_job_get`
- *
- * \warning
- * It is illegal to pass NULL. Passing an invalid handle results in UB and
- * should be avoided
- *
- * \param handle  libklug handle
- *
- * \retval LIBKLUG_TRUE   Result available
- * \retval LIBKLUG_FALSE  No result yet
- */
-int libklug_job_poll(libklug_handle handle);
-
 // --- Connection Specifics --- //
 
 /**
@@ -163,7 +80,7 @@ int libklug_job_poll(libklug_handle handle);
  * For now, this directly returns the first libusb error occurred. Maybe we can
  * change this a bit
  */
-int libklug_init(libklug_handle handle);
+libklug_error libklug_init(libklug_handle handle);
 
 /**
  * Open device
@@ -190,7 +107,7 @@ int libklug_init(libklug_handle handle);
  * For now, this directly returns the first libusb error occurred. Maybe we can
  * change this a bit
  */
-int libklug_open(libklug_handle handle, uint16_t vid, uint16_t pid);
+libklug_error libklug_open(libklug_handle handle, uint16_t vid, uint16_t pid);
 
 /**
  * Open device by file descriptor
@@ -211,77 +128,7 @@ int libklug_open(libklug_handle handle, uint16_t vid, uint16_t pid);
  * For now, this directly returns the first libusb error occurred. Maybe we can
  * change this a bit
  */
-int libklug_openFd(libklug_handle handle, int Fd);
-
-/**
- * Configure device
- *
- * \details
- * Performs internal device setup
- *
- * \warning
- * It is illegal to pass NULL. Passing an invalid handle results in UB and
- * should be avoided
- *
- * \param handle  libklug handle
- *
- * \return int  From libusb
- *
- * \todo
- * For now, this directly returns the first libusb error occurred. Maybe we can
- * change this a bit
- */
-int libklug_config(libklug_handle handle);
-
-/**
- * Claim device
- *
- * \details
- * Claims the configured device
- *
- * \warning
- * It is illegal to pass NULL. Passing an invalid handle results in UB and
- * should be avoided
- *
- * \note
- * Calling this will detach any previously attached driver. For now, reverting
- * that can be done by simply disconnecting and reconnecting the device.
- *
- * \param handle  libklug handle
- *
- * \return int  From libusb
- *
- * \todo
- * For now, this directly returns the first libusb error occurred. Maybe we can
- * change this a bit
- *
- * \todo
- * Generally, a AIO function should be provided to `connect` a device
- */
-int libklug_claim(libklug_handle handle);
-
-/**
- * Release device
- *
- * \details
- * Releases the claimed device
- *
- * \warning
- * It is illegal to pass NULL. Passing an invalid handle results in UB and
- * should be avoided
- *
- * \note
- * To clarify, this WON'T reattach the detached driver (at least not yet)
- *
- * \param handle  libklug handle
- *
- * \return int  From libusb
- *
- * \todo
- * For now, this directly returns the first libusb error occurred. Maybe we can
- * change this a bit
- */
-int libklug_release(libklug_handle handle);
+libklug_error libklug_openFd(libklug_handle handle, int Fd);
 
 /**
  * Close device
@@ -298,7 +145,7 @@ int libklug_release(libklug_handle handle);
  *
  * \param handle  libklug handle
  */
-void libklug_close(libklug_handle handle);
+libklug_error libklug_close(libklug_handle handle);
 
 /** ---------------------------------------------------
  *  Bridge COM
@@ -306,7 +153,7 @@ void libklug_close(libklug_handle handle);
  */
 
 /**
- * Ping device (async)
+ * Ping device
  *
  * \details
  * Performs an [ULF_COM](https://github.com/ZIMO-Elektronik/ULF_COM) Ping.
@@ -315,19 +162,18 @@ void libklug_close(libklug_handle handle);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \result
- * This will produce a result_type::String on success
+ * \param [inout] handle  libklug handle
+ * \param [out]   buf     The buffer to copy the result string to
+ * \param [inout] len     The size of the buffer. On success, `len` will contain
+ *                        the actual byte count copied
  *
- * \param handle  libklug handle
- *
- * \return int
- * \retval LIBKLUG_TRUE   Started
- * \retval LIBKLUG_FALSE  Busy
+ * \retval ok             Success
+ * \return libklug_error  Error
  */
-int libklug_com_ping(libklug_handle handle);
+libklug_error libklug_com_ping(libklug_handle hlib, char* buf, size_t* len);
 
 /**
- * Reset device (async)
+ * Reset device
  *
  * \details
  * Performs an [ULF_COM](https://github.com/ZIMO-Elektronik/ULF_COM) Reset.
@@ -336,19 +182,16 @@ int libklug_com_ping(libklug_handle handle);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \result
- * This will produce a result_type::Status on success
+ * \param [inout] handle  libklug handle
+ * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
  *
- * \param handle  libklug handle
- *
- * \return int
- * \retval LIBKLUG_TRUE   Started
- * \retval LIBKLUG_FALSE  Busy
+ * \retval ok             Success
+ * \return libklug_error  Error
  */
-int libklug_com_reset(libklug_handle handle);
+libklug_error libklug_com_reset(libklug_handle hlib, int* success);
 
 /**
- * Enter SUSIV2 Mode (async)
+ * Enter SUSIV2 Mode
  *
  * \details
  * Performs an [ULF_COM](https://github.com/ZIMO-Elektronik/ULF_COM) SUSIV2.
@@ -357,19 +200,16 @@ int libklug_com_reset(libklug_handle handle);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \result
- * This will produce a result_type::Status on success
+ * \param [inout] handle  libklug handle
+ * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
  *
- * \param handle  libklug handle
- *
- * \return int
- * \retval LIBKLUG_TRUE   Started
- * \retval LIBKLUG_FALSE  Busy
+ * \retval ok             Success
+ * \return libklug_error  Error
  */
-int libklug_com_susiv2(libklug_handle handle);
+libklug_error libklug_com_susiv2(libklug_handle hlib, int* success);
 
 /**
- * Enter MDU_EIN Mode (async)
+ * Enter MDU_EIN Mode
  *
  * \details
  * Performs an [ULF_COM](https://github.com/ZIMO-Elektronik/ULF_COM) MDU_EIN.
@@ -378,16 +218,13 @@ int libklug_com_susiv2(libklug_handle handle);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \result
- * This will produce a result_type::Status on success
+ * \param [inout] handle  libklug handle
+ * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
  *
- * \param handle  libklug handle
- *
- * \return int
- * \retval LIBKLUG_TRUE   Started
- * \retval LIBKLUG_FALSE  Busy
+ * \retval ok             Success
+ * \return libklug_error  Error
  */
-int libklug_com_mdu_ein(libklug_handle handle);
+libklug_error libklug_com_mdu_ein(libklug_handle hlib, int* success);
 
 /** ---------------------------------------------------
  *  Bridge SUSIV2
@@ -395,7 +232,7 @@ int libklug_com_mdu_ein(libklug_handle handle);
  */
 
 /**
- * CvRead (async)
+ * CvRead
  *
  * \details
  * Read a single Cv using
@@ -405,17 +242,15 @@ int libklug_com_mdu_ein(libklug_handle handle);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \result
- * This will produce a result_type::Cv on success
+ * \param [inout] handle  libklug handle
+ * \param [in]    cv      Cv address (zero-based, meaning Cv - 1)
+ * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
  *
- * \param handle  libklug handle
- * \param cv      Cv address (zero-based, meaning Cv - 1)
- *
- * \return int
- * \retval LIBKLUG_TRUE   Started
- * \retval LIBKLUG_FALSE  Busy
+ * \retval ok             Success
+ * \return libklug_error  Error
  */
-int libklug_susiv2_cv_read(libklug_handle handle, uint16_t cv);
+libklug_error
+libklug_susiv2_cv_read(libklug_handle handle, uint16_t cv, uint8_t* value);
 
 /**
  * CvWrite
@@ -431,71 +266,98 @@ int libklug_susiv2_cv_read(libklug_handle handle, uint16_t cv);
  * \warning
  * Not implemented Yet
  *
- * \result
- * This will produce a result_type::Status on success
+ * \param [inout] handle  libklug handle
+ * \param [in]    cv      Cv address (zero based, meaning Cv - 1)
+ * \param [in]    value   Cv value
+ * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
  *
- * \param handle  libklug handle
- * \param cv      Cv address (zero based, meaning Cv - 1)
- * \param value   Cv value
- *
- * \return int
- * \retval LIBKLUG_TRUE   Started
- * \retval LIBKLUG_FALSE  Busy
+ * \return libklug_error
  */
-int libklug_susiv2_cv_write(libklug_handle handle, uint16_t cv, uint8_t value);
-int libklug_susiv2_zpp_erase(libklug_handle handle);
-int libklug_susiv2_zpp_write(libklug_handle handle,
-                             zpp_handle file_handle,
-                             uint32_t index);
-int libklug_susiv2_features(libklug_handle handle);
-int libklug_susiv2_exit(libklug_handle handle, int reboot, int cv8_reset);
-int libklug_susiv2_zpp_lc_dc_query(libklug_handle handle,
-                                   zpp_handle file_handle);
+libklug_error libklug_susiv2_cv_write(libklug_handle hlib,
+                                      uint16_t cv,
+                                      uint8_t value,
+                                      int* success);
+libklug_error libklug_susiv2_zpp_erase(libklug_handle hlib, int* success);
+libklug_error libklug_susiv2_zpp_write(libklug_handle hlib,
+                                       zpp_handle hzpp,
+                                       uint32_t index,
+                                       int* success);
+libklug_error libklug_susiv2_features(libklug_handle hlib, int* success);
+libklug_error libklug_susiv2_exit(libklug_handle hlib,
+                                  int reboot,
+                                  int cv8_reset,
+                                  int* success);
+libklug_error libklug_susiv2_zpp_lc_dc_query(libklug_handle hlib,
+                                             zpp_handle hzpp,
+                                             int* success);
 
 /** ---------------------------------------------------
  *  Bridge MDU_EIN
  *  ---------------------------------------------------
  */
 
-int libklug_mdu_ein_enter_mdu(libklug_handle handle);
-int libklug_mdu_ein_enter_dcc_zsu(libklug_handle handle,
-                                  uint32_t id,
-                                  uint32_t sn,
-                                  int done);
-int libklug_mdu_ein_enter_dcc_zpp(libklug_handle handle, uint32_t sn, int done);
+libklug_error libklug_mdu_ein_enter_mdu(libklug_handle hlib, int* success);
+libklug_error libklug_mdu_ein_enter_dcc_zsu(
+  libklug_handle hlib, uint32_t id, uint32_t sn, int done, int* success);
+libklug_error libklug_mdu_ein_enter_dcc_zpp(libklug_handle hlib,
+                                            uint32_t sn,
+                                            int done,
+                                            int* success);
 
-int libklug_mdu_ein_ping(libklug_handle handle, uint32_t sn, uint32_t id);
-int libklug_mdu_ein_ping_all(libklug_handle handle);
-int libklug_mdu_ein_config_transfer_rate(libklug_handle handle,
-                                         uint8_t transfer_rate);
-int libklug_mdu_ein_cv_read(libklug_handle handle, uint16_t cv);
-int libklug_mdu_ein_cv_write(libklug_handle handle, uint16_t cv, uint8_t value);
-int libklug_mdu_ein_busy(libklug_handle handle);
+libklug_error libklug_mdu_ein_ping(libklug_handle hlib,
+                                   uint32_t sn,
+                                   uint32_t id,
+                                   int* success);
+libklug_error libklug_mdu_ein_ping_all(libklug_handle hlib, int* success);
+libklug_error libklug_mdu_ein_config_transfer_rate(libklug_handle hlib,
+                                                   uint8_t transfer_rate,
+                                                   int* success);
+libklug_error
+libklug_mdu_ein_cv_read(libklug_handle hlib, uint16_t cv, uint8_t* value);
+libklug_error libklug_mdu_ein_cv_write(libklug_handle hlib,
+                                       uint16_t cv,
+                                       uint8_t value,
+                                       int* success);
+libklug_error libklug_mdu_ein_busy(libklug_handle hlib, int* success);
 
-int libklug_mdu_ein_zpp_valid_query(libklug_handle handle, zpp_handle zpp);
-int libklug_mdu_ein_zpp_lc_dc_query(libklug_handle handle, zpp_handle zpp);
-int libklug_mdu_ein_zpp_erase(libklug_handle handle, zpp_handle zpp);
-int libklug_mdu_ein_zpp_update(libklug_handle handle,
-                               zpp_handle zpp,
-                               uint32_t index);
-int libklug_mdu_ein_zpp_update_end(libklug_handle handle, zpp_handle zpp);
-int libklug_mdu_ein_zpp_exit_reset(libklug_handle handle);
+libklug_error libklug_mdu_ein_zpp_valid_query(libklug_handle hlib,
+                                              zpp_handle hzpp,
+                                              int* success);
+libklug_error libklug_mdu_ein_zpp_lc_dc_query(libklug_handle hlib,
+                                              zpp_handle hzpp,
+                                              int* success);
+libklug_error
+libklug_mdu_ein_zpp_erase(libklug_handle hlib, zpp_handle hzpp, int* success);
+libklug_error libklug_mdu_ein_zpp_update(libklug_handle hlib,
+                                         zpp_handle hzpp,
+                                         uint32_t index,
+                                         int* success);
+libklug_error libklug_mdu_ein_zpp_update_end(libklug_handle hlib,
+                                             zpp_handle hzpp,
+                                             int* success);
+libklug_error libklug_mdu_ein_zpp_exit_reset(libklug_handle hlib, int* success);
 
-int libklug_mdu_ein_zsu_salsa20_iv(libklug_handle handle,
-                                   zsu_handle zsu,
-                                   size_t firmware_index);
-int libklug_mdu_ein_zsu_erase(libklug_handle handle,
-                              zsu_handle zsu,
-                              size_t firmware_index);
-int libklug_mdu_ein_zsu_update(libklug_handle handle,
-                               zsu_handle zsu,
-                               size_t firmware_index,
-                               uint32_t index);
-int libklug_mdu_ein_zsu_crc32_start(libklug_handle handle,
-                                    zsu_handle zsu,
-                                    size_t firmware_index);
-int libklug_mdu_ein_zsu_crc32_result(libklug_handle handle);
-int libklug_mdu_ein_zsu_crc32_result_exit(libklug_handle handle);
+libklug_error libklug_mdu_ein_zsu_salsa20_iv(libklug_handle hlib,
+                                             zsu_handle hzsu,
+                                             size_t firmware_index,
+                                             int* success);
+libklug_error libklug_mdu_ein_zsu_erase(libklug_handle hlib,
+                                        zsu_handle hzsu,
+                                        size_t firmware_index,
+                                        int* success);
+libklug_error libklug_mdu_ein_zsu_update(libklug_handle hlib,
+                                         zsu_handle hzsu,
+                                         size_t firmware_index,
+                                         uint32_t index,
+                                         int* success);
+libklug_error libklug_mdu_ein_zsu_crc32_start(libklug_handle hlib,
+                                              zsu_handle hzsu,
+                                              size_t firmware_index,
+                                              int* success);
+libklug_error libklug_mdu_ein_zsu_crc32_result(libklug_handle hlib,
+                                               int* success);
+libklug_error libklug_mdu_ein_zsu_crc32_result_exit(libklug_handle hlib,
+                                                    int* success);
 
 /** ---------------------------------------------------
  *  Bridge ZPP
@@ -503,10 +365,10 @@ int libklug_mdu_ein_zsu_crc32_result_exit(libklug_handle handle);
  */
 
 zpp_handle libklug_zpp_read(char const* c, size_t length);
-void libklug_zpp_release(zpp_handle zpp);
-unsigned int libklug_zpp_blocks(zpp_handle zpp);
-char const* libklug_zpp_author(zpp_handle zpp);
-char const* libklug_zpp_email(zpp_handle zpp);
+void libklug_zpp_release(zpp_handle hzpp);
+unsigned int libklug_zpp_blocks(zpp_handle const hzpp);
+char const* libklug_zpp_author(zpp_handle const hzpp);
+char const* libklug_zpp_email(zpp_handle const hzpp);
 
 /** ---------------------------------------------------
  *  Bridge ZSU
@@ -514,26 +376,26 @@ char const* libklug_zpp_email(zpp_handle zpp);
  */
 
 zsu_handle libklug_zsu_read(char const* c, size_t length);
-void libklug_zsu_release(zsu_handle zsu);
+void libklug_zsu_release(zsu_handle hzsu);
 
-uint32_t libklug_zsu_get_firmware_count(zsu_handle const zsu);
+uint32_t libklug_zsu_get_firmware_count(zsu_handle const hzsu);
 
 // Ops on firmware
-uint32_t libklug_zsu_get_firmware_id(zsu_handle const zsu,
+uint32_t libklug_zsu_get_firmware_id(zsu_handle const hzsu,
                                      size_t const firmware_index);
-char const* libklug_zsu_get_firmware_name(zsu_handle const zsu,
+char const* libklug_zsu_get_firmware_name(zsu_handle const hzsu,
                                           size_t const firmware_index);
-char const* libklug_zsu_get_firmware_major_version(zsu_handle const zsu,
+char const* libklug_zsu_get_firmware_major_version(zsu_handle const hzsu,
                                                    size_t const firmware_index);
-char const* libklug_zsu_get_firmware_minor_version(zsu_handle const zsu,
+char const* libklug_zsu_get_firmware_minor_version(zsu_handle const hzsu,
                                                    size_t const firmware_index);
-int libklug_zsu_get_firmware_type(zsu_handle const zsu,
+int libklug_zsu_get_firmware_type(zsu_handle const hzsu,
                                   size_t const firmware_index);
-uint32_t libklug_zsu_get_firmware_block_count(zsu_handle const zsu,
+uint32_t libklug_zsu_get_firmware_block_count(zsu_handle const hzsu,
                                               size_t const firmware_index);
-uint8_t const* libklug_zsu_get_firmware_data(zsu_handle const zsu,
+uint8_t const* libklug_zsu_get_firmware_data(zsu_handle const hzsu,
                                              size_t const firmware_index);
-size_t libklug_zsu_get_firmware_data_size(zsu_handle const zsu,
+size_t libklug_zsu_get_firmware_data_size(zsu_handle const hzsu,
                                           size_t const firmware_index);
 
 #ifdef __cplusplus

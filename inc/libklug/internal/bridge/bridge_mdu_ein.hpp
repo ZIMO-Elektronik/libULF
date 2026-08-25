@@ -10,7 +10,6 @@
 
 #include <mdu/transfer_rate.hpp>
 #include "bridge_context.hpp"
-#include "bridge_worker.hpp"
 #include "bridge_zpp.hpp"
 #include "bridge_zsu.hpp"
 
@@ -21,7 +20,7 @@ namespace bridge {
  *
  */
 struct MDU_EIN {
-  MDU_EIN(Context& ctx, Worker& worker, ZPP& zpp, ZSU& zsu);
+  MDU_EIN(Context& ctx, ZPP& zpp, ZSU& zsu);
 
   // Entry
   bool enterMDU();
@@ -32,7 +31,7 @@ struct MDU_EIN {
   bool ping(uint32_t sn = 0, uint32_t id = 0);
   bool configTransferRate(mdu::TransferRate transfer_rate);
   bool binaryTreeSearch();
-  bool cvRead(uint16_t cv);
+  uint8_t cvRead(uint16_t cv);
   bool cvWrite(uint16_t cv, uint8_t value);
   bool busy();
 
@@ -63,10 +62,9 @@ struct MDU_EIN {
   bool zsuCRC32ResultExit();
 
 private:
-  Context& _ctx;   ///< Bridge context
-  Worker& _worker; ///< Worker
-  ZPP& _zpp;       ///< ZPP
-  ZSU& _zsu;       ///< ZSU
+  Context& _ctx; ///< Bridge context
+  ZPP& _zpp;     ///< ZPP
+  ZSU& _zsu;     ///< ZSU
 };
 
 } // namespace bridge

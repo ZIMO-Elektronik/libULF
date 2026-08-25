@@ -18,62 +18,67 @@ namespace bridge {
  * CTor
  *
  * \param ctx     Context
- * \param worker  Worker
  */
-COM::COM(Context& ctx, Worker& worker) : _ctx{ctx}, _worker{worker} {
-  LOG_INFO("COM bridge created");
+COM::COM(Context& ctx) : _ctx{ctx} { LOG_INFO("COM bridge created"); }
+
+/**
+ * PING
+ *
+ * \note
+ * Will throw an exception on error
+ *
+ * \retval std::string  Response
+ */
+std::string COM::ping() {
+  transmission::com::Base t{
+    _ctx.connection, "PING\r", internal::config::timeout::com::ping};
+  t.execute();
+  return t.evaluateString();
 }
 
 /**
- * PING (async)
+ * RESET
  *
- * \return true   Success
- * \return false  Busy
- */
-bool COM::ping() {
-  auto const r{_worker.emplace<transmission::com::Base>(
-    _ctx.connection, "PING\r", internal::config::timeout::com::ping)};
-  if (!r) LOG_WARN("COM ping transmission not emplaced, worker busy");
-  return r;
-}
-
-/**
- * RESET (async)
+ * \note
+ * Will throw an exception on error
  *
- * \return true   Success
- * \return false  Busy
+ * \return bool Response
  */
 bool COM::reset() {
-  auto const r{_worker.emplace<transmission::com::Base>(
-    _ctx.connection, "RESET\r", internal::config::timeout::com::reset)};
-  if (!r) LOG_WARN("COM reset transmission not emplaced, worker busy");
-  return r;
+  transmission::com::Base t{
+    _ctx.connection, "RESET\r", internal::config::timeout::com::reset};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * SUSIV2 (async)
+ * SUSIV2
  *
- * \return true   Success
- * \return false  Busy
+ * \note
+ * Will throw an exception on error
+ *
+ * \return bool Response
  */
 bool COM::susiv2() {
-  auto const r{_worker.emplace<transmission::com::Base>(
-    _ctx.connection, "SUSIV2\r", internal::config::timeout::com::susiv2)};
-  if (!r) LOG_WARN("COM susiv2 transmission not emplaced, worker busy");
-  return r;
+  transmission::com::Base t{
+    _ctx.connection, "SUSIV2\r", internal::config::timeout::com::susiv2};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * MDU_EIN (async)
+ * MDU_EIN
  *
- * \return true   Success
- * \return false  Busy
+ * \note
+ * Will throw an exception on error
+ *
+ * \return bool Response
  */
 bool COM::mdu_ein() {
-  auto const r{_worker.emplace<transmission::com::Base>(
-    _ctx.connection, "MDU_EIN\r", internal::config::timeout::com::mdu_ein)};
-  if (!r) LOG_WARN("COM mdu_ein transmission not emplaced, worker busy");
-  return r;
+  transmission::com::Base t{
+    _ctx.connection, "MDU_EIN\r", internal::config::timeout::com::mdu_ein};
+  t.execute();
+  return t.evaluateBool();
 }
 
 } // namespace bridge

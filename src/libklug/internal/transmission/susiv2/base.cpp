@@ -8,6 +8,8 @@
 
 #include "libklug/internal/transmission/susiv2/base.hpp"
 #include <ulf/susiv2.hpp>
+#include <utility>
+#include "libklug/internal/exception/e_generic.hpp"
 
 namespace transmission::susiv2 {
 
@@ -36,21 +38,24 @@ Base::Base(std::shared_ptr<internal::IConnection> conn,
   : TransmissionBase{conn, payload, timeout} {}
 
 /**
- * Evaluate SUSIV2 response
+ * Evaluate a bool
  *
- * \return true   Valid
- * \return false  Invalid
- * \todo refactor
- * \todo Insert real error code
+ * \retval bool                 Evaluated bool
+ * \retval err::Error::format   Format mismatch
  */
-res::Result Base::evaluate() {
-  if (!valid()) return res::Error{err::Error::format};
-  return res::Status{true};
+bool Base::evaluateBool() {
+  using std::operator""sv;
+  if (!valid()) {
+    throw except::generic_error{err::Error::format, "Format Mismatch"sv};
+    std::unreachable();
+  }
+  return _response.front() == ulf::susiv2::ack;
 }
 
 bool Base::valid() {
   return _response.size() >= 1uz && _response.size() <= 6uz &&
-         _response.front() == ulf::susiv2::ack;
+         (_response.front() == ulf::susiv2::ack ||
+          _response.front() == ulf::susiv2::nak);
 }
 
 } // namespace transmission::susiv2

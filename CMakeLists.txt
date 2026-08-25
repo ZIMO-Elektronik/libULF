@@ -34,8 +34,6 @@ else()
   # Default (for now)
   option(LIBKLUG_BACKEND_LIBUSB "Libusb as backend" OFF)
   option(LIBKLUG_BACKEND_LIBSERIALPORT "Libserialport as backend" ON)
-  # option(LIBKLUG_BACKEND_LIBUSB "Libusb as backend" ON)
-  # option(LIBKLUG_BACKEND_LIBSERIALPORT "Libserialport as backend" OFF)
 endif()
 
 if((LIBKLUG_BACKEND_LIBUSB AND LIBKLUG_BACKEND_LIBSERIALPORT)
@@ -61,7 +59,6 @@ endif()
 
 add_library(
   ${TARGET} SHARED
-  src/libklug/callback/functor.cpp
   src/libklug/internal/transmission/transmission_base.cpp
   src/libklug/internal/transmission/com/base.cpp
   src/libklug/internal/transmission/mdu_ein/base.cpp
@@ -75,7 +72,6 @@ add_library(
   src/libklug/internal/bridge/bridge_context.cpp
   src/libklug/internal/bridge/bridge_susiv2.cpp
   src/libklug/internal/bridge/bridge_mdu_ein.cpp
-  src/libklug/internal/bridge/bridge_worker.cpp
   src/libklug/internal/bridge/bridge_zpp.cpp
   src/libklug/internal/bridge/bridge_zsu.cpp
   src/libklug/libklug.cpp)

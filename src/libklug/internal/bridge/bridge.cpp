@@ -21,38 +21,7 @@ Bridge::Bridge(std::shared_ptr<internal::IConnection> conn) : _ctx{conn} {}
  * \retval LIBUSB_SUCCESS Success
  *
  */
-int Bridge::init() { return _ctx.connection->init(); }
-
-/**
- * Register callback
- *
- * \param cb Callback
- *
- * \todo Replace raw cb with funktor
- */
-void Bridge::registerCB(std::unique_ptr<callback::IFunctor> cb) {
-  _ctx.cb = std::move(cb);
-}
-
-/**
- * Deregister callback
- *
- * \todo Not thread safe, does it neet to be?
- */
-void Bridge::deregisterCB() {
-  if (_ctx.cb) _ctx.cb.reset();
-}
-
-/**
- * Wait and get result
- *
- * \return result_t Result
- *
- * \warning Waiting for a result without a pending operation will wait forever
- *
- * \todo Uhm... Refactor
- */
-std::future<res::Result&>& Bridge::future() { return _ctx.result; }
+void Bridge::init() { return _ctx.connection->init(); }
 
 /**
  * Open usb device
@@ -63,7 +32,7 @@ std::future<res::Result&>& Bridge::future() { return _ctx.result; }
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-int Bridge::open(uint16_t vid, uint16_t pid) {
+void Bridge::open(uint16_t vid, uint16_t pid) {
   return _ctx.connection->open(vid, pid);
 }
 
@@ -77,34 +46,7 @@ int Bridge::open(uint16_t vid, uint16_t pid) {
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-int Bridge::openFd(int Fd) { return _ctx.connection->openFd(Fd); }
-
-/**
- * Configure usb device
- *
- * \return int
- * \retval LIBUSB_ERROR   Error
- * \retval LIBUSB_SUCCESS Success
- */
-int Bridge::config() { return _ctx.connection->config(); }
-
-/**
- * Claim usb device
- *
- * \return int
- * \retval LIBUSB_ERROR   Error
- * \retval LIBUSB_SUCCESS Success
- */
-int Bridge::claim() { return _ctx.connection->claim(); }
-
-/**
- * Release usb device
- *
- * \return int
- * \retval LIBUSB_ERROR   Error
- * \retval LIBUSB_SUCCESS Success
- */
-int Bridge::release() { return _ctx.connection->release(); }
+void Bridge::openFd(int Fd) { return _ctx.connection->openFd(Fd); }
 
 /**
  * Close usb device

@@ -7,9 +7,12 @@
  */
 
 #include "libklug/internal/transmission/mdu_ein/base.hpp"
-#include <libklug/result/wrapper/error.hpp>
-#include <libklug/result/wrapper/status.hpp>
 #include <ulf/mdu_ein.hpp>
+#include <utility>
+#include "libklug/internal/exception/e_generic.hpp"
+#include "libklug/result/wrapper/error.hpp"
+#include "libklug/result/wrapper/status.hpp"
+
 namespace transmission::mdu_ein {
 
 /**
@@ -37,15 +40,18 @@ Base::Base(std::shared_ptr<internal::IConnection> conn,
   : TransmissionBase{conn, payload, ulf::mdu_ein::end, timeout} {}
 
 /**
- * Evaluate
+ * Evaluate a bool
  *
- * \return Result Result
- * \todo Insert a real error code
+ * \retval bool                 Evaluated bool
+ * \retval err::Error::format   Format mismatch
  */
-res::Result Base::evaluate() {
-  if (!valid()) return res::Error{err::Error::format};
-  return res::Status{_response[0] == ulf::mdu_ein::ack &&
-                     _response[2] == ulf::mdu_ein::ack};
+bool Base::evaluateBool() {
+  using std::operator""sv;
+  if (!valid()) {
+    throw except::generic_error{err::Error::format, "Format mismatch"sv};
+    std::unreachable();
+  }
+  return _response[0] == ulf::mdu_ein::ack && _response[2] == ulf::mdu_ein::ack;
 }
 
 /**

@@ -14,15 +14,6 @@ using namespace std::chrono_literals;
 
 constexpr unsigned int max_retries{5uz};
 
-bool success(result r) {
-  if (r.type != result_type::status) {
-    std::cout << "Unexpected Result" << std::endl;
-    return false;
-  }
-
-  return r.data.success == LIBKLUG_TRUE;
-}
-
 int main() {
   auto lib{setup::connect()};
   if (!lib) return -1;
@@ -33,49 +24,47 @@ int main() {
   size_t fwIndex{};
   size_t const maxFwIndex{libklug_zsu_get_firmware_count(zsu) - 1uz};
 
+  int result{}; // Result container (implicit bool)
+
   gsl::final_action a([&]() {
-    libklug_com_reset(lib);
-    if (!success(libklug_job_await(lib))) {
+    if (libklug_com_reset(lib, &result) != libklug_error::ok || !result) {
       std::cout << "Unable to RESET device" << std::endl;
-      return -1;
     }
     libklug_zsu_release(zsu);
     setup::disconnect(lib);
-    return 0;
   });
 
-  result r{};
-
-  libklug_com_mdu_ein(lib);
-  r = libklug_job_await(lib);
-  if (!success(r)) {
+  std::cout << "Enter MDU_EIN" << std::endl;
+  if (libklug_com_mdu_ein(lib, &result) != libklug_error::ok || !result) {
     std::cout << "Unable to enter MDU_EIN" << std::endl;
     return -1;
-  }
-  std::cout << "Entered MDU_EIN" << std::endl;
+  };
 
-  libklug_mdu_ein_enter_mdu(lib);
-  r = libklug_job_await(lib);
-  if (!success(r)) {
+  std::cout << "Entering Bootloader" << std::endl;
+  if (libklug_mdu_ein_enter_mdu(lib, &result) != libklug_error::ok || !result) {
     std::cout << "Unable to enter Decoder BL" << std::endl;
     return -1;
   }
-  std::cout << "Entered Bootloader via MDU" << std::endl;
 
-  libklug_mdu_ein_config_transfer_rate(lib, 3);
-  r = libklug_job_await(lib);
-  if (!success(r)) {
+  std::cout << "Set transfer rate to slow" << std::endl;
+  if (libklug_mdu_ein_config_transfer_rate(lib, 3, &result) !=
+        libklug_error::ok ||
+      !result) {
     std::cout << "Unable to set Transfer Rate" << std::endl;
     return -1;
   }
-  std::cout << "Set transfer rate to slow" << std::endl;
 
   std::cout << "Searching decoder" << std::endl;
   bool found{};
   do { // Caution, this assumes at least one firmware in file
-    libklug_mdu_ein_ping(lib, 0uz, libklug_zsu_get_firmware_id(zsu, fwIndex));
-    // Inverted success because of ping
-    if (success(libklug_job_await(lib))) {
+    if (libklug_mdu_ein_ping(
+          lib, 0uz, libklug_zsu_get_firmware_id(zsu, fwIndex), &result) !=
+        libklug_error::ok) {
+      std::cout << "Error during pinging" << std::endl;
+      return -1;
+    }
+
+    if (result) {
       found = true;
       break;
     }
@@ -91,46 +80,43 @@ int main() {
     return -1;
   }
 
-  libklug_mdu_ein_zsu_salsa20_iv(lib, zsu, fwIndex);
-  r = libklug_job_await(lib);
-  if (!success(r)) {
+  std::cout << "Initialize Salsa20" << std::endl;
+  if (libklug_mdu_ein_zsu_salsa20_iv(lib, zsu, fwIndex, &result) || !result) {
     std::cout << "Unable to init Salsa20" << std::endl;
     return -1;
   }
-  std::cout << "Salsa20 initialized" << std::endl;
 
-  libklug_mdu_ein_zsu_erase(lib, zsu, fwIndex);
-  r = libklug_job_await(lib);
-  if (!success(r)) {
+  std::cout << "Erasing Flash" << std::endl;
+  if (libklug_mdu_ein_zsu_erase(lib, zsu, fwIndex, &result) !=
+        libklug_error::ok ||
+      !result) {
     std::cout << "Unable to erase flash" << std::endl;
     return -1;
   }
-  std::cout << "Erasing flash" << std::endl;
 
   for (int i{0}; i < 10; i++) { // Loop for 10s
-    libklug_mdu_ein_busy(lib);
-    libklug_job_await(lib);
+    libklug_mdu_ein_busy(lib, &result);
     std::this_thread::sleep_for(1000ms);
   }
   std::cout << "Flash erased" << std::endl;
 
-  // std::cout << "Progress" << std::endl;
+  std::cout << "Progress" << std::endl;
   long const blocks{libklug_zsu_get_firmware_block_count(zsu, fwIndex)};
   double progress{0.0};
   unsigned int retry{0uz};
   for (long i{0}; i < blocks; i++) {
-    // int barWidth = 70;
-    // std::cout << "[";
-    // int pos = static_cast<int>(barWidth * progress);
-    // for (int j{0}; j < barWidth; j++) {
-    //   if (j < pos) std::cout << "=";
-    //   else if (j == pos) std::cout << ">";
-    //   else std::cout << " ";
-    // }
+    int barWidth = 70;
+    std::cout << "[";
+    int pos = static_cast<int>(barWidth * progress);
+    for (int j{0}; j < barWidth; j++) {
+      if (j < pos) std::cout << "=";
+      else if (j == pos) std::cout << ">";
+      else std::cout << " ";
+    }
 
-    libklug_mdu_ein_zsu_update(lib, zsu, fwIndex, i);
-    r = libklug_job_await(lib);
-    if (!success(r)) {
+    if (libklug_mdu_ein_zsu_update(lib, zsu, fwIndex, i, &result) !=
+          libklug_error::ok ||
+        !result) {
       if (retry >= max_retries) {
         std::cout << "Error at block " << i << std::endl;
         return -1;
@@ -139,24 +125,24 @@ int main() {
       i--;
     } else retry = 0;
 
-    // progress = static_cast<double>(i + 1) / static_cast<double>(blocks);
-    // std::cout << "] Progress " << static_cast<int>(progress * 100) << "%";
-    // std::cout << "\r";
-    // std::cout.flush();
+    progress = static_cast<double>(i + 1) / static_cast<double>(blocks);
+    std::cout << "] Progress " << static_cast<int>(progress * 100) << "%";
+    std::cout << "\r";
+    std::cout.flush();
   }
   std::cout << std::endl;
 
-  libklug_mdu_ein_zsu_crc32_start(lib, zsu, fwIndex);
-  r = libklug_job_await(lib);
-  if (!success(r)) {
+  if (libklug_mdu_ein_zsu_crc32_start(lib, zsu, fwIndex, &result) !=
+        libklug_error::ok ||
+      !result) {
     std::cout << "Unable to init CRC32 verification" << std::endl;
     return -1;
   }
   std::cout << "CRC32 check started" << std::endl;
 
-  libklug_mdu_ein_zsu_crc32_result_exit(lib);
-  r = libklug_job_await(lib);
-  if (!success(r)) {
+  if (libklug_mdu_ein_zsu_crc32_result_exit(lib, &result) !=
+        libklug_error::ok ||
+      !result) {
     std::cout << "Bad CRC32" << std::endl;
     return -1;
   }

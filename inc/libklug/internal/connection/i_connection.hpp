@@ -19,15 +19,11 @@ namespace internal {
  *
  */
 struct IConnection {
-  virtual int init() = 0;
+  virtual void init() = 0;
 
-  virtual int open(uint16_t pid, uint16_t vid) = 0;
-  virtual int openFd(int Fd) = 0;
+  virtual void open(uint16_t pid, uint16_t vid) = 0;
+  virtual void openFd(int Fd) = 0;
 
-  virtual int config() = 0;
-  virtual int claim() = 0;
-
-  virtual int release() = 0;
   virtual void close() = 0;
 
   virtual void flush() = 0;

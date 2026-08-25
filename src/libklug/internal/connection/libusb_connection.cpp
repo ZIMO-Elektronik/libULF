@@ -9,6 +9,8 @@
 #include "libklug/internal/connection/libusb_connection.hpp"
 #include <cassert>
 #include <cstdint>
+#include <format>
+#include <utility>
 #include <vector>
 #include <ztl/ztl.hpp>
 #include "libklug/internal/exception/e_generic.hpp"
@@ -23,13 +25,16 @@ namespace internal {
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-int LibusbConnection::init() {
+void LibusbConnection::init() {
+  using std::operator""sv;
 #ifdef ANDROID
   // We can't search devices on Android
   libusb_set_option(NULL, LIBUSB_OPTION_WEAK_AUTHORITY);
   libusb_set_option(nullptr, LIBUSB_OPTION_NO_DEVICE_DISCOVERY);
 #endif
-  return libusb_init(nullptr);
+  if (libusb_init(nullptr))
+    throw except::generic_error(err::Error::usb,
+                                "Unable to init libusb connection"sv);
 }
 
 /**
@@ -43,21 +48,28 @@ int LibusbConnection::init() {
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-int LibusbConnection::open(uint16_t vid, uint16_t pid) {
+void LibusbConnection::open(uint16_t vid, uint16_t pid) {
   if (_handle) {
-    LOGE("Attempted to open device {:04x}:{:04x}, but a device exists already ",
-         vid,
-         pid);
-    return LIBUSB_ERROR_OTHER;
+    throw except::generic_error{
+      err::Error::usb,
+      std::format(
+        "Attempted to open device {:04x}:{:04x}, but a device exists already ",
+        vid,
+        pid)};
+    std::unreachable();
   }
   _handle = libusb_open_device_with_vid_pid(nullptr, vid, pid);
   if (!_handle) {
-    LOGE("No device {:04x}:{:04x} could be opened.", vid, pid);
-    return LIBUSB_ERROR_OTHER;
+    throw except::generic_error{
+      err::Error::usb,
+      std::format("No device {:04x}:{:04x} could be opened.", vid, pid)};
+    std::unreachable();
   }
 
   LOGD("Opened device {:04x}:{:04x}", vid, pid);
-  return LIBUSB_SUCCESS;
+
+  config();
+  claim();
 }
 
 /**
@@ -71,22 +83,30 @@ int LibusbConnection::open(uint16_t vid, uint16_t pid) {
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-int LibusbConnection::openFd(int Fd) {
+void LibusbConnection::openFd(int Fd) {
   if (_handle) {
-    LOGE("Attempted to open device with descriptor ID {}, but a device exists "
-         "already",
-         Fd);
-    return LIBUSB_ERROR_OTHER;
+    throw except::generic_error{
+      err::Error::usb,
+      std::format(
+        "Attempted to open device with descriptor ID {}, but a device exists "
+        "already",
+        Fd)};
+    std::unreachable();
   }
   auto rc{libusb_wrap_sys_device(nullptr, (intptr_t)Fd, &_handle)};
   if (rc != LIBUSB_SUCCESS) {
-    LOGE("Unable to open device with descriptor ID {}, [{}]",
-         Fd,
-         libusb_error_name(rc));
+    throw except::generic_error{
+      err::Error::usb,
+      std::format("Unable to open device with descriptor ID {}, [{}]",
+                  Fd,
+                  libusb_error_name(rc))};
+    std::unreachable();
   }
 
   LOGD("Wrapped sys device");
-  return rc;
+
+  config();
+  claim();
 }
 
 /**
@@ -98,10 +118,13 @@ int LibusbConnection::openFd(int Fd) {
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-int LibusbConnection::config() {
+void LibusbConnection::config() {
+  using std::operator""sv;
   if (!_handle) {
-    LOGE("Attempted to configure connection without an open device!");
-    return LIBUSB_ERROR_OTHER;
+    throw except::generic_error{
+      err::Error::usb,
+      "Attempted to configure connection without an open device!"sv};
+    std::unreachable();
   }
 
   // Populate endpoints
@@ -109,9 +132,11 @@ int LibusbConnection::config() {
   auto rc{
     libusb_get_active_config_descriptor(libusb_get_device(_handle), &config)};
   if (rc != LIBUSB_SUCCESS) {
-    LOGE("Unable to retrieve config descriptor. Error: {}",
-         libusb_error_name(rc));
-    return rc;
+    throw except::generic_error{
+      err::Error::usb,
+      std::format("Unable to retrieve config descriptor. Error: {}",
+                  libusb_error_name(rc))};
+    std::unreachable();
   }
 
   std::vector<uint8_t> tx_eps, rx_eps;
@@ -138,12 +163,18 @@ int LibusbConnection::config() {
   libusb_free_config_descriptor(config);
 
   if (tx_eps.size() != 1) {
-    LOGE("Found {} TX Endpoints, but need exactly ONE", tx_eps.size());
-    return LIBUSB_ERROR_OTHER;
+    throw except::generic_error{
+      err::Error::usb,
+      std::format("Found {} TX Endpoints, but need exactly ONE",
+                  tx_eps.size())};
+    std::unreachable();
   }
   if (rx_eps.size() != 1) {
-    LOGE("Found {} RX Endpoints, but need exactly ONE", rx_eps.size());
-    return LIBUSB_ERROR_OTHER;
+    throw except::generic_error{
+      err::Error::usb,
+      std::format("Found {} RX Endpoints, but need exactly ONE",
+                  rx_eps.size())};
+    std::unreachable();
   }
 
   _tx_ep = tx_eps.front();
@@ -151,8 +182,6 @@ int LibusbConnection::config() {
 
   LOGD("TX-EP address: x{:02x}", _tx_ep);
   LOGD("RX-EP address: x{:02x}", _rx_ep);
-
-  return rc;
 }
 
 /**
@@ -162,10 +191,13 @@ int LibusbConnection::config() {
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-int LibusbConnection::claim() {
+void LibusbConnection::claim() {
+  using std::operator""sv;
   if (!_handle) {
-    LOGE("Attempted to claim an interface without an open device!");
-    return LIBUSB_ERROR_OTHER;
+    throw except::generic_error{
+      err::Error::usb,
+      "Attempted to claim an interface without an open device!"sv};
+    std::unreachable();
   }
 
   LOGD("TX_EP - {} RX_EP - {} Interface {}", _tx_ep, _rx_ep, _interface);
@@ -176,8 +208,11 @@ int LibusbConnection::claim() {
 
     rc = libusb_detach_kernel_driver(_handle, _interface);
     if (rc != LIBUSB_SUCCESS) {
-      LOGE("Unable to detach kernel driver. Error: {}", libusb_error_name(rc));
-      return rc;
+      throw except::generic_error{
+        err::Error::usb,
+        std::format("Unable to detach kernel driver. Error: {}",
+                    libusb_error_name(rc))};
+      std::unreachable();
     }
     LOGD("Detached kernel driver from interface {}", _interface);
   } else {
@@ -188,14 +223,15 @@ int LibusbConnection::claim() {
 
   rc = libusb_claim_interface(_handle, _interface);
   if (rc != LIBUSB_SUCCESS) {
-    LOGE("Unable to claim interface {}. Error: {}",
-         _interface,
-         libusb_error_name(rc));
-    return rc;
+    throw except::generic_error{
+      err::Error::usb,
+      std::format("Unable to claim interface {}. Error: {}",
+                  _interface,
+                  libusb_error_name(rc))};
+    std::unreachable();
   }
 
   LOGD("Successfully claimed interface {}", _interface);
-  return rc;
 }
 
 /**
@@ -205,19 +241,23 @@ int LibusbConnection::claim() {
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-int LibusbConnection::release() {
+void LibusbConnection::release() {
+  using std::operator""sv;
   if (!_handle) {
-    LOGE("Attempted to release an interface without an open device!");
-    return LIBUSB_ERROR_OTHER;
+    throw except::generic_error{
+      err::Error::usb,
+      "Attempted to release an interface without an open device!"sv};
+    std::unreachable();
   }
 
   auto rc{libusb_release_interface(_handle, _interface)};
   if (rc != LIBUSB_SUCCESS) {
-    LOGE("Unable to release interface. Error: {}", libusb_error_name(rc));
-    return rc;
+    throw except::generic_error{
+      err::Error::usb,
+      std::format("Unable to release interface. Error: {}",
+                  libusb_error_name(rc))};
+    std::unreachable();
   }
-
-  return -1;
 }
 
 /**
@@ -228,6 +268,8 @@ int LibusbConnection::release() {
  *
  */
 void LibusbConnection::close() {
+  release();
+
   if (!_handle) {
     LOGE("Attemted to close a device without an open device!");
     return;

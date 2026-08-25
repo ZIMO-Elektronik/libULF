@@ -29,7 +29,7 @@ struct Base : public TransmissionBase {
 
   virtual ~Base() = default;
 
-  virtual res::Result evaluate() override;
+  virtual bool evaluateBool() override;
 
 protected:
   bool valid();

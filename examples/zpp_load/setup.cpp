@@ -14,17 +14,10 @@ libklug_handle connect() {
   rc = libklug_open(handle, 0x1FC9u, 0x81C1u);
   if (rc != 0) abort();
 
-  rc = libklug_config(handle);
-  if (rc != 0) abort();
-
-  rc = libklug_claim(handle);
-  if (rc != 0) abort();
-
   return handle;
 }
 
 void disconnect(libklug_handle handle) {
-  libklug_release(handle);
   libklug_close(handle);
   libklug_destroy(handle);
 }

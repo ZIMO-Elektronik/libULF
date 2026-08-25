@@ -27,7 +27,7 @@ struct Base : public TransmissionBase {
        std::size_t timeout);
   virtual ~Base() = default;
 
-  virtual res::Result evaluate() override;
+  virtual bool evaluateBool() override;
 
 protected:
   bool valid();

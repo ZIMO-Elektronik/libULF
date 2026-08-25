@@ -22,6 +22,7 @@
 #pragma once
 
 #include <cassert>
+#include <expected>
 #include <filesystem>
 #include <functional>
 #include <optional>
@@ -298,7 +299,7 @@ struct ZSU {
 
   private:
     // Internal CTors
-    FirmwareIterator(zsu_handle zsu, size_t fwIndex = 0uz)
+    FirmwareIterator(zsu_handle zsu, unsigned int fwIndex = 0uz)
       : _zsu{zsu}, _fwIndex{fwIndex} {}
 
     zsu_handle _zsu;         ///< Underlying ZSU handle
@@ -382,48 +383,57 @@ struct COM {
   ~COM() = default;
 
   /**
-   * Start PING transmission
+   * PING
    *
-   * \details At some point after start, this will produce a \ref res::String
-   * result containing the response string.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return std::string  Response
+   * \return err::Error   Error
    */
-  bool ping() { return libklug_com_ping(_lib) > 0; }
+  std::expected<std::string, err::Error> ping() {
+    std::string r{};
+    r.resize(128uz);
+    size_t s{r.size()};
+    if (libklug_com_ping(_lib, r.data(), &s) == libklug_error::ok) {
+      r.resize(s);
+      return r;
+    }
+    return std::unexpected(err::Error::unknown);
+  }
 
   /**
-   * Start RESET transmission
+   * RESET
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool reset() { return libklug_com_reset(_lib) > 0; }
+  std::expected<bool, err::Error> reset() {
+    int r{};
+    if (libklug_com_reset(_lib, &r) == libklug_error::ok) return r;
+    return std::unexpected(err::Error::unknown);
+  }
 
   /**
-   * Start SUSIV2 transmission
+   * SUSIV2
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool susiv2() { return libklug_com_susiv2(_lib) > 0; }
+  std::expected<bool, err::Error> susiv2() {
+    int r{};
+    if (libklug_com_susiv2(_lib, &r) == libklug_error::ok) return r;
+    return std::unexpected(err::Error::unknown);
+  }
 
   /**
-   * Start MDU_EIN transmission
+   * MDU_EIN
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool mdu_ein() { return libklug_com_mdu_ein(_lib) > 0; }
+  std::expected<bool, err::Error> mdu_ein() {
+    int r{};
+    if (libklug_com_mdu_ein(_lib, &r) == libklug_error::ok) return r;
+    return std::unexpected(err::Error::unknown);
+  }
 
 private:
   // Internal CTor
@@ -452,102 +462,106 @@ struct SUSIV2 {
   ~SUSIV2() = default;
 
   /**
-   * Starts a Cv read transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Cv
-   * result.
+   * CV read
    *
    * \param cv    Cv address to read
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return uint8_t      Response
+   * \return err::Error   Error
    */
-  bool cvRead(uint16_t cv) { return libklug_susiv2_cv_read(_lib, cv) > 0; }
+  std::expected<uint8_t, err::Error> cvRead(uint16_t cv) {
+    uint8_t r{};
+    if (auto const e{libklug_susiv2_cv_read(_lib, cv, &r) == libklug_error::ok})
+      return r;
+    else return std::unexpected(static_cast<err::Error>(e));
+  }
 
   /**
-   * Starts a Cv write transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * CV write
    *
    * \param cv    Cv address to write
    * \param value Cv value to write
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool cvWrite(uint16_t cv, uint8_t value) {
-    return libklug_susiv2_cv_write(_lib, cv, value) > 0;
+  std::expected<bool, err::Error> cvWrite(uint16_t cv, uint8_t value) {
+    int r{};
+    if (auto const e{libklug_susiv2_cv_write(_lib, cv, value, &r)}) return r;
+    else return std::unexpected(static_cast<err::Error>(e));
   }
 
   /**
-   * Starts a ZPP erase transmission
+   * ZPP erase
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool zppErase() { return libklug_susiv2_zpp_erase(_lib) > 0; }
-
-  /**
-   * Starts a ZPP write transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \param zpp
-   * \param index
-   * \return true   Started
-   * \return false  Busy
-   */
-  bool zppWrite(ZPP& zpp, uint32_t index) {
-    return libklug_susiv2_zpp_write(_lib, static_cast<zpp_handle>(zpp), index) >
-           0;
+  std::expected<bool, err::Error> zppErase() {
+    int r{};
+    if (auto const e{libklug_susiv2_zpp_erase(_lib, &r)}) return r;
+    else return std::unexpected(static_cast<err::Error>(e));
   }
 
   /**
-   * Starts a Features transmission
+   * ZPP write
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * \param zpp     ZPP
+   * \param index   Block index
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool features() { return libklug_susiv2_features(_lib) > 0; }
+  std::expected<bool, err::Error> zppWrite(ZPP& zpp, uint32_t index) {
+    int r{};
+    if (auto const e{libklug_susiv2_zpp_write(
+          _lib, static_cast<zpp_handle>(zpp), index, &r)})
+      return r;
+    else return std::unexpected(static_cast<err::Error>(e));
+  }
 
   /**
-   * Starts an Exit transmission
+   * Features
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * \return bool         Response
+   * \return err::Error   Error
+   */
+  std::expected<bool, err::Error> features() {
+    int r{};
+    if (auto const e{libklug_susiv2_features(_lib, &r)}) return r;
+    else return std::unexpected(static_cast<err::Error>(e));
+  }
+
+  /**
+   * Exit
    *
    * \param reboot      Reboot decoder
    * \param cv8_reset   Cv8 reset (reload CVs from flash)
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool exit(bool reboot, bool cv8_reset) {
-    return libklug_susiv2_exit(_lib, reboot, cv8_reset) > 0;
+  std::expected<bool, err::Error> exit(bool reboot, bool cv8_reset) {
+    int r{};
+    if (auto const e{libklug_susiv2_exit(_lib, reboot, cv8_reset, &r)})
+      return r;
+    else return std::unexpected(static_cast<err::Error>(e));
   }
 
   /**
-   * Starts a ZPP LC DC Query
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZPP LC DC
    *
    * \param zpp   ZPP
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool zppLcDcQuery(ZPP& zpp) {
-    return libklug_susiv2_zpp_lc_dc_query(_lib, static_cast<zpp_handle>(zpp)) >
-           0;
+  std::expected<bool, err::Error> zppLcDcQuery(ZPP& zpp) {
+    int r{};
+    if (auto const e{libklug_susiv2_zpp_lc_dc_query(
+          _lib, static_cast<zpp_handle>(zpp), &r)})
+      return r;
+    else return std::unexpected(static_cast<err::Error>(e));
   }
 
 private:
@@ -577,66 +591,69 @@ struct MDU_EIN {
   ~MDU_EIN() = default;
 
   /**
-   * Starts a MDU (Powercycle) entry transmission
+   * MDU (Powercycle) entry
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool enterMDU() { return libklug_mdu_ein_enter_mdu(_lib); }
-
-  /**
-   * Starts a DCC ZSU entry transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \todo This needs be able to send at least a pair of sn and id. Currently,
-   * the lib auto-sends zero for both.
-   *
-   * \return true   Started
-   * \return false  Busy
-   */
-  bool enterDCCZSU(uint32_t id = 0uz, uint32_t sn = 0uz, bool done = true) {
-    return libklug_mdu_ein_enter_dcc_zsu(_lib, id, sn, done);
+  std::expected<bool, err::Error> enterMDU() {
+    int r{};
+    if (auto const e{libklug_mdu_ein_enter_mdu(_lib, &r)}) return r;
+    else return std::unexpected(static_cast<err::Error>(e));
   }
 
   /**
-   * Starts a DCC ZPP entry transmission
+   * DCC ZSU entry
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * \param id    Decoder ID
+   * \param sh    Decoder serial number
+   * \param done  `true` done with entry, `false` more [id,sn] pairs will follow
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool enterDCCZPP(uint32_t sn = 0uz, bool done = true) {
-    return libklug_mdu_ein_enter_dcc_zpp(_lib, sn, done);
+  std::expected<bool, err::Error>
+  enterDCCZSU(uint32_t id = 0uz, uint32_t sn = 0uz, bool done = true) {
+    int r{};
+    if (auto const e{libklug_mdu_ein_enter_dcc_zsu(_lib, id, sn, done, &r)})
+      return r;
+    else return std::unexpected(static_cast<err::Error>(e));
   }
 
   /**
-   * Starts a ping transmission
+   * DCC ZPP entry
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * \param sn    Decoder ID
+   * \param done  `true` done with entry, `false` more sn will follow
+   *
+   * \return bool         Response
+   * \return err::Error   Error
+   */
+  std::expected<bool, err::Error> enterDCCZPP(uint32_t sn = 0uz,
+                                              bool done = true) {
+    int r{};
+    if (auto const e{libklug_mdu_ein_enter_dcc_zpp(_lib, sn, done, &r)})
+      return r;
+    else return std::unexpected(static_cast<err::Error>(e));
+  }
+
+  /**
+   * Ping
    *
    * \param sn  Decoder serial number
    * \param id  Decoder ID
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool ping(uint32_t sn, uint32_t id) {
-    return libklug_mdu_ein_ping(_lib, sn, id);
+  std::expected<bool, err::Error> ping(uint32_t sn, uint32_t id) {
+    int r{};
+    if (auto const e{libklug_mdu_ein_ping(_lib, sn, id, &r)}) return r;
+    else return std::unexpected(static_cast<err::Error>(e));
   }
 
   /**
-   * Starts a config transfer rate transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * Config transfer rate
    *
    * \note Both, the decoder speed and device speed will be updated. If the
    * update fails, device speed will be set to fallback.
@@ -646,228 +663,241 @@ struct MDU_EIN {
    *
    * \param speed   Speed to set
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool configTransferRate(mdu::Speed speed) {
-    return libklug_mdu_ein_config_transfer_rate(_lib,
-                                                std::to_underlying(speed));
+  std::expected<bool, err::Error> configTransferRate(mdu::Speed speed) {
+    int r{};
+    if (auto const e{libklug_mdu_ein_config_transfer_rate(
+          _lib, std::to_underlying(speed), &r)})
+      return r;
+    else return std::unexpected(static_cast<err::Error>(e));
   }
 
   /**
-   * Starts a Cv read transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Cv
-   * result.
+   * CV read
    *
    * \param cv  Cv address to read
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return uint8_t      Response
+   * \return err::Error   Error
    */
-  bool cvRead(uint16_t cv) { return libklug_mdu_ein_cv_read(_lib, cv); }
+  std::expected<uint8_t, err::Error> cvRead(uint16_t cv) {
+    uint8_t r{};
+    if (auto const e{libklug_mdu_ein_cv_read(_lib, cv, &r)}) return r;
+    else return std::unexpected(static_cast<err::Error>(e));
+  }
 
   /**
-   * Starts a Cv write transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * CV write
    *
    * \param cv    Cv address to write
    * \param value Cv value to write
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool cvWrite(uint16_t cv, uint8_t value) {
-    return libklug_mdu_ein_cv_write(_lib, cv, value);
+  std::expected<bool, err::Error> cvWrite(uint16_t cv, uint8_t value) {
+    int r{};
+    if (auto const e{libklug_mdu_ein_cv_write(_lib, cv, value, &r)}) return r;
+    else return std::unexpected(static_cast<err::Error>(e));
   }
 
   /**
-   * Starts a busy transmission
+   * Busy
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool busy() { return libklug_mdu_ein_busy(_lib); }
+  std::expected<bool, err::Error> busy() {
+    int r{};
+    if (auto const e{libklug_mdu_ein_busy(_lib, &r)}) return r;
+    else return std::unexpected(static_cast<err::Error>(e));
+  }
 
   /**
-   * Starts a ZPP valid query transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZPP valid query
    *
    * \param zpp   ZPP
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool zppValidQuery(ZPP& zpp) {
-    return libklug_mdu_ein_zpp_valid_query(_lib, static_cast<zpp_handle>(zpp));
+  std::expected<bool, err::Error> zppValidQuery(ZPP& zpp) {
+    int r{};
+    if (auto const e{libklug_mdu_ein_zpp_valid_query(
+          _lib, static_cast<zpp_handle>(zpp), &r)})
+      return r;
+    else return std::unexpected(static_cast<err::Error>(e));
   }
 
   /**
-   * Starts a ZPP LC DC query transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZPP LC DC query
    *
    * \param zpp   ZPP
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool zppLcDcQuery(ZPP& zpp) {
-    return libklug_mdu_ein_zpp_lc_dc_query(_lib, static_cast<zpp_handle>(zpp));
+  std::expected<bool, err::Error> zppLcDcQuery(ZPP& zpp) {
+    int r{};
+    if (auto const e{libklug_mdu_ein_zpp_lc_dc_query(
+          _lib, static_cast<zpp_handle>(zpp), &r)})
+      return r;
+    else return std::unexpected(static_cast<err::Error>(e));
   }
 
   /**
-   * Starts a ZPP erase transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZPP erase
    *
    * \param zpp ZPP
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool zppErase(ZPP& zpp) {
-    return libklug_mdu_ein_zpp_erase(_lib, static_cast<zpp_handle>(zpp));
+  std::expected<bool, err::Error> zppErase(ZPP& zpp) {
+    int r{};
+    if (auto const e{
+          libklug_mdu_ein_zpp_erase(_lib, static_cast<zpp_handle>(zpp), &r)})
+      return r;
+    else return std::unexpected(static_cast<err::Error>(e));
   }
 
   /**
-   * Starts a ZPP update transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZPP update
    *
    * \param zpp   ZPP
    * \param index Block index
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool zppUpdate(ZPP& zpp, uint32_t index) {
-    return libklug_mdu_ein_zpp_update(
-      _lib, static_cast<zpp_handle>(zpp), index);
+  std::expected<bool, err::Error> zppUpdate(ZPP& zpp, uint32_t index) {
+    int r{};
+    if (auto const e{libklug_mdu_ein_zpp_update(
+          _lib, static_cast<zpp_handle>(zpp), index, &r)})
+      return r;
+    else return std::unexpected(static_cast<err::Error>(e));
   }
 
   /**
-   * Starts a ZPP update end transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZPP update end
    *
    * \param zpp ZPP
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool zppUpdateEnd(ZPP& zpp) {
-    return libklug_mdu_ein_zpp_update_end(_lib, static_cast<zpp_handle>(zpp));
+  std::expected<bool, err::Error> zppUpdateEnd(ZPP& zpp) {
+    int r{};
+    if (auto const e{libklug_mdu_ein_zpp_update_end(
+          _lib, static_cast<zpp_handle>(zpp), &r)})
+      return r;
+    else return std::unexpected(static_cast<err::Error>(e));
   }
 
   /**
-   * Starts a ZPP exit reset transmission
+   * ZPP exit reset
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool zppExitReset() { return libklug_mdu_ein_zpp_exit_reset(_lib); }
+  std::expected<bool, err::Error> zppExitReset() {
+    int r{};
+    if (auto const e{libklug_mdu_ein_zpp_exit_reset(_lib, &r)}) return r;
+    else return std::unexpected(static_cast<err::Error>(e));
+  }
 
   /**
-   * Starts a ZSU salsa20 init transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZSU salsa20
    *
    * \param firmware  FirmwareIterator
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool zsuSalsa20Iv(ZSU::FirmwareIterator& firmware) {
-    return libklug_mdu_ein_zsu_salsa20_iv(
-      _lib, firmware._zsu, firmware._fwIndex);
+  std::expected<bool, err::Error>
+  zsuSalsa20Iv(ZSU::FirmwareIterator& firmware) {
+    int r{};
+    if (auto const e{libklug_mdu_ein_zsu_salsa20_iv(
+          _lib, firmware._zsu, firmware._fwIndex, &r)})
+      return r;
+    else return std::unexpected(static_cast<err::Error>(e));
   }
 
   /**
-   * Starts a ZSU erase transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZSU erase
    *
    * \param firmware  FirmwareIterator
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool zsuErase(ZSU::FirmwareIterator& firmware) {
-    return libklug_mdu_ein_zsu_erase(_lib, firmware._zsu, firmware._fwIndex);
+  std::expected<bool, err::Error> zsuErase(ZSU::FirmwareIterator& firmware) {
+    int r{};
+    if (auto const e{libklug_mdu_ein_zsu_erase(
+          _lib, firmware._zsu, firmware._fwIndex, &r)})
+      return r;
+    else return std::unexpected(static_cast<err::Error>(e));
   }
 
   /**
-   * Starts a ZSU update transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZSU update
    *
    * \param firmware  FirmwareIterator
    * \param index     Block index
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool zsuUpdate(ZSU::FirmwareIterator& firmware, uint32_t index) {
-    return libklug_mdu_ein_zsu_update(
-      _lib, firmware._zsu, firmware._fwIndex, index);
+  std::expected<bool, err::Error> zsuUpdate(ZSU::FirmwareIterator& firmware,
+                                            uint32_t index) {
+    int r{};
+    if (auto const e{libklug_mdu_ein_zsu_update(
+          _lib, firmware._zsu, firmware._fwIndex, index, &r)})
+      return r;
+    else return std::unexpected(static_cast<err::Error>(e));
   }
 
   /**
-   * Starts a ZSU crc32 start transmission
-   *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
+   * ZSU crc32 start
    *
    * \param firmware  FirmwareIterator
    *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool zsuCrc32Start(ZSU::FirmwareIterator& firmware) {
-    return libklug_mdu_ein_zsu_crc32_start(
-      _lib, firmware._zsu, firmware._fwIndex);
+  std::expected<bool, err::Error>
+  zsuCrc32Start(ZSU::FirmwareIterator& firmware) {
+    int r{};
+    if (auto const e{libklug_mdu_ein_zsu_crc32_start(
+          _lib, firmware._zsu, firmware._fwIndex, &r)})
+      return r;
+    else return std::unexpected(static_cast<err::Error>(e));
   }
 
   /**
-   * Starts a ZSU crc32 result transmission
+   * ZSU crc32 result
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool zsuCrc32Result() { return libklug_mdu_ein_zsu_crc32_result(_lib); }
+  std::expected<bool, err::Error> zsuCrc32Result() {
+    int r{};
+    if (auto const e{libklug_mdu_ein_zsu_crc32_result(_lib, &r)}) return r;
+    else return std::unexpected(static_cast<err::Error>(e));
+  }
 
   /**
-   * Starts a ZSU crc32 result and exit transmission
+   * ZSU crc32 result and exit
    *
-   * \details At some point after start, this will produce a \ref res::Status
-   * result.
-   *
-   * \return true   Started
-   * \return false  Busy
+   * \return bool         Response
+   * \return err::Error   Error
    */
-  bool zsuCrc32ResultExit() {
-    return libklug_mdu_ein_zsu_crc32_result_exit(_lib);
+  std::expected<bool, err::Error> zsuCrc32ResultExit() {
+    int r{};
+    if (auto const e{libklug_mdu_ein_zsu_crc32_result_exit(_lib, &r)}) return r;
+    else return std::unexpected(static_cast<err::Error>(e));
   }
 
 private:
@@ -886,111 +916,13 @@ private:
  *
  */
 struct LibKLUG {
-  /**
-   * C-callback wrapper
-   *
-   * \details
-   * Wraps a c callback in a CPP class.
-   *
-   */
-  struct CallbackWrapper {
-    using callback_type = std::function<void(res::Result r)>;
-
-    CallbackWrapper(CallbackWrapper const&) = delete;
-    CallbackWrapper& operator=(CallbackWrapper const&) = delete;
-
-    CallbackWrapper(libklug_handle lib) : _lib{lib} {}
-    ~CallbackWrapper() {}
-
-    void setCallback(callback_type cb) {
-      _callback = std::move(cb);
-      if (_callback) libklug_register_cb(_lib, &gateway, this);
-      else libklug_register_cb(_lib, nullptr, nullptr);
-    }
-
-    void unsetCallback() { return setCallback(nullptr); }
-
-  private:
-    /**
-     * Gateway
-     *
-     * \details
-     * This is used as the actual callback. `user_data` is used as the `this`
-     * pointer
-     *
-     * \param r         result
-     * \param user_data `this` (usually)
-     */
-    static void gateway(::result r, void* user_data) {
-      auto* instance = static_cast<CallbackWrapper*>(user_data);
-
-      if (instance && instance->_callback) {
-        instance->_callback(res::dispatch(r));
-      }
-    }
-
-    callback_type _callback{};
-
-    libklug_handle _lib;
-  };
-
   LibKLUG() : _lib{libklug_create()} {}
   LibKLUG(LibKLUG const&) = delete;
   LibKLUG& operator=(LibKLUG const&) = delete;
 
   LibKLUG(LibKLUG&& source) : _lib{source._lib} { source._lib = nullptr; }
   LibKLUG& operator=(LibKLUG&& source) = delete;
-  ~LibKLUG() {
-    _cb_wrapper.unsetCallback();
-    libklug_destroy(_lib);
-  }
-
-  /**
-   * Set a `done` callback
-   *
-   * \note
-   * It is recommended to set this before starting a transfer
-   *
-   * \param cb callback
-   */
-  void setCallback(CallbackWrapper::callback_type cb) {
-    return _cb_wrapper.setCallback(cb);
-  }
-
-  /**
-   * Unset the `done` callback
-   *
-   * \warning
-   * Unsetting while a transfer is running may result in UB. An example is, if
-   * the transfer is complete but the thread was interrupted withing the
-   * callack execution.
-   *
-   */
-  void unsetCallback() { return _cb_wrapper.unsetCallback(); }
-
-  /**
-   * Await result of current job
-   *
-   * \warning Calling this before any transmission was started will result in
-   * a deadlock.
-   *
-   * \return res::Result result
-   */
-  res::Result jobAwait() { return res::dispatch(libklug_job_await(_lib)); }
-
-  /**
-   * Poll current job
-   *
-   * \note
-   * To actually get the result, a call to `jobAwait` is still necessary
-   *
-   * \todo
-   * Maybe add a method to hide that fact like `get`
-   *
-   * \return true   Result available
-   * \return false  No result yet
-   */
-  bool jobPoll() { return libklug_job_poll(_lib); }
+  ~LibKLUG() { libklug_destroy(_lib); }
 
   /**
    * Init
@@ -998,7 +930,7 @@ struct LibKLUG {
    * \return int
    * \retval Any error occurred
    */
-  int init() { return libklug_init(_lib); }
+  err::Error init() { return static_cast<err::Error>(libklug_init(_lib)); }
 
   /**
    * Open device
@@ -1008,7 +940,9 @@ struct LibKLUG {
    *
    * \return int  Any error occurred
    */
-  int open(uint16_t vid, uint16_t pid) { return libklug_open(_lib, vid, pid); }
+  err::Error open(uint16_t vid, uint16_t pid) {
+    return static_cast<err::Error>(libklug_open(_lib, vid, pid));
+  }
 
   /**
    * Open device by File descripor
@@ -1019,33 +953,14 @@ struct LibKLUG {
    *
    * \return int Any error occurred
    */
-  int openFd(int Fd) { return libklug_openFd(_lib, Fd); }
-
-  /**
-   * Config device
-   *
-   * \return int  Any error occurred
-   */
-  int config() { return libklug_config(_lib); }
-
-  /**
-   * Claim device
-   *
-   * \return int  Any error occurred
-   */
-  int claim() { return libklug_claim(_lib); }
-
-  /**
-   * Release device
-   *
-   * \return int  Any error occurred
-   */
-  int release() { return libklug_release(_lib); }
+  err::Error openFd(int Fd) {
+    return static_cast<err::Error>(libklug_openFd(_lib, Fd));
+  }
 
   /**
    * Close device
    */
-  void close() { return libklug_close(_lib); }
+  err::Error close() { return static_cast<err::Error>(libklug_close(_lib)); }
 
   /**
    * Get COM interface
@@ -1071,13 +986,9 @@ struct LibKLUG {
 private:
   libklug_handle _lib; ///< Underlying handle
 
-  bridge_callback _c_cb{nullptr}; ///< Bridge callback? is this needed?
-
   COM _com{_lib};         ///< COM interface
   SUSIV2 _susiv2{_lib};   ///< SUSIV2 interface
   MDU_EIN _mdu_ein{_lib}; ///< MDU_EIN interface
-
-  CallbackWrapper _cb_wrapper{_lib}; ///< Callback wrapper
 };
 
 } // namespace libklug

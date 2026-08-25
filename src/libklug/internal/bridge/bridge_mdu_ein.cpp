@@ -8,7 +8,9 @@
 
 #include "libklug/internal/bridge/bridge_mdu_ein.hpp"
 #include <ulf/mdu_ein.hpp>
+#include <utility>
 #include "config.hpp"
+#include "libklug/internal/exception/e_generic.hpp"
 #include "libklug/internal/transmission/mdu_ein/base.hpp"
 #include "libklug/internal/transmission/mdu_ein/config_transfer_rate.hpp"
 #include "libklug/internal/transmission/mdu_ein/cv_read.hpp"
@@ -20,33 +22,39 @@ namespace bridge {
  * CTor
  *
  * \param ctx     Context
- * \param worker  Worker
  */
-MDU_EIN::MDU_EIN(Context& ctx, Worker& worker, ZPP& zpp, ZSU& zsu)
-  : _ctx{ctx}, _worker{worker}, _zpp{zpp}, _zsu{zsu} {}
+MDU_EIN::MDU_EIN(Context& ctx, ZPP& zpp, ZSU& zsu)
+  : _ctx{ctx}, _zpp{zpp}, _zsu{zsu} {}
 
 /**
- * MDU entry (async)
+ * MDU entry
  *
- * \return true   Success
- * \return false  Busy
+ * \note
+ * Will throw an exception on error
+ *
+ * \return bool Response
  */
 bool MDU_EIN::enterMDU() {
   std::array<uint8_t, 16u> payload{};
-  return _worker.emplace<transmission::mdu_ein::Base>(
+  transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::special2mdu_ein(ulf::mdu_ein::Command::Entry, 0u, payload),
-    2000u);
+    2000u};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * DCC ZSU entry (async)
+ * DCC ZSU entry
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param id    Decoder ID
  * \param sn    Decoder SN
  * \param done  true, if entry is done
- * \return true   Success
- * \return false  Busy
+ *
+ * \return bool Response
  */
 bool MDU_EIN::enterDCCZSU(uint32_t id, uint32_t sn, bool done) {
   std::vector<uint8_t> payload{};
@@ -55,20 +63,25 @@ bool MDU_EIN::enterDCCZSU(uint32_t id, uint32_t sn, bool done) {
   ulf::mdu_ein::uint32_2data(sn, it);
   *it = done ? 0u : 1u;
   payload.resize(16);
-  return _worker.emplace<transmission::mdu_ein::Base>(
+  transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::special2mdu_ein(
       ulf::mdu_ein::Command::Entry, 1u, std::span<uint8_t, 16u>{payload}),
-    2000u);
+    2000u};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * DCC ZPP entry (async)
+ * DCC ZPP entry
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param sn    Decoder SN
  * \param done  True, if entry is done
- * \return true   Success
- * \return false  Busy
+ *
+ * \return bool Response
  */
 bool MDU_EIN::enterDCCZPP(uint32_t sn, bool done) {
   std::vector<uint8_t> payload{};
@@ -76,187 +89,253 @@ bool MDU_EIN::enterDCCZPP(uint32_t sn, bool done) {
   ulf::mdu_ein::uint32_2data(sn, it);
   *it = done ? 0u : 1u;
   payload.resize(16);
-  return _worker.emplace<transmission::mdu_ein::Base>(
+  transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::special2mdu_ein(
       ulf::mdu_ein::Command::Entry, 2u, std::span<uint8_t, 16u>{payload}),
-    2000u);
+    2000u};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * Ping (async)
+ * Ping
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param sn  Decoder SN
  * \param id  Decoder ID
- * \return true   Success
- * \return false  Busy
+ *
+ * \return bool Response
  */
 bool MDU_EIN::ping(uint32_t sn, uint32_t id) {
-  return _worker.emplace<transmission::mdu_ein::Ping>(
+  transmission::mdu_ein::Ping t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_ping_packet(sn, id)),
-    2000u);
+    2000u};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * Config Transfer Rate (async)
+ * Config Transfer Rate
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param transfer_rate Transfer Rate
- * \return true   Success
- * \return false  Busy
+ *
+ * \return bool Response
  */
 bool MDU_EIN::configTransferRate(mdu::TransferRate transfer_rate) {
-  return _worker.emplace<transmission::mdu_ein::ConfigTransferRate>(
-    _ctx.connection, transfer_rate);
+  transmission::mdu_ein::ConfigTransferRate t{_ctx.connection, transfer_rate};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * Binary Tree Search (async)
+ * Binary Tree Search
  *
- * \return true
- * \return false
+ * \note
+ * Will throw an exception on error
+ *
+ * \return bool Response
+ *
  * \todo Implement
  */
 bool MDU_EIN::binaryTreeSearch() {
-  assert(false);
-  return false;
+  using std::operator""sv;
+  throw except::generic_error{err::Error::unknown, "Missing Implementation"sv};
+  std::unreachable();
 }
 
 /**
- * Cv Read (async)
+ * Cv Read
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param cv  Cv address
- * \return true   Success
- * \return false  Busy
+ *
+ * \return uint8_t Response
  */
-bool MDU_EIN::cvRead(uint16_t cv) {
-  return _worker.emplace<transmission::mdu_ein::CvRead>(_ctx.connection, cv);
+uint8_t MDU_EIN::cvRead(uint16_t cv) {
+  transmission::mdu_ein::CvRead t{_ctx.connection, cv};
+  t.execute();
+  return t.evaluateByte();
 }
 
 /**
- * Cv Write (async)
+ * Cv Write
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param cv    Cv address
  * \param value Cv value
- * \return true   Success
- * \return false  Busy
+ *
+ * \return bool Response
  */
 bool MDU_EIN::cvWrite(uint16_t cv, uint8_t value) {
-  return _worker.emplace<transmission::mdu_ein::Base>(
+  transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_cv_write_packet(cv, value)),
-    2000u);
+    2000u};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * Busy (async)
+ * Busy
  *
- * \return true  Success
- * \return false Busy
+ * \note
+ * Will throw an exception on error
+ *
+ * \return bool Response
  */
 bool MDU_EIN::busy() {
-  return _worker.emplace<transmission::mdu_ein::Base>(
+  transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_busy_packet()),
-    2000u);
+    2000u};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * ZPP Valid Query (async)
+ * ZPP Valid Query
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param id    ZPP Id
  * \param size  ZPP size
- * \todo Implement, Library implementation of packet factory also missing
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zppValidQuery(std::string_view id, uint32_t size) {
-  return _worker.emplace<transmission::mdu_ein::Base>(
+  transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_zpp_valid_query_packet(id, size)),
-    2000uz);
+    2000uz};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * ZPP Valid Query (async)
+ * ZPP Valid Query
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param file  ZPP File
- * \return Forwarded
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zppValidQuery(zpp::File* file) {
   return zppValidQuery(file->id, file->flash.size());
 }
 
 /**
- * ZPP LC DC Query (async)
+ * ZPP LC DC Query
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param dev_code Developer code
- * \return false
- * \todo Implement, Library implementation of packet factory also missing
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zppLcDcQuery(std::span<uint8_t const, 4uz> dev_code) {
-  return _worker.emplace<transmission::mdu_ein::Base>(
+  transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_zpp_lc_dc_query_packet(dev_code)),
-    2000uz);
+    2000uz};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * ZPP LC DC Query (async)
+ * ZPP LC DC Query
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param file ZPP File
- * \return Forwarded
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zppLcDcQuery(zpp::File* file) {
   return zppLcDcQuery(file->developer_code);
 }
 
 /**
- *  ZPP Erase (async)
+ *  ZPP Erase
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param start_address Start Address
  * \param end_address   End Address
- * \return false
- * \todo Implement, Library implementation of packet factory also missing
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zppErase(uint32_t start_address, uint32_t end_address) {
-  return _worker.emplace<transmission::mdu_ein::Base>(
+  transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(
       mdu::make_zpp_erase_packet(start_address, end_address)),
-    2000uz);
+    2000uz};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * ZPP Erase (async)
+ * ZPP Erase
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param file ZPP File
- * \return Forwarded
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zppErase(zpp::File* file) {
   return zppErase(0uz, file->flash.size() - 1u);
 }
 
 /**
- * ZPP Update (async)
+ * ZPP Update
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param address Block Address
  * \param block   Block
- * \return false
- * \todo Implement, Library implementation of packet factory also missing
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zppUpdate(uint32_t address,
                         std::span<uint8_t const, 256uz> block) {
-  return _worker.emplace<transmission::mdu_ein::Base>(
+  transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_zpp_update_packet(address, block)),
-    2000uz);
+    2000uz};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * ZPP Update (async)
+ * ZPP Update
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param file  ZPP File
  * \param index Block index
- * \return Forwarded
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zppUpdate(zpp::File* file, uint32_t index) {
   auto const addressed_block{_zpp.block(file, index)};
@@ -264,35 +343,46 @@ bool MDU_EIN::zppUpdate(zpp::File* file, uint32_t index) {
 }
 
 /**
- * ZPP Update End (async)
+ * ZPP Update End
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param start_address Start Address
  * \param end_address   End Address
- * \return false
- * \todo Implement, Library implementation of packet factory also missing
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zppUpdateEnd(uint32_t start_address, uint32_t end_address) {
-  return _worker.emplace<transmission::mdu_ein::Base>(
+  transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_zpp_exit_reset_packet()),
-    internal::config::timeout::mdu_ein::zpp_exit_reset);
+    internal::config::timeout::mdu_ein::zpp_exit_reset};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * ZPP Update End (async)
+ * ZPP Update End
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param file  ZPP File
- * \return Forwarded
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zppUpdateEnd(zpp::File* file) {
   return zppUpdateEnd(0uz, file->flash.size() - 1uz);
 }
 
 /**
- * ZPP Exit and Reset (async)
+ * ZPP Exit and Reset
  *
- * \return false
- * \todo Implement, Library implementation of packet factory also missing
+ * \note
+ * Will throw an exception on error
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zppExitReset() {
   assert(false);
@@ -300,26 +390,35 @@ bool MDU_EIN::zppExitReset() {
 }
 
 /**
- * ZSU Init Salsa20 (async)
+ * ZSU Init Salsa20
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param iv  IV
- * \return true   Success
- * \return false  Busy
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zsuSalsa20IV(std::span<uint8_t const, 8uz> iv) {
-  return _worker.emplace<transmission::mdu_ein::Base>(
+  transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_zsu_salsa20_iv_packet(iv)),
-    2000u);
+    2000u};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * ZSU Init Salsa20 (asnyc)
+ * ZSU Init Salsa20
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \note If the Firmware does not contain an IV, the op will return an error
  *
  * \param firmware  Firmware
- * \return Forwarded
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zsuSalsa20IV(zsu::Firmware const& firmware) {
   if (!firmware.iv) return false;
@@ -327,53 +426,71 @@ bool MDU_EIN::zsuSalsa20IV(zsu::Firmware const& firmware) {
 }
 
 /**
- * ZSU Erase (async)
+ * ZSU Erase
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param start_address Start Address
  * \param end_address   End Address
- * \return true   Success
- * \return false  Busy
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zsuErase(uint32_t start_address, uint32_t end_address) {
-  return _worker.emplace<transmission::mdu_ein::Base>(
+  transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(
       mdu::make_zsu_erase_packet(start_address, end_address)),
-    2000u);
+    2000u};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * ZSU Erase (async)
+ * ZSU Erase
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param firmware  Firmware
- * \return true  Forwarded
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zsuErase(zsu::Firmware const& firmware) {
   return zsuErase(0uz, firmware.bin.size() - 1u);
 }
 
 /**
- * ZSU Update (async)
+ * ZSU Update
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param address Address
  * \param block   Block
- * \return true   Success
- * \return false  Busy
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zsuUpdate(uint32_t address,
                         std::span<uint8_t const, 64uz> block) {
-  return _worker.emplace<transmission::mdu_ein::Base>(
+  transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_zsu_update_packet(address, block)),
-    2000u);
+    2000u};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * ZSU Update (async)
+ * ZSU Update
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param firmware Address
  * \param index    Block Index
- * \return Forwarded
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zsuUpdate(zsu::Firmware const& firmware, uint32_t index) {
   auto const addressed_block{_zsu.block(firmware, index)};
@@ -381,29 +498,38 @@ bool MDU_EIN::zsuUpdate(zsu::Firmware const& firmware, uint32_t index) {
 }
 
 /**
- * ZSU CRC32 start (async)
+ * ZSU CRC32 start
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param start_address Start address
  * \param end_address   End address
  * \param crc           CRC32
- * \return true   Success
- * \return false  Busy
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zsuCRC32Start(uint32_t start_address,
                             uint32_t end_address,
                             uint32_t crc) {
-  return _worker.emplace<transmission::mdu_ein::Base>(
+  transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(
       mdu::make_zsu_crc32_start_packet(start_address, end_address, crc)),
-    2000uz);
+    2000uz};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * ZSU CRC32 start (async)
+ * ZSU CRC32 start
+ *
+ * \note
+ * Will throw an exception on error
  *
  * \param firmware Firmware
- * \return Forwarded
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zsuCRC32Start(zsu::Firmware const& firmware) {
   return zsuCRC32Start(
@@ -411,29 +537,37 @@ bool MDU_EIN::zsuCRC32Start(zsu::Firmware const& firmware) {
 }
 
 /**
- * ZSU CRC32 result (async)
+ * ZSU CRC32 result
  *
- * \return true   Success
- * \return false  Busy
+ * \note
+ * Will throw an exception on error
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zsuCRC32Result() {
-  return _worker.emplace<transmission::mdu_ein::Base>(
+  transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_zsu_crc32_result_packet()),
-    2000uz);
+    2000uz};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
- * ZSU CRC32 result and exit (async)
+ * ZSU CRC32 result and exit
  *
- * \return true   Success
- * \return false  Busy
+ * \note
+ * Will throw an exception on error
+ *
+ * \return bool Response
  */
 bool MDU_EIN::zsuCRC32ResultExit() {
-  return _worker.emplace<transmission::mdu_ein::Base>(
+  transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_zsu_crc32_result_exit_packet()),
-    2000uz);
+    2000uz};
+  t.execute();
+  return t.evaluateBool();
 }
 
 } // namespace bridge

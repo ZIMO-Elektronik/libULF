@@ -23,15 +23,11 @@ namespace internal {
  *
  */
 struct FakeConnection : public IConnection {
-  virtual int init() override { return 0; }
+  virtual void init() override {}
 
-  virtual int open(uint16_t pid, uint16_t vid) override { return 0; }
-  virtual int openFd(int Fd) override { return 0; }
+  virtual void open(uint16_t pid, uint16_t vid) override {}
+  virtual void openFd(int Fd) override {}
 
-  virtual int config() override { return 0; }
-  virtual int claim() override { return 0; }
-
-  virtual int release() override { return 0; }
   virtual void close() override {}
 
   virtual void flush() override {}

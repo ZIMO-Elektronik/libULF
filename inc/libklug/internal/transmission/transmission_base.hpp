@@ -51,6 +51,10 @@ struct TransmissionBase : ITransmission {
 
   virtual void execute() override;
 
+  virtual std::string evaluateString() override;
+  virtual bool evaluateBool() override;
+  virtual uint8_t evaluateByte() override;
+
 protected:
   void transmit();
   void receive();

@@ -21,66 +21,56 @@ TEST_F(TestCOM, reset_payload) {
     EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
   }
 
-  libklug_com_reset(libHandle);
-  libklug_job_await(libHandle);
+  int r{};
+  libklug_com_reset(libHandle, &r);
 }
 
 TEST_F(TestCOM, reset_result_ok) {
   using std::operator""sv;
 
-  auto const r{helper::string_view2span("OK\r")};
   ON_CALL(conn, _read_until(_, _, _, _, _))
     .WillByDefault(helper::com::receive_ok);
 
-  libklug_com_reset(libHandle);
-  auto const result{libklug_job_await(libHandle)};
-
-  ASSERT_EQ(result.type, result_type::status);
-  ASSERT_TRUE(result.data.success);
+  int r{};
+  ASSERT_EQ(libklug_com_reset(libHandle, &r), libklug_error::ok);
+  ASSERT_TRUE(r);
 }
 
 TEST_F(TestCOM, reset_result_not_ok) {
   using std::operator""sv;
 
-  auto const r{helper::string_view2span("NOT_OK\r")};
   ON_CALL(conn, _read_until(_, _, _, _, _))
     .WillByDefault(helper::com::receive_not_ok);
 
-  libklug_com_reset(libHandle);
-  auto const result{libklug_job_await(libHandle)};
-
-  ASSERT_EQ(result.type, result_type::status);
-  ASSERT_FALSE(result.data.success);
+  int r{};
+  ASSERT_EQ(libklug_com_reset(libHandle, &r), libklug_error::ok);
+  ASSERT_FALSE(r);
 }
 
 TEST_F(TestCOM, reset_transmit_error) {
   assertTransmitErrorCalls();
 
-  libklug_com_reset(libHandle);
-  libklug_job_await(libHandle);
+  int r{};
+  libklug_com_reset(libHandle, &r);
 }
 
 TEST_F(TestCOM, reset_transmit_error_result) {
   throwTransmitException();
 
-  libklug_com_reset(libHandle);
-  auto const result{libklug_job_await(libHandle)};
-
-  assertTransmitReceiveErrorResult(result);
+  int r{};
+  ASSERT_NE(libklug_com_reset(libHandle, &r), libklug_error::ok);
 }
 
 TEST_F(TestCOM, reset_receive_error) {
   assertReceiveErrorCalls();
 
-  libklug_com_reset(libHandle);
-  libklug_job_await(libHandle);
+  int r{};
+  libklug_com_reset(libHandle, &r);
 }
 
 TEST_F(TestCOM, reset_receive_error_result) {
   throwReceiveException();
 
-  libklug_com_reset(libHandle);
-  auto const result{libklug_job_await(libHandle)};
-
-  assertTransmitReceiveErrorResult(result);
+  int r{};
+  ASSERT_NE(libklug_com_reset(libHandle, &r), libklug_error::ok);
 }

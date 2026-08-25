@@ -10,12 +10,13 @@ using testing::Ge;
 using testing::InSequence;
 using testing::Return;
 
-TEST_F(TestSUSIV2, cv_read_payload) {
-  uint16_t const cv{7u};
+constexpr uint16_t cv_index{7u};
+constexpr uint8_t cv_value{145u};
 
+TEST_F(TestSUSIV2, cv_read_payload) {
   auto const payload{ulf::susiv2::packet2frame<
     ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
-    zusi::make_cv_read_packet(0, cv))};
+    zusi::make_cv_read_packet(0, cv_index))};
   auto const expected{helper::range2span(payload)};
 
   {
@@ -24,61 +25,52 @@ TEST_F(TestSUSIV2, cv_read_payload) {
     EXPECT_CALL(conn, _read_all(_, _, _, _)).Times(1);
   }
 
-  libklug_susiv2_cv_read(libHandle, cv);
-  libklug_job_await(libHandle);
+  uint8_t r{};
+  libklug_susiv2_cv_read(libHandle, cv_index, &r);
 }
 
 TEST_F(TestSUSIV2, cv_read_result_success) {
-  uint16_t const cv{7u};
-  uint8_t const val{145u};
+  std::vector<uint8_t> expected{ulf::susiv2::ack, cv_value};
+  expected.push_back(zusi::crc8(expected));
 
-  std::vector<uint8_t> r{ulf::susiv2::ack, val};
-  r.push_back(zusi::crc8(r));
-
-  ON_CALL(conn, _read_all(_, Ge(r.size()), _, _))
+  ON_CALL(conn, _read_all(_, Ge(expected.size()), _, _))
     .WillByDefault(
       [&](uint8_t* buf, uint32_t len, int* rx_ed, uint32_t timeout) {
-        assert(len >= r.size());
-        std::ranges::copy(r, buf);
-        *rx_ed = r.size();
+        assert(len >= expected.size());
+        std::ranges::copy(expected, buf);
+        *rx_ed = expected.size();
         return 0;
       });
 
-  libklug_susiv2_cv_read(libHandle, cv);
-  auto const result{libklug_job_await(libHandle)};
-
-  ASSERT_EQ(result.type, result_type::cv);
-  ASSERT_EQ(result.data.value, val);
+  uint8_t r{};
+  ASSERT_EQ(libklug_susiv2_cv_read(libHandle, cv_index, &r), libklug_error::ok);
+  ASSERT_EQ(r, cv_value);
 }
 
 TEST_F(TestSUSIV2, cv_read_write_error) {
   assertTransmitErrorCalls<true>();
 
-  libklug_susiv2_cv_read(libHandle, cv);
-  libklug_job_await(libHandle);
+  uint8_t r{};
+  libklug_susiv2_cv_read(libHandle, cv_index, &r);
 }
 
 TEST_F(TestSUSIV2, cv_read_write_error_result) {
   throwTransmitException();
 
-  libklug_susiv2_cv_read(libHandle, cv);
-  auto const result{libklug_job_await(libHandle)};
-
-  assertTransmitReceiveErrorResult(result);
+  uint8_t r{};
+  ASSERT_NE(libklug_susiv2_cv_read(libHandle, cv_index, &r), libklug_error::ok);
 }
 
 TEST_F(TestSUSIV2, cv_read_receive_error) {
   assertReceiveErrorCalls<true>();
 
-  libklug_susiv2_cv_read(libHandle, cv);
-  libklug_job_await(libHandle);
+  uint8_t r{};
+  libklug_susiv2_cv_read(libHandle, cv_index, &r);
 }
 
 TEST_F(TestSUSIV2, cv_read_receive_error_result) {
   throwReceiveException();
 
-  libklug_susiv2_cv_read(libHandle, cv);
-  auto const result{libklug_job_await(libHandle)};
-
-  assertTransmitReceiveErrorResult(result);
+  uint8_t r{};
+  ASSERT_NE(libklug_susiv2_cv_read(libHandle, cv_index, &r), libklug_error::ok);
 }

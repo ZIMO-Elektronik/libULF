@@ -9,6 +9,7 @@
 #include "libklug/internal/transmission/mdu_ein/cv_read.hpp"
 #include <format>
 #include <ulf/mdu_ein.hpp>
+#include <utility>
 #include "libklug/internal/exception/e_generic.hpp"
 #include "libklug/internal/transmission/mdu_ein/base.hpp"
 
@@ -37,10 +38,7 @@ void CvRead::execute() {
            100u};
     try {
       t.execute();
-      auto const r = t.evaluate();
-      if (!std::holds_alternative<res::Status>(r))
-        throw except::generic_error{err::Error::nak, "Packet got NAK'd"};
-      _value |= !(std::get<res::Status>(r)) << i;
+      _value |= !(t.evaluateBool()) << i;
 
     } catch (except::generic_error e) {
       throw except::generic_error{
@@ -50,11 +48,20 @@ void CvRead::execute() {
   }
 }
 
-/**
- * Evaluate Cv Read
- *
- * \return result_t Result
- */
-res::Result CvRead::evaluate() { return res::Cv{_value}; }
+/// Stub
+std::string CvRead::evaluateString() {
+  using std::operator""sv;
+  throw except::generic_error{err::Error::unknown, "Missing Implementation"sv};
+  std::unreachable();
+}
+
+/// Stub
+bool CvRead::evaluateBool() {
+  using std::operator""sv;
+  throw except::generic_error{err::Error::unknown, "Missing Implementation"sv};
+  std::unreachable();
+}
+
+uint8_t CvRead::evaluateByte() { return _value; }
 
 } // namespace transmission::mdu_ein

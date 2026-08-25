@@ -10,6 +10,8 @@
 #include <libklug/result/wrapper/error.hpp>
 #include <libklug/result/wrapper/status.hpp>
 #include <ulf/mdu_ein.hpp>
+#include <utility>
+#include "libklug/internal/exception/e_generic.hpp"
 
 namespace transmission::mdu_ein {
 
@@ -38,15 +40,21 @@ Ping::Ping(std::shared_ptr<internal::IConnection> conn,
   : Base{conn, payload, timeout} {}
 
 /**
- * Evaluate Ping response
+ * Evaluate a bool
  *
- * \return Result Result
- * \todo Insert a real error code
+ * \note
+ * This is the inverse operation, since a decoder naks when it responds
+ *
+ * \retval bool                 Evaluated bool
+ * \retval err::Error::format   Format mismatch
  */
-res::Result Ping::evaluate() {
-  if (!valid()) return res::Error{err::Error::format};
-  return res::Status{_response[0] == ulf::mdu_ein::ack &&
-                     _response[2] == ulf::mdu_ein::nak};
+bool Ping::evaluateBool() {
+  using std::operator""sv;
+  if (!valid()) {
+    throw except::generic_error{err::Error::format, "Format Mismatch"sv};
+    std::unreachable();
+  }
+  return _response[0] == ulf::mdu_ein::ack && _response[2] == ulf::mdu_ein::nak;
 }
 
 } // namespace transmission::mdu_ein

@@ -12,7 +12,6 @@
 #include "bridge_context.hpp"
 #include "bridge_mdu_ein.hpp"
 #include "bridge_susiv2.hpp"
-#include "bridge_worker.hpp"
 #include "bridge_zpp.hpp"
 #include "bridge_zsu.hpp"
 #include "libklug/callback/callback.h"
@@ -27,10 +26,7 @@ namespace bridge {
  * transfers in a controllable context
  *
  * \details This class is an attempt to provide all necessary ULF_COM update and
- * soundload protocols behind a singular interface. As a concept, all
- * transmissions run asynchronous via the \ref Bridge::Worker object. The result
- * can either be waited upon using \ref Bridge::result, or get it delivered when
- * registering a callback with \ref Bridge::registerCB.
+ * soundload protocols behind a singular interface.
  *
  * \note The bridge needs to be fully connected and configured to be usable. Two
  * open bridges result in UB, since the ULF_COM transmissions are synchronous by
@@ -49,20 +45,11 @@ struct Bridge {
   Bridge() = default;
   Bridge(std::shared_ptr<internal::IConnection> conn);
 
-  int init();
+  void init();
 
-  void registerCB(std::unique_ptr<callback::IFunctor> cb);
-  void deregisterCB();
+  void open(uint16_t vid = 0x1FC9u, uint16_t pid = 0x81C1u);
+  void openFd(int Fd);
 
-  std::future<res::Result&>& future();
-
-  int open(uint16_t vid = 0x1FC9u, uint16_t pid = 0x81C1u);
-  int openFd(int Fd);
-
-  int config();
-  int claim();
-
-  int release();
   void close();
 
   COM& com();
@@ -77,11 +64,9 @@ private:
   ZPP _zpp{};   ///< ZPP bridge
   ZSU _zsu{};   ///< ZSU bridge
 
-  Worker _worker{_ctx}; ///< Worker
-
-  COM _com{_ctx, _worker};                     ///< COM bridge
-  SUSIV2 _susiv2{_ctx, _worker, _zpp};         ///< SUSIV2 bridge
-  MDU_EIN _mdu_ein{_ctx, _worker, _zpp, _zsu}; ///< MDU_EIN bridge
+  COM _com{_ctx};                     ///< COM bridge
+  SUSIV2 _susiv2{_ctx, _zpp};         ///< SUSIV2 bridge
+  MDU_EIN _mdu_ein{_ctx, _zpp, _zsu}; ///< MDU_EIN bridge
 };
 
 } // namespace bridge

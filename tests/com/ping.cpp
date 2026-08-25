@@ -20,8 +20,10 @@ TEST_F(TestCOM, ping_payload) {
     EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
   }
 
-  libklug_com_ping(libHandle);
-  libklug_job_await(libHandle);
+  std::string r{};
+  r.reserve(128uz);
+  size_t size{r.capacity()};
+  libklug_com_ping(libHandle, r.data(), &size);
 }
 
 TEST_F(TestCOM, ping_result) {
@@ -29,51 +31,56 @@ TEST_F(TestCOM, ping_result) {
 
   auto expected{"Super duper real device v2.0.255\r"sv};
 
-  auto const r{helper::string_view2span(expected)};
+  auto const span{helper::string_view2span(expected)};
   ON_CALL(conn, _read_until(_, _, _, _, _))
     .WillByDefault(
       [&](uint8_t* buf, uint32_t len, int* rx_ed, uint8_t, uint32_t timeout) {
-        assert(len >= r.size());
-        std::ranges::copy(r, buf);
-        *rx_ed = r.size();
+        assert(len >= span.size());
+        std::ranges::copy(span, buf);
+        *rx_ed = span.size();
         return 0;
       });
 
-  libklug_com_ping(libHandle);
-  auto const result{libklug_job_await(libHandle)};
-
-  ASSERT_EQ(result.type, result_type::string);
-  ASSERT_EQ(std::string_view{result.data.string}, expected);
+  std::string r{};
+  r.resize(128uz);
+  size_t size{r.size()};
+  ASSERT_EQ(libklug_com_ping(libHandle, r.data(), &size), libklug_error::ok);
+  r.resize(size);
+  ASSERT_EQ(r, expected);
 }
 
 TEST_F(TestCOM, ping_transmit_error) {
   assertTransmitErrorCalls();
 
-  libklug_com_ping(libHandle);
-  libklug_job_await(libHandle);
+  std::string r{};
+  r.reserve(128uz);
+  size_t size{r.capacity()};
+  libklug_com_ping(libHandle, r.data(), &size);
 }
 
 TEST_F(TestCOM, ping_transmit_error_result) {
   throwTransmitException();
 
-  libklug_com_ping(libHandle);
-  auto const result{libklug_job_await(libHandle)};
-
-  assertTransmitReceiveErrorResult(result);
+  std::string r{};
+  r.reserve(128uz);
+  size_t size{r.capacity()};
+  ASSERT_NE(libklug_com_ping(libHandle, r.data(), &size), libklug_error::ok);
 }
 
 TEST_F(TestCOM, ping_receive_error) {
   assertReceiveErrorCalls();
 
-  libklug_com_ping(libHandle);
-  libklug_job_await(libHandle);
+  std::string r{};
+  r.reserve(128uz);
+  size_t size{r.capacity()};
+  libklug_com_ping(libHandle, r.data(), &size);
 }
 
 TEST_F(TestCOM, ping_receive_error_result) {
   throwReceiveException();
 
-  libklug_com_ping(libHandle);
-  auto const result{libklug_job_await(libHandle)};
-
-  assertTransmitReceiveErrorResult(result);
+  std::string r{};
+  r.reserve(128uz);
+  size_t size{r.capacity()};
+  ASSERT_NE(libklug_com_ping(libHandle, r.data(), &size), libklug_error::ok);
 }

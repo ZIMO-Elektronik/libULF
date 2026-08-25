@@ -26,7 +26,7 @@ struct Ping : public Base {
        std::size_t timeout);
   virtual ~Ping() = default;
 
-  virtual res::Result evaluate() override;
+  virtual bool evaluateBool() override;
 };
 
 } // namespace transmission::mdu_ein

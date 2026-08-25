@@ -8,7 +8,9 @@
 
 #include "libklug/internal/transmission/susiv2/cv_read.hpp"
 #include <ulf/susiv2.hpp>
+#include <utility>
 #include <zusi/utility.hpp>
+#include "libklug/internal/exception/e_generic.hpp"
 
 namespace transmission::susiv2 {
 
@@ -29,16 +31,18 @@ CvRead::CvRead(std::shared_ptr<internal::IConnection> conn,
          timeout} {}
 
 /**
- * Evaluate
+ * Evaluate a byte
  *
- * \return result_t Result
- * \todo Insert real error
+ * \retval uint8_t              Evaluated byte
+ * \retval err::Error::format   Format mismatch
  */
-res::Result CvRead::evaluate() {
-  if (!valid()) { return res::Error{err::Error::format}; }
-
-  /// \todo Evaluate crc
-  return res::Cv{_response[1u]};
+uint8_t CvRead::evaluateByte() {
+  using std::operator""sv;
+  if (!valid()) {
+    throw except::generic_error{err::Error::format, "Format Mismatch"sv};
+    std::unreachable();
+  }
+  return _response[1u];
 }
 
 } // namespace transmission::susiv2

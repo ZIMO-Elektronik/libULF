@@ -22,20 +22,21 @@ namespace internal {
  *
  */
 struct LibusbConnection : IConnection {
-  virtual int init() override;
+  virtual void init() override;
 
-  virtual int open(uint16_t vid = 0x1FC9u, uint16_t pid = 0x81C1u);
-  virtual int openFd(int Fd);
+  virtual void open(uint16_t vid = 0x1FC9u, uint16_t pid = 0x81C1u);
+  virtual void openFd(int Fd);
 
-  virtual int config();
-  virtual int claim();
-
-  virtual int release();
   virtual void close();
 
   virtual void flush();
 
 private:
+  void config();
+  void claim();
+
+  void release();
+
   virtual void _write(std::span<uint8_t const> payload,
                       uint32_t timeout) override;
   virtual void _read_until(uint8_t* buffer,

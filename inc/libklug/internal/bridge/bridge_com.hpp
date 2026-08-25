@@ -9,8 +9,8 @@
 #pragma once
 
 #include <algorithm>
+#include <expected>
 #include "bridge_context.hpp"
-#include "bridge_worker.hpp"
 
 namespace bridge {
 
@@ -19,16 +19,15 @@ namespace bridge {
  *
  */
 struct COM {
-  COM(Context& ctx, Worker& worker);
+  COM(Context& ctx);
 
-  bool ping();
+  std::string ping();
   bool reset();
   bool susiv2();
   bool mdu_ein();
 
 private:
-  Context& _ctx;   ///< Bridge context
-  Worker& _worker; ///< Worker
+  Context& _ctx; ///< Bridge context
 };
 
 } // namespace bridge
