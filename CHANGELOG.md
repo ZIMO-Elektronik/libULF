@@ -2,8 +2,9 @@
 
 ## 0.1.0
 
-- ***Breaking*** Change: Allow polling and await for result
 - ***Breaking*** Change: ZSU firmware iterator api no longer allocates
+- ***Breaking*** Change: API no longer is async
+- ***Breaking*** Change: Simplify API for opening and closing a connection
 
 ## 0.0.2
 
