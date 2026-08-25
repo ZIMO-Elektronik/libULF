@@ -38,19 +38,6 @@ Base::Base(std::shared_ptr<internal::IConnection> conn,
   : TransmissionBase{conn, payload, timeout} {}
 
 /**
- * Evaluate SUSIV2 response
- *
- * \return true   Valid
- * \return false  Invalid
- * \todo refactor
- * \todo Insert real error code
- */
-res::Result Base::evaluate() {
-  if (!valid()) return res::Error{err::Error::format};
-  return res::Status{true};
-}
-
-/**
  * Evaluate a bool
  *
  * \retval bool                 Evaluated bool

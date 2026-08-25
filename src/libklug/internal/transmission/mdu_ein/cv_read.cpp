@@ -38,10 +38,7 @@ void CvRead::execute() {
            100u};
     try {
       t.execute();
-      auto const r = t.evaluate();
-      if (!std::holds_alternative<res::Status>(r))
-        throw except::generic_error{err::Error::nak, "Packet got NAK'd"};
-      _value |= !(std::get<res::Status>(r)) << i;
+      _value |= !(t.evaluateBool()) << i;
 
     } catch (except::generic_error e) {
       throw except::generic_error{
@@ -66,12 +63,5 @@ bool CvRead::evaluateBool() {
 }
 
 uint8_t CvRead::evaluateByte() { return _value; }
-
-/**
- * Evaluate Cv Read
- *
- * \return result_t Result
- */
-res::Result CvRead::evaluate() { return res::Cv{_value}; }
 
 } // namespace transmission::mdu_ein

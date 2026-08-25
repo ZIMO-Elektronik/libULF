@@ -40,18 +40,6 @@ Ping::Ping(std::shared_ptr<internal::IConnection> conn,
   : Base{conn, payload, timeout} {}
 
 /**
- * Evaluate Ping response
- *
- * \return Result Result
- * \todo Insert a real error code
- */
-res::Result Ping::evaluate() {
-  if (!valid()) return res::Error{err::Error::format};
-  return res::Status{_response[0] == ulf::mdu_ein::ack &&
-                     _response[2] == ulf::mdu_ein::nak};
-}
-
-/**
  * Evaluate a bool
  *
  * \note

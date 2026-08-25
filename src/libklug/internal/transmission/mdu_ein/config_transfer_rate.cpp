@@ -28,26 +28,21 @@ ConfigTransferRate::ConfigTransferRate(
 void ConfigTransferRate::execute() {
   using std::operator""sv;
   try {
-    auto r{packet()};
-    if (!std::holds_alternative<res::Status>(r) || !std::get<res::Status>(r))
+    if (!packet())
       throw except::generic_error{err::Error::nak,
                                   "Unable to set speed for decoder"sv};
-    r = special(false);
-    if (!std::holds_alternative<res::Status>(r) || !std::get<res::Status>(r))
+    if (!special(false))
       throw except::generic_error{err::Error::nak,
                                   "Unable to set speed for device"sv};
     _result = true;
   } catch (std::exception const& e) {
     LOGE("{}", e.what());
     LOGD("Attempting to set fallback timing");
-    auto r{special(true)};
-    if (!std::holds_alternative<res::Status>(r) || !std::get<res::Status>(r))
+    if (!special(true))
       throw except::generic_error{err::Error::nak,
                                   "Unable to set fallback speed for device"sv};
   }
 }
-
-res::Result ConfigTransferRate::evaluate() { return res::Status{_result}; }
 
 /// Stub
 std::string ConfigTransferRate::evaluateString() {
@@ -65,16 +60,16 @@ uint8_t ConfigTransferRate::evaluateByte() {
   std::unreachable();
 }
 
-res::Result ConfigTransferRate::packet() {
+bool ConfigTransferRate::packet() {
   Base t{
     _conn,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_config_transfer_rate_packet(_speed)),
     100u};
   t.execute();
-  return t.evaluate();
+  return t.evaluateBool();
 }
 
-res::Result ConfigTransferRate::special(bool fallback) {
+bool ConfigTransferRate::special(bool fallback) {
   Base t{_conn,
          ulf::mdu_ein::special2mdu_ein(
            ulf::mdu_ein::Command::Speed,
@@ -82,7 +77,7 @@ res::Result ConfigTransferRate::special(bool fallback) {
            std::array<uint8_t, 16>{}),
          100u};
   t.execute();
-  return t.evaluate();
+  return t.evaluateBool();
 }
 
 } // namespace transmission::mdu_ein

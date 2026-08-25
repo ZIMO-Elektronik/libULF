@@ -40,18 +40,6 @@ Base::Base(std::shared_ptr<internal::IConnection> conn,
   : TransmissionBase{conn, payload, ulf::mdu_ein::end, timeout} {}
 
 /**
- * Evaluate
- *
- * \return Result Result
- * \todo Insert a real error code
- */
-res::Result Base::evaluate() {
-  if (!valid()) return res::Error{err::Error::format};
-  return res::Status{_response[0] == ulf::mdu_ein::ack &&
-                     _response[2] == ulf::mdu_ein::ack};
-}
-
-/**
  * Evaluate a bool
  *
  * \retval bool                 Evaluated bool

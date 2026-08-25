@@ -31,19 +31,6 @@ CvRead::CvRead(std::shared_ptr<internal::IConnection> conn,
          timeout} {}
 
 /**
- * Evaluate
- *
- * \return result_t Result
- * \todo Insert real error
- */
-res::Result CvRead::evaluate() {
-  if (!valid()) { return res::Error{err::Error::format}; }
-
-  /// \todo Evaluate crc
-  return res::Cv{_response[1u]};
-}
-
-/**
  * Evaluate a byte
  *
  * \retval uint8_t              Evaluated byte

@@ -29,7 +29,6 @@ struct CvRead : public ITransmission {
 
   virtual void execute() final;
 
-  virtual res::Result evaluate() final;
   virtual std::string evaluateString() final;
   virtual bool evaluateBool() final;
   virtual uint8_t evaluateByte() final;

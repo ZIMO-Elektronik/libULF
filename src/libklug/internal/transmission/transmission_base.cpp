@@ -9,7 +9,9 @@
 #include "libklug/internal/transmission/transmission_base.hpp"
 #include <ranges>
 #include <string>
+#include <utility>
 #include "libklug/internal/connection/i_connection.hpp"
+#include "libklug/internal/exception/e_generic.hpp"
 #include "libklug/internal/logging.hpp"
 
 namespace transmission {
@@ -113,8 +115,25 @@ void TransmissionBase::receive() {
   else _conn->read_all(_response, _timeout);
 }
 
-std::string TransmissionBase::evaluateString() { return {}; }
-bool TransmissionBase::evaluateBool() { return {}; }
-uint8_t TransmissionBase::evaluateByte() { return {}; }
+/// Stub
+std::string TransmissionBase::evaluateString() {
+  using std::operator""sv;
+  throw except::generic_error{err::Error::unknown, "Missing Implementation"sv};
+  std::unreachable();
+}
+
+/// Stub
+bool TransmissionBase::evaluateBool() {
+  using std::operator""sv;
+  throw except::generic_error{err::Error::unknown, "Missing Implementation"sv};
+  std::unreachable();
+}
+
+/// Stub
+uint8_t TransmissionBase::evaluateByte() {
+  using std::operator""sv;
+  throw except::generic_error{err::Error::unknown, "Missing Implementation"sv};
+  std::unreachable();
+}
 
 } // namespace transmission

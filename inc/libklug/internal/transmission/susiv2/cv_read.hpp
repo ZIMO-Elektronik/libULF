@@ -19,7 +19,6 @@ struct CvRead : public Base {
 
   virtual ~CvRead() = default;
 
-  virtual res::Result evaluate() override;
   virtual uint8_t evaluateByte() override;
 };
 
