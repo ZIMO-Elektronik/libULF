@@ -21,7 +21,7 @@ Bridge::Bridge(std::shared_ptr<internal::IConnection> conn) : _ctx{conn} {}
  * \retval LIBUSB_SUCCESS Success
  *
  */
-int Bridge::init() { return _ctx.connection->init(); }
+void Bridge::init() { return _ctx.connection->init(); }
 
 /**
  * Open usb device
@@ -32,7 +32,7 @@ int Bridge::init() { return _ctx.connection->init(); }
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-int Bridge::open(uint16_t vid, uint16_t pid) {
+void Bridge::open(uint16_t vid, uint16_t pid) {
   return _ctx.connection->open(vid, pid);
 }
 
@@ -46,34 +46,7 @@ int Bridge::open(uint16_t vid, uint16_t pid) {
  * \retval LIBUSB_ERROR   Error
  * \retval LIBUSB_SUCCESS Success
  */
-int Bridge::openFd(int Fd) { return _ctx.connection->openFd(Fd); }
-
-/**
- * Configure usb device
- *
- * \return int
- * \retval LIBUSB_ERROR   Error
- * \retval LIBUSB_SUCCESS Success
- */
-int Bridge::config() { return _ctx.connection->config(); }
-
-/**
- * Claim usb device
- *
- * \return int
- * \retval LIBUSB_ERROR   Error
- * \retval LIBUSB_SUCCESS Success
- */
-int Bridge::claim() { return _ctx.connection->claim(); }
-
-/**
- * Release usb device
- *
- * \return int
- * \retval LIBUSB_ERROR   Error
- * \retval LIBUSB_SUCCESS Success
- */
-int Bridge::release() { return _ctx.connection->release(); }
+void Bridge::openFd(int Fd) { return _ctx.connection->openFd(Fd); }
 
 /**
  * Close usb device

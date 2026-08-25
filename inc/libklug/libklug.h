@@ -80,7 +80,7 @@ void libklug_destroy(libklug_handle handle);
  * For now, this directly returns the first libusb error occurred. Maybe we can
  * change this a bit
  */
-int libklug_init(libklug_handle handle);
+libklug_error libklug_init(libklug_handle handle);
 
 /**
  * Open device
@@ -107,7 +107,7 @@ int libklug_init(libklug_handle handle);
  * For now, this directly returns the first libusb error occurred. Maybe we can
  * change this a bit
  */
-int libklug_open(libklug_handle handle, uint16_t vid, uint16_t pid);
+libklug_error libklug_open(libklug_handle handle, uint16_t vid, uint16_t pid);
 
 /**
  * Open device by file descriptor
@@ -128,77 +128,7 @@ int libklug_open(libklug_handle handle, uint16_t vid, uint16_t pid);
  * For now, this directly returns the first libusb error occurred. Maybe we can
  * change this a bit
  */
-int libklug_openFd(libklug_handle handle, int Fd);
-
-/**
- * Configure device
- *
- * \details
- * Performs internal device setup
- *
- * \warning
- * It is illegal to pass NULL. Passing an invalid handle results in UB and
- * should be avoided
- *
- * \param handle  libklug handle
- *
- * \return int  From libusb
- *
- * \todo
- * For now, this directly returns the first libusb error occurred. Maybe we can
- * change this a bit
- */
-int libklug_config(libklug_handle handle);
-
-/**
- * Claim device
- *
- * \details
- * Claims the configured device
- *
- * \warning
- * It is illegal to pass NULL. Passing an invalid handle results in UB and
- * should be avoided
- *
- * \note
- * Calling this will detach any previously attached driver. For now, reverting
- * that can be done by simply disconnecting and reconnecting the device.
- *
- * \param handle  libklug handle
- *
- * \return int  From libusb
- *
- * \todo
- * For now, this directly returns the first libusb error occurred. Maybe we can
- * change this a bit
- *
- * \todo
- * Generally, a AIO function should be provided to `connect` a device
- */
-int libklug_claim(libklug_handle handle);
-
-/**
- * Release device
- *
- * \details
- * Releases the claimed device
- *
- * \warning
- * It is illegal to pass NULL. Passing an invalid handle results in UB and
- * should be avoided
- *
- * \note
- * To clarify, this WON'T reattach the detached driver (at least not yet)
- *
- * \param handle  libklug handle
- *
- * \return int  From libusb
- *
- * \todo
- * For now, this directly returns the first libusb error occurred. Maybe we can
- * change this a bit
- */
-int libklug_release(libklug_handle handle);
+libklug_error libklug_openFd(libklug_handle handle, int Fd);
 
 /**
  * Close device
@@ -215,7 +145,7 @@ int libklug_release(libklug_handle handle);
  *
  * \param handle  libklug handle
  */
-void libklug_close(libklug_handle handle);
+libklug_error libklug_close(libklug_handle handle);
 
 /** ---------------------------------------------------
  *  Bridge COM

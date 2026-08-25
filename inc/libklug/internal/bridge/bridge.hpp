@@ -45,15 +45,11 @@ struct Bridge {
   Bridge() = default;
   Bridge(std::shared_ptr<internal::IConnection> conn);
 
-  int init();
+  void init();
 
-  int open(uint16_t vid = 0x1FC9u, uint16_t pid = 0x81C1u);
-  int openFd(int Fd);
+  void open(uint16_t vid = 0x1FC9u, uint16_t pid = 0x81C1u);
+  void openFd(int Fd);
 
-  int config();
-  int claim();
-
-  int release();
   void close();
 
   COM& com();

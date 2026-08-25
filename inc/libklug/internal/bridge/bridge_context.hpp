@@ -29,14 +29,6 @@ struct Context {
   Context(std::shared_ptr<internal::IConnection> conn);
 
   std::shared_ptr<internal::IConnection> connection; ///< Libusb connection info
-
-  bool valid() const;
-  bool transmission(transmission::TransmissionBase* t);
-  transmission::TransmissionBase* transmission();
-
-private:
-  std::mutex mut_transmission;                   ///< Transmission mutex
-  transmission::TransmissionBase* _transmission; ///< Current transmission
 };
 
 } // namespace bridge

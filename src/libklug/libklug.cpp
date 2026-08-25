@@ -68,27 +68,33 @@ libklug_handle libklug_create(void) {
 
 void libklug_destroy(libklug_handle handle) { delete to_bridge(handle); }
 
-int libklug_init(libklug_handle handle) { return to_bridge(handle)->init(); }
-
-int libklug_open(libklug_handle handle, uint16_t vid, uint16_t pid) {
-  return to_bridge(handle)->open(vid, pid);
+libklug_error libklug_init(libklug_handle handle) {
+  try {
+    to_bridge(handle)->init();
+    return libklug_error::ok;
+  } catch (...) { return libklug_error::usb; }
 }
 
-int libklug_openFd(libklug_handle handle, int Fd) {
-  return to_bridge(handle)->openFd(Fd);
+libklug_error libklug_open(libklug_handle handle, uint16_t vid, uint16_t pid) {
+  try {
+    to_bridge(handle)->open(vid, pid);
+    return libklug_error::ok;
+  } catch (...) { return libklug_error::usb; }
 }
 
-int libklug_config(libklug_handle handle) {
-  return to_bridge(handle)->config();
+libklug_error libklug_openFd(libklug_handle handle, int Fd) {
+  try {
+    to_bridge(handle)->openFd(Fd);
+    return libklug_error::ok;
+  } catch (...) { return libklug_error::usb; }
 }
 
-int libklug_claim(libklug_handle handle) { return to_bridge(handle)->claim(); }
-
-int libklug_release(libklug_handle handle) {
-  return to_bridge(handle)->release();
+libklug_error libklug_close(libklug_handle handle) {
+  try {
+    to_bridge(handle)->close();
+    return libklug_error::ok;
+  } catch (...) { return libklug_error::usb; }
 }
-
-void libklug_close(libklug_handle handle) { return to_bridge(handle)->close(); }
 
 /** ---------------------------------------------------
  *  Bridge COM

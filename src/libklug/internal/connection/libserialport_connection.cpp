@@ -10,6 +10,7 @@
 #include <libserialport.h>
 #include <cassert>
 #include <string_view>
+#include <utility>
 #include "libklug/error/error.hpp"
 #include "libklug/internal/exception/e_generic.hpp"
 #include "libklug/internal/log/asserter.hpp"
@@ -23,7 +24,7 @@ namespace internal {
  *
  * \return int 0
  */
-int LibserialportConnection::init() { return 0; }
+void LibserialportConnection::init() {}
 
 /**
  * Open device
@@ -32,14 +33,17 @@ int LibserialportConnection::init() { return 0; }
  * \param pid Device PID
  * \return int
  */
-int LibserialportConnection::open(uint16_t vid, uint16_t pid) {
+void LibserialportConnection::open(uint16_t vid, uint16_t pid) {
+  using std::operator""sv;
   LOG_INFO("Attempt to open device with [{:04x}:{:04x}]", pid, vid);
   sp_port** port_list;
   sp_port* found_port = nullptr;
 
   if (sp_list_ports(&port_list) != SP_OK) {
-    LOG_ERROR("Unable to list ports SP_ERR[{}]", sp_last_error_code());
-    return -1; // Error while listing
+    throw except::generic_error{
+      err::Error::usb,
+      std::format("Unable to list ports SP_ERR[{}]", sp_last_error_code())};
+    std::unreachable();
   }
 
   for (int i = 0; port_list[i] != nullptr; i++) {
@@ -57,18 +61,19 @@ int LibserialportConnection::open(uint16_t vid, uint16_t pid) {
   sp_free_port_list(port_list);
 
   if (!found_port) {
-    LOG_ERROR("No ZIMO_Interface found");
-    return -2; // Gerät nicht gefunden
+    throw except::generic_error{err::Error::usb, "No ZIMO_Interface found"sv};
+    std::unreachable();
   }
 
   this->_port = found_port;
   if (sp_open(_port, SP_MODE_READ_WRITE) != SP_OK) {
-    LOG_ERROR("Unable to open device on port {}", sp_get_port_name(found_port));
-    return -3;
+    throw except::generic_error{err::Error::usb,
+                                std::format("Unable to open device on port {}",
+                                            sp_get_port_name(found_port))};
+    std::unreachable();
   }
 
   LOG_INFO("Device on port {} now open", sp_get_port_name(found_port));
-  return 0;
 }
 
 /**
@@ -77,15 +82,19 @@ int LibserialportConnection::open(uint16_t vid, uint16_t pid) {
  * \param Fd
  * \return int
  */
-int LibserialportConnection::openFd(int Fd) {
-  LOG_ERROR("openFd is an illegal op for libserialport");
-  return -1;
+void LibserialportConnection::openFd(int Fd) {
+  using std::operator""sv;
+  throw except::generic_error{
+    err::Error::usb, "Libserialport can't open device by FileDescriptor"sv};
+  std::unreachable();
 }
 
-int LibserialportConnection::config() {
+void LibserialportConnection::config() {
+  using std::operator""sv;
   if (!_port) {
-    LOG_ERROR("Attempted to configure port=NULL");
-    return -1;
+    throw except::generic_error{err::Error::usb,
+                                "Attempted to configure port=NULL"sv};
+    std::unreachable();
   }
 
   for (unsigned int i{0uz}; i < 5uz; i++) {
@@ -99,30 +108,21 @@ int LibserialportConnection::config() {
       default: LIBKLUG_ASSERT(false) << "Config counter out of bounds\n"; break;
     }
     if (rc != SP_OK) {
-      LOG_ERROR("Unable to configure device on port {} SP_ERR[{}]",
-                sp_get_port_name(_port),
-                sp_last_error_code());
-      return -2;
+      throw except::generic_error{
+        err::Error::usb,
+        std::format("Unable to configure device on port {} SP_ERR[{}]",
+                    sp_get_port_name(_port),
+                    sp_last_error_code())};
+      std::unreachable();
     }
   }
 
   LOG_INFO("Configured device on port {}", sp_get_port_name(_port));
-  return 0;
-}
-
-int LibserialportConnection::claim() {
-  if (!_port) return -1;
-  return 0;
-}
-
-int LibserialportConnection::release() {
-  if (!_port) return -1;
-  sp_flush(_port, SP_BUF_BOTH);
-  return 0;
 }
 
 void LibserialportConnection::close() {
   if (_port) {
+    sp_flush(_port, SP_BUF_BOTH);
     sp_close(_port);
     sp_free_port(_port);
     _port = nullptr;

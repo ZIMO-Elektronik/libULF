@@ -34,8 +34,6 @@ else()
   # Default (for now)
   option(LIBKLUG_BACKEND_LIBUSB "Libusb as backend" OFF)
   option(LIBKLUG_BACKEND_LIBSERIALPORT "Libserialport as backend" ON)
-  # option(LIBKLUG_BACKEND_LIBUSB "Libusb as backend" ON)
-  # option(LIBKLUG_BACKEND_LIBSERIALPORT "Libserialport as backend" OFF)
 endif()
 
 if((LIBKLUG_BACKEND_LIBUSB AND LIBKLUG_BACKEND_LIBSERIALPORT)

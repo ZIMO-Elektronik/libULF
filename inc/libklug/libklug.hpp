@@ -930,7 +930,7 @@ struct LibKLUG {
    * \return int
    * \retval Any error occurred
    */
-  int init() { return libklug_init(_lib); }
+  err::Error init() { return static_cast<err::Error>(libklug_init(_lib)); }
 
   /**
    * Open device
@@ -940,7 +940,9 @@ struct LibKLUG {
    *
    * \return int  Any error occurred
    */
-  int open(uint16_t vid, uint16_t pid) { return libklug_open(_lib, vid, pid); }
+  err::Error open(uint16_t vid, uint16_t pid) {
+    return static_cast<err::Error>(libklug_open(_lib, vid, pid));
+  }
 
   /**
    * Open device by File descripor
@@ -951,33 +953,14 @@ struct LibKLUG {
    *
    * \return int Any error occurred
    */
-  int openFd(int Fd) { return libklug_openFd(_lib, Fd); }
-
-  /**
-   * Config device
-   *
-   * \return int  Any error occurred
-   */
-  int config() { return libklug_config(_lib); }
-
-  /**
-   * Claim device
-   *
-   * \return int  Any error occurred
-   */
-  int claim() { return libklug_claim(_lib); }
-
-  /**
-   * Release device
-   *
-   * \return int  Any error occurred
-   */
-  int release() { return libklug_release(_lib); }
+  err::Error openFd(int Fd) {
+    return static_cast<err::Error>(libklug_openFd(_lib, Fd));
+  }
 
   /**
    * Close device
    */
-  void close() { return libklug_close(_lib); }
+  err::Error close() { return static_cast<err::Error>(libklug_close(_lib)); }
 
   /**
    * Get COM interface
