@@ -356,8 +356,9 @@ bool MDU_EIN::zppUpdate(zpp::File* file, uint32_t index) {
 bool MDU_EIN::zppUpdateEnd(uint32_t start_address, uint32_t end_address) {
   transmission::mdu_ein::Base t{
     _ctx.connection,
-    ulf::mdu_ein::bytes2mdu_ein(mdu::make_zpp_exit_reset_packet()),
-    internal::config::timeout::mdu_ein::zpp_exit_reset};
+    ulf::mdu_ein::bytes2mdu_ein(
+      mdu::make_zpp_update_end_packet(start_address, end_address)),
+    internal::config::timeout::mdu_ein::zpp_update_end};
   t.execute();
   return t.evaluateBool();
 }
@@ -385,8 +386,12 @@ bool MDU_EIN::zppUpdateEnd(zpp::File* file) {
  * \return bool Response
  */
 bool MDU_EIN::zppExitReset() {
-  assert(false);
-  return false;
+  transmission::mdu_ein::Base t{
+    _ctx.connection,
+    ulf::mdu_ein::bytes2mdu_ein(mdu::make_zpp_exit_reset_packet()),
+    internal::config::timeout::mdu_ein::zpp_exit_reset};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**
