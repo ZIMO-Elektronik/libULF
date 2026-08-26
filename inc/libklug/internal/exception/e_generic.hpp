@@ -11,9 +11,6 @@
 #include <stdexcept>
 #include "libklug/error/error.hpp"
 #include "libklug/error/error2string.hpp"
-#include "libklug/result/dispatch.hpp"
-#include "libklug/result/result.h"
-#include "libklug/result/result.hpp"
 
 namespace except {
 
@@ -44,10 +41,6 @@ struct generic_error : public std::exception {
   constexpr generic_error& operator=(generic_error const&) = default;
 
   constexpr explicit operator err::Error() const { return _code; }
-  constexpr explicit operator res::Error() const { return res::Error{_code}; }
-  constexpr explicit operator result() const {
-    return res::dispatch(static_cast<res::Error>(*this));
-  }
 
 private:
   err::Error const _code;

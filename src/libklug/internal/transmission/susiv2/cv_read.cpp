@@ -33,8 +33,7 @@ CvRead::CvRead(std::shared_ptr<internal::IConnection> conn,
 /**
  * Evaluate a byte
  *
- * \retval uint8_t              Evaluated byte
- * \retval err::Error::format   Format mismatch
+ * \return Evaluated byte
  */
 uint8_t CvRead::evaluateByte() {
   using std::operator""sv;

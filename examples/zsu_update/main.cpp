@@ -24,10 +24,10 @@ int main() {
   size_t fwIndex{};
   size_t const maxFwIndex{libklug_zsu_get_firmware_count(zsu) - 1uz};
 
-  int result{}; // Result container (implicit bool)
+  libklug_bool result{}; // Result container (implicit bool)
 
   gsl::final_action a([&]() {
-    if (libklug_com_reset(lib, &result) != libklug_error::ok || !result) {
+    if (libklug_com_reset(lib, &result) != LIBKLUG_OK || !result) {
       std::cout << "Unable to RESET device" << std::endl;
     }
     libklug_zsu_release(zsu);
@@ -35,20 +35,19 @@ int main() {
   });
 
   std::cout << "Enter MDU_EIN" << std::endl;
-  if (libklug_com_mdu_ein(lib, &result) != libklug_error::ok || !result) {
+  if (libklug_com_mdu_ein(lib, &result) != LIBKLUG_OK || !result) {
     std::cout << "Unable to enter MDU_EIN" << std::endl;
     return -1;
   };
 
   std::cout << "Entering Bootloader" << std::endl;
-  if (libklug_mdu_ein_enter_mdu(lib, &result) != libklug_error::ok || !result) {
+  if (libklug_mdu_ein_enter_mdu(lib, &result) != LIBKLUG_OK || !result) {
     std::cout << "Unable to enter Decoder BL" << std::endl;
     return -1;
   }
 
   std::cout << "Set transfer rate to slow" << std::endl;
-  if (libklug_mdu_ein_config_transfer_rate(lib, 3, &result) !=
-        libklug_error::ok ||
+  if (libklug_mdu_ein_config_transfer_rate(lib, 3, &result) != LIBKLUG_OK ||
       !result) {
     std::cout << "Unable to set Transfer Rate" << std::endl;
     return -1;
@@ -59,7 +58,7 @@ int main() {
   do { // Caution, this assumes at least one firmware in file
     if (libklug_mdu_ein_ping(
           lib, 0uz, libklug_zsu_get_firmware_id(zsu, fwIndex), &result) !=
-        libklug_error::ok) {
+        LIBKLUG_OK) {
       std::cout << "Error during pinging" << std::endl;
       return -1;
     }
@@ -87,8 +86,7 @@ int main() {
   }
 
   std::cout << "Erasing Flash" << std::endl;
-  if (libklug_mdu_ein_zsu_erase(lib, zsu, fwIndex, &result) !=
-        libklug_error::ok ||
+  if (libklug_mdu_ein_zsu_erase(lib, zsu, fwIndex, &result) != LIBKLUG_OK ||
       !result) {
     std::cout << "Unable to erase flash" << std::endl;
     return -1;
@@ -115,7 +113,7 @@ int main() {
     }
 
     if (libklug_mdu_ein_zsu_update(lib, zsu, fwIndex, i, &result) !=
-          libklug_error::ok ||
+          LIBKLUG_OK ||
         !result) {
       if (retry >= max_retries) {
         std::cout << "Error at block " << i << std::endl;
@@ -133,15 +131,14 @@ int main() {
   std::cout << std::endl;
 
   if (libklug_mdu_ein_zsu_crc32_start(lib, zsu, fwIndex, &result) !=
-        libklug_error::ok ||
+        LIBKLUG_OK ||
       !result) {
     std::cout << "Unable to init CRC32 verification" << std::endl;
     return -1;
   }
   std::cout << "CRC32 check started" << std::endl;
 
-  if (libklug_mdu_ein_zsu_crc32_result_exit(lib, &result) !=
-        libklug_error::ok ||
+  if (libklug_mdu_ein_zsu_crc32_result_exit(lib, &result) != LIBKLUG_OK ||
       !result) {
     std::cout << "Bad CRC32" << std::endl;
     return -1;

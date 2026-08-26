@@ -39,7 +39,7 @@ bool MDU_EIN::enterMDU() {
   transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::special2mdu_ein(ulf::mdu_ein::Command::Entry, 0u, payload),
-    2000u};
+    internal::config::timeout::mdu_ein::enter_mdu};
   t.execute();
   return t.evaluateBool();
 }
@@ -67,7 +67,7 @@ bool MDU_EIN::enterDCCZSU(uint32_t id, uint32_t sn, bool done) {
     _ctx.connection,
     ulf::mdu_ein::special2mdu_ein(
       ulf::mdu_ein::Command::Entry, 1u, std::span<uint8_t, 16u>{payload}),
-    2000u};
+    internal::config::timeout::mdu_ein::enter_dcc_zsu};
   t.execute();
   return t.evaluateBool();
 }
@@ -93,7 +93,7 @@ bool MDU_EIN::enterDCCZPP(uint32_t sn, bool done) {
     _ctx.connection,
     ulf::mdu_ein::special2mdu_ein(
       ulf::mdu_ein::Command::Entry, 2u, std::span<uint8_t, 16u>{payload}),
-    2000u};
+    internal::config::timeout::mdu_ein::enter_dcc_zpp};
   t.execute();
   return t.evaluateBool();
 }
@@ -113,7 +113,7 @@ bool MDU_EIN::ping(uint32_t sn, uint32_t id) {
   transmission::mdu_ein::Ping t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_ping_packet(sn, id)),
-    2000u};
+    internal::config::timeout::mdu_ein::ping};
   t.execute();
   return t.evaluateBool();
 }
@@ -181,7 +181,7 @@ bool MDU_EIN::cvWrite(uint16_t cv, uint8_t value) {
   transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_cv_write_packet(cv, value)),
-    2000u};
+    internal::config::timeout::mdu_ein::cv_write};
   t.execute();
   return t.evaluateBool();
 }
@@ -198,7 +198,7 @@ bool MDU_EIN::busy() {
   transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_busy_packet()),
-    2000u};
+    internal::config::timeout::mdu_ein::busy};
   t.execute();
   return t.evaluateBool();
 }
@@ -218,7 +218,7 @@ bool MDU_EIN::zppValidQuery(std::string_view id, uint32_t size) {
   transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_zpp_valid_query_packet(id, size)),
-    2000uz};
+    internal::config::timeout::mdu_ein::zpp_valid_query};
   t.execute();
   return t.evaluateBool();
 }
@@ -251,7 +251,7 @@ bool MDU_EIN::zppLcDcQuery(std::span<uint8_t const, 4uz> dev_code) {
   transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_zpp_lc_dc_query_packet(dev_code)),
-    2000uz};
+    internal::config::timeout::mdu_ein::zpp_lc_dc_query};
   t.execute();
   return t.evaluateBool();
 }
@@ -286,7 +286,7 @@ bool MDU_EIN::zppErase(uint32_t start_address, uint32_t end_address) {
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(
       mdu::make_zpp_erase_packet(start_address, end_address)),
-    2000uz};
+    internal::config::timeout::mdu_ein::zpp_erase};
   t.execute();
   return t.evaluateBool();
 }
@@ -321,7 +321,7 @@ bool MDU_EIN::zppUpdate(uint32_t address,
   transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_zpp_update_packet(address, block)),
-    2000uz};
+    internal::config::timeout::mdu_ein::zpp_update};
   t.execute();
   return t.evaluateBool();
 }
@@ -408,7 +408,7 @@ bool MDU_EIN::zsuSalsa20IV(std::span<uint8_t const, 8uz> iv) {
   transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_zsu_salsa20_iv_packet(iv)),
-    2000u};
+    internal::config::timeout::mdu_ein::zsu_salsa_20_iv};
   t.execute();
   return t.evaluateBool();
 }
@@ -446,7 +446,7 @@ bool MDU_EIN::zsuErase(uint32_t start_address, uint32_t end_address) {
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(
       mdu::make_zsu_erase_packet(start_address, end_address)),
-    2000u};
+    internal::config::timeout::mdu_ein::zsu_erase};
   t.execute();
   return t.evaluateBool();
 }
@@ -481,7 +481,7 @@ bool MDU_EIN::zsuUpdate(uint32_t address,
   transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_zsu_update_packet(address, block)),
-    2000u};
+    internal::config::timeout::mdu_ein::zsu_update};
   t.execute();
   return t.evaluateBool();
 }
@@ -521,7 +521,7 @@ bool MDU_EIN::zsuCRC32Start(uint32_t start_address,
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(
       mdu::make_zsu_crc32_start_packet(start_address, end_address, crc)),
-    2000uz};
+    internal::config::timeout::mdu_ein::zsu_crc32_start};
   t.execute();
   return t.evaluateBool();
 }
@@ -553,7 +553,7 @@ bool MDU_EIN::zsuCRC32Result() {
   transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_zsu_crc32_result_packet()),
-    2000uz};
+    internal::config::timeout::mdu_ein::zsu_crc32_result};
   t.execute();
   return t.evaluateBool();
 }
@@ -570,7 +570,7 @@ bool MDU_EIN::zsuCRC32ResultExit() {
   transmission::mdu_ein::Base t{
     _ctx.connection,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_zsu_crc32_result_exit_packet()),
-    2000uz};
+    internal::config::timeout::mdu_ein::zsu_crc32_result_exit};
   t.execute();
   return t.evaluateBool();
 }

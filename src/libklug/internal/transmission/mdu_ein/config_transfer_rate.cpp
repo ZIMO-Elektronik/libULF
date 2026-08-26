@@ -9,7 +9,7 @@
 #include "libklug/internal/transmission/mdu_ein/config_transfer_rate.hpp"
 #include <ulf/mdu_ein.hpp>
 #include "libklug/internal/exception/e_generic.hpp"
-#include "libklug/internal/logging.hpp"
+#include "libklug/internal/log/logger.hpp"
 
 namespace transmission::mdu_ein {
 
@@ -36,8 +36,8 @@ void ConfigTransferRate::execute() {
                                   "Unable to set speed for device"sv};
     _result = true;
   } catch (std::exception const& e) {
-    LOGE("{}", e.what());
-    LOGD("Attempting to set fallback timing");
+    LOG_ERROR("{}", e.what());
+    LOG_WARN("Attempting to set fallback timing");
     if (!special(true))
       throw except::generic_error{err::Error::nak,
                                   "Unable to set fallback speed for device"sv};
@@ -51,6 +51,7 @@ std::string ConfigTransferRate::evaluateString() {
   std::unreachable();
 }
 
+/// Return result
 bool ConfigTransferRate::evaluateBool() { return _result; }
 
 /// Stub
@@ -60,22 +61,36 @@ uint8_t ConfigTransferRate::evaluateByte() {
   std::unreachable();
 }
 
+/**
+ * Set the transfer rate for the decoder
+ *
+ * \return true   Success
+ * \return false  Error
+ */
 bool ConfigTransferRate::packet() {
   Base t{
     _conn,
     ulf::mdu_ein::bytes2mdu_ein(mdu::make_config_transfer_rate_packet(_speed)),
-    100u};
+    internal::config::timeout::mdu_ein::config_transfer_rate};
   t.execute();
   return t.evaluateBool();
 }
 
+/**
+ * Set the transfer rate in the device
+ *
+ * \param fallback  Should use fallback speed
+ *
+ * \return true   Success
+ * \return false  Error
+ */
 bool ConfigTransferRate::special(bool fallback) {
   Base t{_conn,
          ulf::mdu_ein::special2mdu_ein(
            ulf::mdu_ein::Command::Speed,
            std::to_underlying(fallback ? mdu::TransferRate::Fallback : _speed),
            std::array<uint8_t, 16>{}),
-         100u};
+         internal::config::timeout::mdu_ein::config_transfer_rate};
   t.execute();
   return t.evaluateBool();
 }

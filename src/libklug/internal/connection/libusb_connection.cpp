@@ -14,7 +14,7 @@
 #include <vector>
 #include <ztl/ztl.hpp>
 #include "libklug/internal/exception/e_generic.hpp"
-#include "libklug/internal/logging.hpp"
+#include "libklug/internal/log/logger.hpp"
 
 namespace internal {
 
@@ -32,8 +32,8 @@ void LibusbConnection::init() {
   libusb_set_option(NULL, LIBUSB_OPTION_WEAK_AUTHORITY);
   libusb_set_option(nullptr, LIBUSB_OPTION_NO_DEVICE_DISCOVERY);
 #endif
-  if (libusb_init(nullptr))
-    throw except::generic_error(err::Error::usb,
+  if (auto const rc{libusb_init(nullptr)})
+    throw except::generic_error(err::map(rc),
                                 "Unable to init libusb connection"sv);
 }
 
@@ -42,11 +42,11 @@ void LibusbConnection::init() {
  *
  * \warning DO NOT CALL THIS ON ANDROID
  *
+ * \throw generic_error   If no device exists or an unhandled libusb error
+ *                        occurs
+ *
  * \param vid VID
  * \param pid PID
- * \return int
- * \retval LIBUSB_ERROR   Error
- * \retval LIBUSB_SUCCESS Success
  */
 void LibusbConnection::open(uint16_t vid, uint16_t pid) {
   if (_handle) {
@@ -66,7 +66,7 @@ void LibusbConnection::open(uint16_t vid, uint16_t pid) {
     std::unreachable();
   }
 
-  LOGD("Opened device {:04x}:{:04x}", vid, pid);
+  LOG_TRACE("Opened device {:04x}:{:04x}", vid, pid);
 
   config();
   claim();
@@ -75,13 +75,11 @@ void LibusbConnection::open(uint16_t vid, uint16_t pid) {
 /**
  * Open connection from file descriptor
  *
+ * \throw generic_error   If no device exists or an unhandled libusb error
+ *                        occurs
+ *
  * \note This exists mainly for Android, as the devices need to be opened from
  * Java / Kotlin side
- *
- * \param Fd File descriptor
- * \return int
- * \retval LIBUSB_ERROR   Error
- * \retval LIBUSB_SUCCESS Success
  */
 void LibusbConnection::openFd(int Fd) {
   if (_handle) {
@@ -96,14 +94,14 @@ void LibusbConnection::openFd(int Fd) {
   auto rc{libusb_wrap_sys_device(nullptr, (intptr_t)Fd, &_handle)};
   if (rc != LIBUSB_SUCCESS) {
     throw except::generic_error{
-      err::Error::usb,
+      err::map(rc),
       std::format("Unable to open device with descriptor ID {}, [{}]",
                   Fd,
                   libusb_error_name(rc))};
     std::unreachable();
   }
 
-  LOGD("Wrapped sys device");
+  LOG_TRACE("Wrapped sys device");
 
   config();
   claim();
@@ -112,11 +110,10 @@ void LibusbConnection::openFd(int Fd) {
 /**
  * Config connection
  *
- * \note Configures internals
+ * \throw generic_error   If no device exists or an unhandled libusb error
+ *                        occurs
  *
- * \return int
- * \retval LIBUSB_ERROR   Error
- * \retval LIBUSB_SUCCESS Success
+ * \note Configures internals
  */
 void LibusbConnection::config() {
   using std::operator""sv;
@@ -133,7 +130,7 @@ void LibusbConnection::config() {
     libusb_get_active_config_descriptor(libusb_get_device(_handle), &config)};
   if (rc != LIBUSB_SUCCESS) {
     throw except::generic_error{
-      err::Error::usb,
+      err::map(rc),
       std::format("Unable to retrieve config descriptor. Error: {}",
                   libusb_error_name(rc))};
     std::unreachable();
@@ -180,16 +177,15 @@ void LibusbConnection::config() {
   _tx_ep = tx_eps.front();
   _rx_ep = rx_eps.front();
 
-  LOGD("TX-EP address: x{:02x}", _tx_ep);
-  LOGD("RX-EP address: x{:02x}", _rx_ep);
+  LOG_TRACE("TX-EP address: x{:02x}", _tx_ep);
+  LOG_TRACE("RX-EP address: x{:02x}", _rx_ep);
 }
 
 /**
  * Claim Interface
  *
- * \return int
- * \retval LIBUSB_ERROR   Error
- * \retval LIBUSB_SUCCESS Success
+ * \throw generic_error   If no device exists or an unhandled libusb error
+ *                        occurs
  */
 void LibusbConnection::claim() {
   using std::operator""sv;
@@ -200,23 +196,23 @@ void LibusbConnection::claim() {
     std::unreachable();
   }
 
-  LOGD("TX_EP - {} RX_EP - {} Interface {}", _tx_ep, _rx_ep, _interface);
+  LOG_TRACE("TX_EP - {} RX_EP - {} Interface {}", _tx_ep, _rx_ep, _interface);
 
   auto rc{libusb_kernel_driver_active(_handle, _interface)};
   if (rc == 1) {
-    LOGD("Kernel driver attached, attempting to detach");
+    LOG_TRACE("Kernel driver attached, attempting to detach");
 
     rc = libusb_detach_kernel_driver(_handle, _interface);
     if (rc != LIBUSB_SUCCESS) {
       throw except::generic_error{
-        err::Error::usb,
+        err::map(rc),
         std::format("Unable to detach kernel driver. Error: {}",
                     libusb_error_name(rc))};
       std::unreachable();
     }
-    LOGD("Detached kernel driver from interface {}", _interface);
+    LOG_TRACE("Detached kernel driver from interface {}", _interface);
   } else {
-    LOGD("libusb returned {} on driver check", rc);
+    LOG_TRACE("libusb returned {} on driver check", rc);
   }
 
   libusb_detach_kernel_driver(_handle, _interface);
@@ -224,22 +220,21 @@ void LibusbConnection::claim() {
   rc = libusb_claim_interface(_handle, _interface);
   if (rc != LIBUSB_SUCCESS) {
     throw except::generic_error{
-      err::Error::usb,
+      err::map(rc),
       std::format("Unable to claim interface {}. Error: {}",
                   _interface,
                   libusb_error_name(rc))};
     std::unreachable();
   }
 
-  LOGD("Successfully claimed interface {}", _interface);
+  LOG_TRACE("Successfully claimed interface {}", _interface);
 }
 
 /**
  * Release Interface
  *
- * \return int
- * \retval LIBUSB_ERROR   Error
- * \retval LIBUSB_SUCCESS Success
+ * \throw generic_error   If no device is set or an unhandled libusb error
+ *                        occurs
  */
 void LibusbConnection::release() {
   using std::operator""sv;
@@ -253,7 +248,7 @@ void LibusbConnection::release() {
   auto rc{libusb_release_interface(_handle, _interface)};
   if (rc != LIBUSB_SUCCESS) {
     throw except::generic_error{
-      err::Error::usb,
+      err::map(rc),
       std::format("Unable to release interface. Error: {}",
                   libusb_error_name(rc))};
     std::unreachable();
@@ -271,7 +266,7 @@ void LibusbConnection::close() {
   release();
 
   if (!_handle) {
-    LOGE("Attemted to close a device without an open device!");
+    LOG_WARN("Attemted to close a device without an open device!");
     return;
   }
 
@@ -313,7 +308,7 @@ void LibusbConnection::_write(std::span<uint8_t const> payload,
                              nullptr,
                              timeout)};
       rc != LIBUSB_SUCCESS)
-    throw except::generic_error{err::Error::usb, "Unable to transmit"sv};
+    throw except::generic_error{err::map(rc), "Unable to transmit"sv};
 }
 
 /**
@@ -336,7 +331,7 @@ void LibusbConnection::_read_until(uint8_t* buffer,
   if (auto rc{libusb_bulk_transfer(
         _handle, _rx_ep, buffer, length, received, timeout)};
       rc != LIBUSB_SUCCESS)
-    throw except::generic_error{err::Error::usb, "Unable to receive"sv};
+    throw except::generic_error{err::map(rc), "Unable to receive"sv};
 
 } // namespace internal
 
@@ -358,7 +353,7 @@ void LibusbConnection::_read_all(uint8_t* buffer,
   if (auto rc{libusb_bulk_transfer(
         _handle, _rx_ep, buffer, length, received, timeout)};
       rc != LIBUSB_SUCCESS)
-    throw except::generic_error{err::Error::usb, "Unable to receive"sv};
+    throw except::generic_error{err::map(rc), "Unable to receive"sv};
 }
 
 } // namespace internal

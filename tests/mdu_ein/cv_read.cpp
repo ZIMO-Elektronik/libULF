@@ -104,8 +104,7 @@ TEST_F(TestMDU_EIN, cv_read_result_success) {
     .WillOnce(helper::mdu::receive_nak); //
 
   uint8_t r{};
-  ASSERT_EQ(libklug_mdu_ein_cv_read(libHandle, cv_address, &r),
-            libklug_error::ok);
+  ASSERT_EQ(libklug_mdu_ein_cv_read(libHandle, cv_address, &r), LIBKLUG_OK);
   ASSERT_EQ(r, cv_value);
 }
 
@@ -121,8 +120,7 @@ TEST_F(TestMDU_EIN, cv_read_write_error_result) {
   throwTransmitException();
 
   uint8_t r{};
-  ASSERT_NE(libklug_mdu_ein_cv_read(libHandle, cv_address, &r),
-            libklug_error::ok);
+  ASSERT_NE(libklug_mdu_ein_cv_read(libHandle, cv_address, &r), LIBKLUG_OK);
 }
 
 TEST_F(TestMDU_EIN, cv_read_receive_error) {
@@ -136,6 +134,5 @@ TEST_F(TestMDU_EIN, cv_read_receive_error_result) {
   throwReceiveException();
 
   uint8_t r{};
-  ASSERT_NE(libklug_mdu_ein_cv_read(libHandle, cv_address, &r),
-            libklug_error::ok);
+  ASSERT_NE(libklug_mdu_ein_cv_read(libHandle, cv_address, &r), LIBKLUG_OK);
 }

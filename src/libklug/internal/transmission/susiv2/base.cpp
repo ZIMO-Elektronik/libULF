@@ -40,8 +40,9 @@ Base::Base(std::shared_ptr<internal::IConnection> conn,
 /**
  * Evaluate a bool
  *
- * \retval bool                 Evaluated bool
- * \retval err::Error::format   Format mismatch
+ * \throw generic_error  If format does not match protocol
+ *
+ * \return Evaluated bool
  */
 bool Base::evaluateBool() {
   using std::operator""sv;
@@ -52,6 +53,15 @@ bool Base::evaluateBool() {
   return _response.front() == ulf::susiv2::ack;
 }
 
+/**
+ * Check if the response is valid
+ *
+ * \note
+ * Yes, a nak is indeed valid
+ *
+ * \return true   Valid
+ * \return false  Not valid
+ */
 bool Base::valid() {
   return _response.size() >= 1uz && _response.size() <= 6uz &&
          (_response.front() == ulf::susiv2::ack ||

@@ -10,8 +10,6 @@
 #include <ulf/mdu_ein.hpp>
 #include <utility>
 #include "libklug/internal/exception/e_generic.hpp"
-#include "libklug/result/wrapper/error.hpp"
-#include "libklug/result/wrapper/status.hpp"
 
 namespace transmission::mdu_ein {
 
@@ -42,8 +40,9 @@ Base::Base(std::shared_ptr<internal::IConnection> conn,
 /**
  * Evaluate a bool
  *
- * \retval bool                 Evaluated bool
- * \retval err::Error::format   Format mismatch
+ * \throw generic_error If Format does not match protocol
+ *
+ * \return Evaluated bool
  */
 bool Base::evaluateBool() {
   using std::operator""sv;

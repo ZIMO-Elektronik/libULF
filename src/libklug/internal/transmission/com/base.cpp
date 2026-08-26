@@ -9,7 +9,6 @@
 #include "libklug/internal/transmission/com/base.hpp"
 #include <utility>
 #include "libklug/internal/exception/e_generic.hpp"
-#include "libklug/internal/logging.hpp"
 
 std::array<char, 64> tmp_buffer;
 
@@ -46,8 +45,7 @@ Base::Base(std::shared_ptr<internal::IConnection> conn,
 /**
  * Evaluate a string
  *
- * \retval std::string          Evaluated bool
- * \retval err::Error::format   Format mismatch
+ * \return Received string
  */
 std::string Base::evaluateString() {
   return std::string{reinterpret_cast<char const*>(_response.data()),
@@ -57,8 +55,9 @@ std::string Base::evaluateString() {
 /**
  * Evaluate a bool
  *
- * \retval bool                 Evaluated bool
- * \retval err::Error::format   Format mismatch
+ * \throw generic_error If format does not match protocol
+ *
+ * \return Evaluated bool
  */
 bool Base::evaluateBool() {
   using std::operator""sv;

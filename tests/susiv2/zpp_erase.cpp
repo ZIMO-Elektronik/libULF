@@ -22,7 +22,7 @@ TEST_F(TestSUSIV2, zpp_erase_payload) {
     EXPECT_CALL(conn, _read_all(_, _, _, _)).Times(1);
   }
 
-  int r{};
+  libklug_bool r{};
   libklug_susiv2_zpp_erase(libHandle, &r);
 }
 
@@ -33,35 +33,35 @@ TEST_F(TestSUSIV2, zpp_erase_result_success) {
   ON_CALL(conn, _read_all(_, Ge(expected.size()), _, _))
     .WillByDefault(helper::susiv2::receive_ack);
 
-  int r{};
-  ASSERT_EQ(libklug_susiv2_zpp_erase(libHandle, &r), libklug_error::ok);
+  libklug_bool r{};
+  ASSERT_EQ(libklug_susiv2_zpp_erase(libHandle, &r), LIBKLUG_OK);
   ASSERT_TRUE(r);
 }
 
 TEST_F(TestSUSIV2, zpp_erase_write_error) {
   assertTransmitErrorCalls<true>();
 
-  int r{};
+  libklug_bool r{};
   libklug_susiv2_zpp_erase(libHandle, &r);
 }
 
 TEST_F(TestSUSIV2, zpp_erase_write_error_result) {
   throwTransmitException();
 
-  int r{};
-  ASSERT_NE(libklug_susiv2_zpp_erase(libHandle, &r), libklug_error::ok);
+  libklug_bool r{};
+  ASSERT_NE(libklug_susiv2_zpp_erase(libHandle, &r), LIBKLUG_OK);
 }
 
 TEST_F(TestSUSIV2, zpp_erase_receive_error) {
   assertReceiveErrorCalls<true>();
 
-  int r{};
+  libklug_bool r{};
   libklug_susiv2_zpp_erase(libHandle, &r);
 }
 
 TEST_F(TestSUSIV2, zpp_erase_receive_error_result) {
   throwReceiveException();
 
-  int r{};
-  ASSERT_NE(libklug_susiv2_zpp_erase(libHandle, &r), libklug_error::ok);
+  libklug_bool r{};
+  ASSERT_NE(libklug_susiv2_zpp_erase(libHandle, &r), LIBKLUG_OK);
 }

@@ -14,8 +14,6 @@
 #include "bridge_susiv2.hpp"
 #include "bridge_zpp.hpp"
 #include "bridge_zsu.hpp"
-#include "libklug/callback/callback.h"
-#include "libklug/callback/i_functor.hpp"
 
 namespace bridge {
 

@@ -10,6 +10,7 @@
 #include <ulf/susiv2.hpp>
 #include <utility>
 #include <zusi/zusi.hpp>
+#include "config.hpp"
 #include "libklug/internal/exception/e_generic.hpp"
 #include "libklug/internal/transmission/susiv2/base.hpp"
 #include "libklug/internal/transmission/susiv2/cv_read.hpp"
@@ -72,7 +73,7 @@ bool SUSIV2::zppErase() {
     ulf::susiv2::packet2frame<
       ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
       zusi::make_zpp_erase_packet()),
-    200000u};
+    internal::config::timeout::susiv2::zpp_erase};
   t.execute();
   return t.evaluateBool();
 }
@@ -94,7 +95,7 @@ bool SUSIV2::zppWrite(uint32_t address, std::span<uint8_t const> block) {
     ulf::susiv2::packet2frame<
       ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
       zusi::make_zpp_write_packet(block.size() - 1u, address, block)),
-    2000u};
+    internal::config::timeout::susiv2::zpp_erase};
   t.execute();
   return t.evaluateBool();
 }
@@ -129,7 +130,7 @@ bool SUSIV2::features() {
     ulf::susiv2::packet2frame<
       ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
       zusi::make_features_packet()),
-    2000uz};
+    internal::config::timeout::susiv2::features};
   t.execute();
   return t.evaluateBool();
 }
@@ -151,7 +152,7 @@ bool SUSIV2::exit(bool reboot, bool cv8_reset) {
     ulf::susiv2::packet2frame<
       ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
       zusi::make_exit_packet(0xFC | (reboot << 0u) | (cv8_reset << 1u))),
-    2000uz};
+    internal::config::timeout::susiv2::exit};
   t.execute();
   return t.evaluateBool();
 }
@@ -172,7 +173,7 @@ bool SUSIV2::zppLcDcQuery(uint32_t dev_code) {
     ulf::susiv2::packet2frame<
       ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
       zusi::make_zpp_lc_dc_query_packet(dev_code)),
-    2000uz};
+    internal::config::timeout::susiv2::zpp_lc_dc_query};
   t.execute();
   return t.evaluateBool();
 }

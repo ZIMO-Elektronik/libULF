@@ -7,8 +7,6 @@
  */
 
 #include "libklug/internal/transmission/mdu_ein/ping.hpp"
-#include <libklug/result/wrapper/error.hpp>
-#include <libklug/result/wrapper/status.hpp>
 #include <ulf/mdu_ein.hpp>
 #include <utility>
 #include "libklug/internal/exception/e_generic.hpp"
@@ -45,8 +43,9 @@ Ping::Ping(std::shared_ptr<internal::IConnection> conn,
  * \note
  * This is the inverse operation, since a decoder naks when it responds
  *
- * \retval bool                 Evaluated bool
- * \retval err::Error::format   Format mismatch
+ * \throw generic_error When format does not match protocol
+ *
+ * \retval Evaluated bool
  */
 bool Ping::evaluateBool() {
   using std::operator""sv;

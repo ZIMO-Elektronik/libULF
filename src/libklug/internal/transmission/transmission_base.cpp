@@ -12,7 +12,6 @@
 #include <utility>
 #include "libklug/internal/connection/i_connection.hpp"
 #include "libklug/internal/exception/e_generic.hpp"
-#include "libklug/internal/logging.hpp"
 
 namespace transmission {
 
@@ -87,7 +86,7 @@ TransmissionBase::TransmissionBase(std::shared_ptr<internal::IConnection> conn,
 /**
  * Execute transmission
  *
- * \throw libusb_error
+ * \throw generic_error Forward
  */
 void TransmissionBase::execute() {
   this->transmit();
@@ -97,7 +96,7 @@ void TransmissionBase::execute() {
 /**
  * Transmit payload
  *
- * \throw libusb_error
+ * \throw generic_error Forward
  */
 void TransmissionBase::transmit() {
   _conn->flush();
@@ -107,7 +106,7 @@ void TransmissionBase::transmit() {
 /**
  * Receive response
  *
- * \throw libusb_error
+ * \throw generic_error Forward
  */
 void TransmissionBase::receive() {
   if (_response.size() < 64u) _response.resize(64u);

@@ -18,20 +18,17 @@ int main() {
 
   long const count{libklug_zpp_blocks(z_handle)};
 
-  int boolean{}; // Result container (implicit bool)
+  libklug_bool boolean{}; // Result container (implicit bool)
 
   std::cout << "SUSIV2 mode" << std::endl;
-  if (libklug_com_susiv2(handle, &boolean) != libklug_error::ok || !boolean)
-    abort();
+  if (libklug_com_susiv2(handle, &boolean) != LIBKLUG_OK || !boolean) abort();
 
   std::cout << "SUSIV2 Features" << std::endl;
-  if (libklug_susiv2_features(handle, &boolean) != libklug_error::ok ||
-      !boolean)
+  if (libklug_susiv2_features(handle, &boolean) != LIBKLUG_OK || !boolean)
     abort();
 
   std::cout << "Erase Flash" << std::endl;
-  if (libklug_susiv2_zpp_erase(handle, &boolean) != libklug_error::ok ||
-      !boolean)
+  if (libklug_susiv2_zpp_erase(handle, &boolean) != LIBKLUG_OK || !boolean)
     abort();
 
   std::cout << "Progress" << std::endl;
@@ -49,8 +46,7 @@ int main() {
 
     std::cout << int(progress * 100.0) << " %";
 
-    if (libklug_susiv2_zpp_write(handle, z_handle, i, &boolean) !=
-          libklug_error::ok ||
+    if (libklug_susiv2_zpp_write(handle, z_handle, i, &boolean) != LIBKLUG_OK ||
         !boolean) {
       std::cout << std::endl << "Error at block " << i << std::endl;
       abort();
@@ -62,12 +58,12 @@ int main() {
 
   std::cout << std::endl;
 
-  if (libklug_susiv2_exit(handle, 1, 1, &boolean) != libklug_error::ok ||
+  if (libklug_susiv2_exit(handle, LIBKLUG_TRUE, LIBKLUG_TRUE, &boolean) !=
+        LIBKLUG_OK ||
       !boolean)
     abort();
 
-  if (libklug_com_reset(handle, &boolean) != libklug_error::ok || !boolean)
-    abort();
+  if (libklug_com_reset(handle, &boolean) != LIBKLUG_OK || !boolean) abort();
 
   libklug_zpp_release(z_handle);
   setup::disconnect(handle);

@@ -27,10 +27,11 @@
 #include <functional>
 #include <optional>
 #include <span>
+#include <string>
 #include <string_view>
 #include <utility>
 #include "libklug.h"
-#include "result/dispatch.hpp"
+#include "libklug/error/error.hpp"
 
 namespace libklug {
 
@@ -392,8 +393,7 @@ struct COM {
     std::string r{};
     r.resize(128uz);
     size_t s{r.size()};
-    if (auto const e{libklug_com_ping(_lib, r.data(), &s)};
-        e == libklug_error::ok) {
+    if (auto const e{libklug_com_ping(_lib, r.data(), &s)}; e == LIBKLUG_OK) {
       r.resize(s);
       return r;
     } else return std::unexpected(static_cast<err::Error>(e));
@@ -406,9 +406,8 @@ struct COM {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> reset() {
-    int r{};
-    if (auto const e{libklug_com_reset(_lib, &r)}; e == libklug_error::ok)
-      return r;
+    libklug_bool r{};
+    if (auto const e{libklug_com_reset(_lib, &r)}; e == LIBKLUG_OK) return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
 
@@ -419,9 +418,8 @@ struct COM {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> susiv2() {
-    int r{};
-    if (auto const e{libklug_com_susiv2(_lib, &r)}; e == libklug_error::ok)
-      return r;
+    libklug_bool r{};
+    if (auto const e{libklug_com_susiv2(_lib, &r)}; e == LIBKLUG_OK) return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
 
@@ -432,9 +430,8 @@ struct COM {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> mdu_ein() {
-    int r{};
-    if (auto const e{libklug_com_mdu_ein(_lib, &r)}; e == libklug_error::ok)
-      return r;
+    libklug_bool r{};
+    if (auto const e{libklug_com_mdu_ein(_lib, &r)}; e == LIBKLUG_OK) return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
 
@@ -474,8 +471,7 @@ struct SUSIV2 {
    */
   std::expected<uint8_t, err::Error> cvRead(uint16_t cv) {
     uint8_t r{};
-    if (auto const e{libklug_susiv2_cv_read(_lib, cv, &r)};
-        e == libklug_error::ok)
+    if (auto const e{libklug_susiv2_cv_read(_lib, cv, &r)}; e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -490,9 +486,9 @@ struct SUSIV2 {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> cvWrite(uint16_t cv, uint8_t value) {
-    int r{};
+    libklug_bool r{};
     if (auto const e{libklug_susiv2_cv_write(_lib, cv, value, &r)};
-        e == libklug_error::ok)
+        e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -504,9 +500,8 @@ struct SUSIV2 {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> zppErase() {
-    int r{};
-    if (auto const e{libklug_susiv2_zpp_erase(_lib, &r)};
-        e == libklug_error::ok)
+    libklug_bool r{};
+    if (auto const e{libklug_susiv2_zpp_erase(_lib, &r)}; e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -521,10 +516,10 @@ struct SUSIV2 {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> zppWrite(ZPP& zpp, uint32_t index) {
-    int r{};
+    libklug_bool r{};
     if (auto const e{libklug_susiv2_zpp_write(
           _lib, static_cast<zpp_handle>(zpp), index, &r)};
-        e == libklug_error::ok)
+        e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -536,8 +531,8 @@ struct SUSIV2 {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> features() {
-    int r{};
-    if (auto const e{libklug_susiv2_features(_lib, &r)}; e == libklug_error::ok)
+    libklug_bool r{};
+    if (auto const e{libklug_susiv2_features(_lib, &r)}; e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -552,9 +547,12 @@ struct SUSIV2 {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> exit(bool reboot, bool cv8_reset) {
-    int r{};
-    if (auto const e{libklug_susiv2_exit(_lib, reboot, cv8_reset, &r)};
-        e == libklug_error::ok)
+    libklug_bool r{};
+    if (auto const e{libklug_susiv2_exit(_lib,
+                                         static_cast<libklug_bool>(reboot),
+                                         static_cast<libklug_bool>(cv8_reset),
+                                         &r)};
+        e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -568,10 +566,10 @@ struct SUSIV2 {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> zppLcDcQuery(ZPP& zpp) {
-    int r{};
+    libklug_bool r{};
     if (auto const e{libklug_susiv2_zpp_lc_dc_query(
           _lib, static_cast<zpp_handle>(zpp), &r)};
-        e == libklug_error::ok)
+        e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -609,9 +607,8 @@ struct MDU_EIN {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> enterMDU() {
-    int r{};
-    if (auto const e{libklug_mdu_ein_enter_mdu(_lib, &r)};
-        e == libklug_error::ok)
+    libklug_bool r{};
+    if (auto const e{libklug_mdu_ein_enter_mdu(_lib, &r)}; e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -628,9 +625,10 @@ struct MDU_EIN {
    */
   std::expected<bool, err::Error>
   enterDCCZSU(uint32_t id = 0uz, uint32_t sn = 0uz, bool done = true) {
-    int r{};
-    if (auto const e{libklug_mdu_ein_enter_dcc_zsu(_lib, id, sn, done, &r)};
-        e == libklug_error::ok)
+    libklug_bool r{};
+    if (auto const e{libklug_mdu_ein_enter_dcc_zsu(
+          _lib, id, sn, static_cast<libklug_bool>(done), &r)};
+        e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -646,9 +644,10 @@ struct MDU_EIN {
    */
   std::expected<bool, err::Error> enterDCCZPP(uint32_t sn = 0uz,
                                               bool done = true) {
-    int r{};
-    if (auto const e{libklug_mdu_ein_enter_dcc_zpp(_lib, sn, done, &r)};
-        e == libklug_error::ok)
+    libklug_bool r{};
+    if (auto const e{libklug_mdu_ein_enter_dcc_zpp(
+          _lib, sn, static_cast<libklug_bool>(done), &r)};
+        e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -663,9 +662,8 @@ struct MDU_EIN {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> ping(uint32_t sn, uint32_t id) {
-    int r{};
-    if (auto const e{libklug_mdu_ein_ping(_lib, sn, id, &r)};
-        e == libklug_error::ok)
+    libklug_bool r{};
+    if (auto const e{libklug_mdu_ein_ping(_lib, sn, id, &r)}; e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -685,10 +683,10 @@ struct MDU_EIN {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> configTransferRate(mdu::Speed speed) {
-    int r{};
+    libklug_bool r{};
     if (auto const e{libklug_mdu_ein_config_transfer_rate(
           _lib, std::to_underlying(speed), &r)};
-        e == libklug_error::ok)
+        e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -703,8 +701,7 @@ struct MDU_EIN {
    */
   std::expected<uint8_t, err::Error> cvRead(uint16_t cv) {
     uint8_t r{};
-    if (auto const e{libklug_mdu_ein_cv_read(_lib, cv, &r)};
-        e == libklug_error::ok)
+    if (auto const e{libklug_mdu_ein_cv_read(_lib, cv, &r)}; e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -719,9 +716,9 @@ struct MDU_EIN {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> cvWrite(uint16_t cv, uint8_t value) {
-    int r{};
+    libklug_bool r{};
     if (auto const e{libklug_mdu_ein_cv_write(_lib, cv, value, &r)};
-        e == libklug_error::ok)
+        e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -733,9 +730,8 @@ struct MDU_EIN {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> busy() {
-    int r{};
-    if (auto const e{libklug_mdu_ein_busy(_lib, &r)}; e == libklug_error::ok)
-      return r;
+    libklug_bool r{};
+    if (auto const e{libklug_mdu_ein_busy(_lib, &r)}; e == LIBKLUG_OK) return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
 
@@ -748,10 +744,10 @@ struct MDU_EIN {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> zppValidQuery(ZPP& zpp) {
-    int r{};
+    libklug_bool r{};
     if (auto const e{libklug_mdu_ein_zpp_valid_query(
           _lib, static_cast<zpp_handle>(zpp), &r)};
-        e == libklug_error::ok)
+        e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -765,10 +761,10 @@ struct MDU_EIN {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> zppLcDcQuery(ZPP& zpp) {
-    int r{};
+    libklug_bool r{};
     if (auto const e{libklug_mdu_ein_zpp_lc_dc_query(
           _lib, static_cast<zpp_handle>(zpp), &r)};
-        e == libklug_error::ok)
+        e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -782,10 +778,10 @@ struct MDU_EIN {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> zppErase(ZPP& zpp) {
-    int r{};
+    libklug_bool r{};
     if (auto const e{
           libklug_mdu_ein_zpp_erase(_lib, static_cast<zpp_handle>(zpp), &r)};
-        e == libklug_error::ok)
+        e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -800,10 +796,10 @@ struct MDU_EIN {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> zppUpdate(ZPP& zpp, uint32_t index) {
-    int r{};
+    libklug_bool r{};
     if (auto const e{libklug_mdu_ein_zpp_update(
           _lib, static_cast<zpp_handle>(zpp), index, &r)};
-        e == libklug_error::ok)
+        e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -817,10 +813,10 @@ struct MDU_EIN {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> zppUpdateEnd(ZPP& zpp) {
-    int r{};
+    libklug_bool r{};
     if (auto const e{libklug_mdu_ein_zpp_update_end(
           _lib, static_cast<zpp_handle>(zpp), &r)};
-        e == libklug_error::ok)
+        e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -832,9 +828,8 @@ struct MDU_EIN {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> zppExitReset() {
-    int r{};
-    if (auto const e{libklug_mdu_ein_zpp_exit_reset(_lib, &r)};
-        e == libklug_error::ok)
+    libklug_bool r{};
+    if (auto const e{libklug_mdu_ein_zpp_exit_reset(_lib, &r)}; e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -849,10 +844,10 @@ struct MDU_EIN {
    */
   std::expected<bool, err::Error>
   zsuSalsa20Iv(ZSU::FirmwareIterator& firmware) {
-    int r{};
+    libklug_bool r{};
     if (auto const e{libklug_mdu_ein_zsu_salsa20_iv(
           _lib, firmware._zsu, firmware._fwIndex, &r)};
-        e == libklug_error::ok)
+        e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -866,10 +861,10 @@ struct MDU_EIN {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> zsuErase(ZSU::FirmwareIterator& firmware) {
-    int r{};
+    libklug_bool r{};
     if (auto const e{libklug_mdu_ein_zsu_erase(
           _lib, firmware._zsu, firmware._fwIndex, &r)};
-        e == libklug_error::ok)
+        e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -885,10 +880,10 @@ struct MDU_EIN {
    */
   std::expected<bool, err::Error> zsuUpdate(ZSU::FirmwareIterator& firmware,
                                             uint32_t index) {
-    int r{};
+    libklug_bool r{};
     if (auto const e{libklug_mdu_ein_zsu_update(
           _lib, firmware._zsu, firmware._fwIndex, index, &r)};
-        e == libklug_error::ok)
+        e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -903,10 +898,10 @@ struct MDU_EIN {
    */
   std::expected<bool, err::Error>
   zsuCrc32Start(ZSU::FirmwareIterator& firmware) {
-    int r{};
+    libklug_bool r{};
     if (auto const e{libklug_mdu_ein_zsu_crc32_start(
           _lib, firmware._zsu, firmware._fwIndex, &r)};
-        e == libklug_error::ok)
+        e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -918,9 +913,9 @@ struct MDU_EIN {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> zsuCrc32Result() {
-    int r{};
+    libklug_bool r{};
     if (auto const e{libklug_mdu_ein_zsu_crc32_result(_lib, &r)};
-        e == libklug_error::ok)
+        e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }
@@ -932,9 +927,9 @@ struct MDU_EIN {
    * \return err::Error   Error
    */
   std::expected<bool, err::Error> zsuCrc32ResultExit() {
-    int r{};
+    libklug_bool r{};
     if (auto const e{libklug_mdu_ein_zsu_crc32_result_exit(_lib, &r)};
-        e == libklug_error::ok)
+        e == LIBKLUG_OK)
       return r;
     else return std::unexpected(static_cast<err::Error>(e));
   }

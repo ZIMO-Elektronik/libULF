@@ -8,8 +8,9 @@
 
 #pragma once
 
+#include <cstdint>
 #include <expected>
-#include "libklug/result/result.hpp"
+#include <string>
 
 namespace transmission {
 

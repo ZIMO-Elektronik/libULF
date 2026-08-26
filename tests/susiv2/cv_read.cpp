@@ -43,7 +43,7 @@ TEST_F(TestSUSIV2, cv_read_result_success) {
       });
 
   uint8_t r{};
-  ASSERT_EQ(libklug_susiv2_cv_read(libHandle, cv_index, &r), libklug_error::ok);
+  ASSERT_EQ(libklug_susiv2_cv_read(libHandle, cv_index, &r), LIBKLUG_OK);
   ASSERT_EQ(r, cv_value);
 }
 
@@ -58,7 +58,7 @@ TEST_F(TestSUSIV2, cv_read_write_error_result) {
   throwTransmitException();
 
   uint8_t r{};
-  ASSERT_NE(libklug_susiv2_cv_read(libHandle, cv_index, &r), libklug_error::ok);
+  ASSERT_NE(libklug_susiv2_cv_read(libHandle, cv_index, &r), LIBKLUG_OK);
 }
 
 TEST_F(TestSUSIV2, cv_read_receive_error) {
@@ -72,5 +72,5 @@ TEST_F(TestSUSIV2, cv_read_receive_error_result) {
   throwReceiveException();
 
   uint8_t r{};
-  ASSERT_NE(libklug_susiv2_cv_read(libHandle, cv_index, &r), libklug_error::ok);
+  ASSERT_NE(libklug_susiv2_cv_read(libHandle, cv_index, &r), LIBKLUG_OK);
 }

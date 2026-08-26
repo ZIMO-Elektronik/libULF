@@ -23,7 +23,7 @@ TEST_F(TestSUSIV2, zpp_lc_dc_query_payload) {
     EXPECT_CALL(conn, _read_all(_, _, _, _)).Times(1);
   }
 
-  int r{};
+  libklug_bool r{};
   libklug_susiv2_zpp_lc_dc_query(libHandle, zppHandle, &r);
 }
 
@@ -34,38 +34,38 @@ TEST_F(TestSUSIV2, zpp_lc_dc_query_result_success) {
   ON_CALL(conn, _read_all(_, Ge(expected.size()), _, _))
     .WillByDefault(helper::susiv2::receive_ack);
 
-  int r{};
+  libklug_bool r{};
   ASSERT_EQ(libklug_susiv2_zpp_lc_dc_query(libHandle, zppHandle, &r),
-            libklug_error::ok);
+            LIBKLUG_OK);
   ASSERT_TRUE(r);
 }
 
 TEST_F(TestSUSIV2, zpp_lc_dc_query_write_error) {
   assertTransmitErrorCalls<true>();
 
-  int r{};
+  libklug_bool r{};
   libklug_susiv2_zpp_lc_dc_query(libHandle, zppHandle, &r);
 }
 
 TEST_F(TestSUSIV2, zpp_lc_dc_query_write_error_result) {
   throwTransmitException();
 
-  int r{};
+  libklug_bool r{};
   ASSERT_NE(libklug_susiv2_zpp_lc_dc_query(libHandle, zppHandle, &r),
-            libklug_error::ok);
+            LIBKLUG_OK);
 }
 
 TEST_F(TestSUSIV2, zpp_lc_dc_query_receive_error) {
   assertReceiveErrorCalls<true>();
 
-  int r{};
+  libklug_bool r{};
   libklug_susiv2_zpp_lc_dc_query(libHandle, zppHandle, &r);
 }
 
 TEST_F(TestSUSIV2, zpp_lc_dc_query_receive_error_result) {
   throwReceiveException();
 
-  int r{};
+  libklug_bool r{};
   ASSERT_NE(libklug_susiv2_zpp_lc_dc_query(libHandle, zppHandle, &r),
-            libklug_error::ok);
+            LIBKLUG_OK);
 }

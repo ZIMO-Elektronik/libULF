@@ -19,7 +19,7 @@ project(
 
 set(TARGET KLUG)
 
-option(LIBKLUG_ENABLE_STDOUT_LOGGING "Enable logging to stdout" ON)
+option(LIBKLUG_ENABLE_STDOUT_LOGGING "Enable logging to stdout" OFF)
 option(LIBKLUG_ENABLE_STDERR_LOGGING "Enable logging to stderr" ON)
 
 if(WIN32)

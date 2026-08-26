@@ -10,7 +10,6 @@
 
 #include <future>
 #include <mutex>
-#include "libklug/callback/i_functor.hpp"
 #include "libklug/internal/connection/i_connection.hpp"
 #include "libklug/internal/transmission/transmission_base.hpp"
 

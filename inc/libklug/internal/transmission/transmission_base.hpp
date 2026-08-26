@@ -15,7 +15,6 @@
 #include <string>
 #include <vector>
 #include "i_transmission.hpp"
-#include "libklug/callback/callback.h"
 #include "libklug/internal/connection/i_connection.hpp"
 
 namespace transmission {

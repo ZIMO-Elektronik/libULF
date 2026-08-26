@@ -15,7 +15,6 @@
 #include "libklug/internal/exception/e_generic.hpp"
 #include "libklug/internal/log/asserter.hpp"
 #include "libklug/internal/log/logger.hpp"
-#include "libklug/internal/logging.hpp"
 
 namespace internal {
 
@@ -31,7 +30,9 @@ void LibserialportConnection::init() {}
  *
  * \param vid Device VID
  * \param pid Device PID
- * \return int
+ *
+ * \throw generic_error   If no device exists or an unhandled libusb error
+ *                        occurs
  */
 void LibserialportConnection::open(uint16_t vid, uint16_t pid) {
   using std::operator""sv;
@@ -80,7 +81,9 @@ void LibserialportConnection::open(uint16_t vid, uint16_t pid) {
  * Open filedescriptor
  *
  * \param Fd
- * \return int
+ *
+ * \throw generic_error   If no device exists or an unhandled libusb error
+ *                        occurs
  */
 void LibserialportConnection::openFd(int Fd) {
   using std::operator""sv;
@@ -89,6 +92,13 @@ void LibserialportConnection::openFd(int Fd) {
   std::unreachable();
 }
 
+/**
+ * Configure device
+ *
+ * \throw generic_error   If no device exists or an unhandled libusb error
+ *                        occurs
+ *
+ */
 void LibserialportConnection::config() {
   using std::operator""sv;
   if (!_port) {
@@ -120,6 +130,10 @@ void LibserialportConnection::config() {
   LOG_INFO("Configured device on port {}", sp_get_port_name(_port));
 }
 
+/**
+ * Close device
+ *
+ */
 void LibserialportConnection::close() {
   if (_port) {
     sp_flush(_port, SP_BUF_BOTH);
@@ -129,10 +143,22 @@ void LibserialportConnection::close() {
   }
 }
 
+/**
+ * Flush device buffers
+ *
+ */
 void LibserialportConnection::flush() {
   if (_port) sp_flush(_port, SP_BUF_BOTH);
 }
 
+/**
+ * Write payload to out buffer
+ *
+ * \throw generic_error   If a timeout occurs
+ *
+ * \param payload Payload
+ * \param timeout Timeout
+ */
 void LibserialportConnection::_write(std::span<uint8_t const> payload,
                                      uint32_t timeout) {
   using std::operator""sv;
@@ -145,11 +171,22 @@ void LibserialportConnection::_write(std::span<uint8_t const> payload,
     auto sp_err{sp_last_error_message()};
     std::string err{"Transmit Error: " + std::to_string(r) + " - " + sp_err};
     sp_free_error_message(sp_err);
-    throw except::generic_error{err::Error::usb, err};
+    throw except::generic_error{err::map(r), err};
   }
   LOG_TRACE("Successfully transmitted {} bytes", std::to_underlying(r));
 }
 
+/**
+ * Read until terminator symbol
+ *
+ * \throw generic_error   If a timeout occurs
+ *
+ * \param buffer      Buffer to read into
+ * \param length      Length of buffer
+ * \param received    Size of data received
+ * \param terminator  Terminator symbol
+ * \param timeout     Timeout
+ */
 void LibserialportConnection::_read_until(uint8_t* buffer,
                                           uint32_t length,
                                           int* received,
@@ -166,7 +203,7 @@ void LibserialportConnection::_read_until(uint8_t* buffer,
     // Receive until timeout, error, or terminator
     if (sp_blocking_read(_port, buffer + _received, 1, timeout) <= 0) {
       throw except::generic_error{
-        err::Error::usb,
+        err::map(sp_last_error_code()),
         std::string{"Receive Error: SP_ERR[" +
                     std::to_string(sp_last_error_code()) + "]"}};
     }
@@ -180,6 +217,14 @@ void LibserialportConnection::_read_until(uint8_t* buffer,
   *received = _received;
 }
 
+/**
+ * Read all data from buffer
+ *
+ * \param buffer    Buffer to read into
+ * \param length    Size of read buffer
+ * \param received  Received data size
+ * \param timeout   Timeout
+ */
 void LibserialportConnection::_read_all(uint8_t* buffer,
                                         uint32_t length,
                                         int* received,
@@ -191,7 +236,7 @@ void LibserialportConnection::_read_all(uint8_t* buffer,
     auto sp_err{sp_last_error_message()};
     std::string err{"Receive Error: " + std::to_string(r) + " - " + sp_err};
     sp_free_error_message(sp_err);
-    throw except::generic_error{err::Error::usb, err};
+    throw except::generic_error{err::map(r), err};
   }
   LOG_TRACE("Successfully received {} bytes. Payload {:x}",
             std::to_underlying(r),
