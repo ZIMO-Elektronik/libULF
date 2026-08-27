@@ -12,19 +12,22 @@
 
 namespace internal {
 
+/**
+ * JNI Context
+ *
+ * \details
+ * This keeps a pointer to the JVM for later creation of JNIEnv instances. This
+ * can be used to push async operations to the Java side safely.
+ *
+ * An example would be a callback called from a cpp background thread.
+ *
+ */
 struct JNIContext {
   JNIContext() = default;
   JNIContext(JavaVM* vm_);
   ~JNIContext();
 
   JavaVM* vm{};
-
-  // Result classes
-  jclass nativeResult_string{};
-  jclass nativeResult_status{};
-  jclass nativeResult_cv{};
-  jclass nativeResult_error{};
-  jclass nativeResult_usbError{};
 };
 
 inline JNIContext jni_ctx{};

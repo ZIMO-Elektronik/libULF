@@ -10,21 +10,17 @@
 
 #include <jni.h>
 
+/// Defines the JNI Java class this api should bind to
 #ifndef JNI_CLASS_PATH
-static_assert(false, "Must name a JNI class");
+#  define JNI_CLASS_PATH Java_at_zimo_klug_KLUGAdapter_
 #endif
-
-#ifndef JNI_RESULT_PATH
-static_assert(false, "Must name a Result class");
-#endif
-
-#define JNI_METHOD_PREFIX Java_com_example_test_1libklug_NativeLib_
 
 #define JNI_CONCAT2(a, b) a##b
 #define JNI_CONCAT(a, b) JNI_CONCAT2(a, b)
 
+/// Defines a JNI method to reduce definition boilerplate
 #define JNI_METHOD(return_type, name, ...)                                     \
   JNIEXPORT return_type JNICALL JNI_CONCAT(JNI_CLASS_PATH, name)(              \
     [[maybe_unused]] JNIEnv * env,                                             \
-    [[maybe_unused]] jobject thiz,                                             \
+    [[maybe_unused]] jclass clazz,                                             \
     ##__VA_ARGS__)

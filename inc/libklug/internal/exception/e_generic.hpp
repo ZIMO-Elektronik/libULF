@@ -38,12 +38,12 @@ struct generic_error : public std::exception {
 
   virtual char const* what() const noexcept override { return _what.data(); }
 
-  constexpr generic_error& operator=(generic_error const&) = default;
+  generic_error& operator=(generic_error const&) = default;
 
-  constexpr explicit operator err::Error() const { return _code; }
+  explicit operator err::Error() const { return _code; }
 
 private:
-  err::Error const _code;
+  err::Error _code;
   std::string _what;
 };
 

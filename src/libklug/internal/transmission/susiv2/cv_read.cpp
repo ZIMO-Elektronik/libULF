@@ -41,6 +41,9 @@ uint8_t CvRead::evaluateByte() {
     throw except::generic_error{err::Error::format, "Format Mismatch"sv};
     std::unreachable();
   }
+  if (_response[0u] == ulf::susiv2::nak) {
+    throw except::generic_error{err::Error::nak, "Nak, so no value"sv};
+  }
   return _response[1u];
 }
 

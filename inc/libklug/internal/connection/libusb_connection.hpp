@@ -24,12 +24,12 @@ namespace internal {
 struct LibusbConnection : IConnection {
   virtual void init() override;
 
-  virtual void open(uint16_t vid = 0x1FC9u, uint16_t pid = 0x81C1u);
-  virtual void openFd(int Fd);
+  virtual void open(uint16_t vid = 0x1FC9u, uint16_t pid = 0x81C1u) override;
+  virtual void openFd(int Fd) override;
 
-  virtual void close();
+  virtual void close() override;
 
-  virtual void flush();
+  virtual void flush() override;
 
 private:
   void config();

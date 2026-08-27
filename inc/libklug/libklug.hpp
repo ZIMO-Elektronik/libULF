@@ -7,21 +7,19 @@
  * Pretty much every class here can either be constructed with their own default
  * argument, or move constructed. Anything else may (or will) result in severe
  * state inconsistencies, crashes, memory leaks and or world destruction. Things
- * that happen when you do thins which are not recommended.
+ * that happen when you do things which are not recommended.
  *
  * And yes, moving an object and then using the moved object WILL crash the APP.
  *
  * \file    inc/libklug/libklug.hpp
  * \author  Jonas Gahlert
  * \date    06.05.2026
- *
- * \todo Most things that could be `const` are not. To change this, the C API
- * must be changed as well
  */
 
 #pragma once
 
 #include <cassert>
+#include <exception>
 #include <expected>
 #include <filesystem>
 #include <functional>
@@ -32,15 +30,14 @@
 #include <utility>
 #include "libklug.h"
 #include "libklug/error/error.hpp"
+#include "libklug/error/error2string.hpp"
 
 namespace libklug {
 
 namespace mdu {
 
 /**
- * MDU Transfer speed
- *
- * \note Software updates are only safe up to \ref Speed::Slow
+ * Transfer speed type (MDU)
  */
 enum class Speed : uint8_t {
   Fallback = 0u, ///< Fallback, always received
@@ -56,12 +53,11 @@ struct MDU_EIN; // Forward declare
 struct SUSIV2;  // Forward declare
 
 /**
- * ZPP File wrapper
+ * ZPP file API group
  *
- * \details Constructible from a path or by move.
- *
- * \warning Moving causes the underlying handle to become null. This can be
- * checked using \ref ZPP::valid.
+ * \details
+ * This object is a fascade for the `::libklug_zpp_` api group, which manages
+ * the `zpp` handle internally.
  *
  */
 struct ZPP {
@@ -71,57 +67,87 @@ struct ZPP {
   /**
    * CTor
    *
+   * \note Corresponds to `::libklug_zpp_read`
+   *
+   * \details
+   * Reads the .zpp file at `path`
+   *
    * \warning Since reading the file at path may fail, use of \ref ZPP::valid is
    * recommended.
    *
-   * \param path Path to ZPP
+   * @param path The path to the .zpp file (must be accessible with full rights)
    */
   ZPP(std::filesystem::path path)
     : _zpp{libklug_zpp_read(path.string().data(), path.string().size())} {}
+
+  /**
+   * Move CTor
+   *
+   * \warning
+   * Invalidates `source` and moves the handle to newly constructed ZPP
+   *
+   * \param source Source ZPP
+   */
+  ZPP(ZPP&& source) : _zpp{source._zpp} { source._zpp = nullptr; }
 
   ZPP() = delete;
   ZPP(ZPP const&) = delete;
   ZPP& operator=(const ZPP&) = delete;
   ZPP& operator=(ZPP&&) = delete;
-  ZPP(ZPP&& source) : _zpp{source._zpp} { source._zpp = nullptr; }
+
+  /**
+   * DTor
+   *
+   * \note Corresponds to `::libklug_zpp_release`
+   *
+   * \details
+   * Deletest the underlying handle
+   *
+   */
   ~ZPP() {
     if (_zpp) libklug_zpp_release(_zpp);
   }
 
   /**
-   * Check if the underlying handle exists (non-nullptr)
+   * Checks if the underlying handle exists (non-nullptr)
    *
    * \return true   Valid
    * \return false  Invalid
    */
-  bool valid() { return _zpp; }
+  bool valid() const { return _zpp; }
 
   /**
-   * Get the total count of flash blocks available
+   * Returns the number of flash blocks within the project
+   *
+   * \note Corresponds to `::libklug_zpp_blocks`
    *
    * \warning Crashes without handle ( \ref ZPP::valid )
    *
    * \return unsigned int Block count
    */
-  unsigned int blocks() { return libklug_zpp_blocks(_zpp); }
+  unsigned int blocks() const { return libklug_zpp_blocks(_zpp); }
 
   /**
-   * Get the Author name
+   * Returns the author of the project
+   *
+   * \note Corresponds to `::libklug_zpp_name`
    *
    * \warning Crashes without handle ( \ref ZPP::valid )
    *
    * \return std::string_view Name
    */
-  std::string_view author() { return {libklug_zpp_author(_zpp)}; }
+  std::string_view author() const { return {libklug_zpp_author(_zpp)}; }
 
   /**
-   * Get the Email of the Author
+   * Returns the email of the project author
+   *
+   * \note Corresponds to `::libklug_zpp_email`
    *
    * \warning Crashes without handle ( \ref ZPP::valid )
    *
    * \return std::string_view Email
    */
-  std::string_view email() { return {libklug_zpp_email(_zpp)}; }
+  std::string_view email() const { return {libklug_zpp_email(_zpp)}; }
 
 private:
   /// Internal convenience cast
@@ -133,12 +159,11 @@ private:
 struct MDU_EIN; // Forward declare
 
 /**
- * ZSU File wrapper
+ * ZPP file API group
  *
- * \details Constructible from a path or by move.
- *
- * \warning Moving causes the underlying handle to become null. This can be
- * checked using \ref ZPP::valid.
+ * \details
+ * This object is a fascade for the `::libklug_zsu_` api group, which manages
+ * the `zsu` handle internally.
  *
  */
 struct ZSU {
@@ -236,14 +261,19 @@ struct ZSU {
     }
 
     /**
-     * Get the ID of the decoder matching the current firmware
+     * Returns the ID of the current firmware (matches the compatible decoder
+     * ID)
+     *
+     * \note Corresponds to `::libklug_zsu_get_firmware_id`
      *
      * \return uint32_t Decoder ID
      */
     uint32_t id() const { return libklug_zsu_get_firmware_id(_zsu, _fwIndex); }
 
     /**
-     * Get the name of the decoder matching the current firmware
+     * Returns the name of the current firmware
+     *
+     * \note Corresponds to `::libklug_zsu_get_firmware_name`
      *
      * \return std::string_view Decoder name
      */
@@ -252,7 +282,9 @@ struct ZSU {
     }
 
     /**
-     * Get the major version of the current firmware
+     * Returns the major version of the current firmware
+     *
+     * \note Corresponds to `::libklug_zsu_get_firmware_major_version`
      *
      * \return std::string_view Major version
      */
@@ -261,7 +293,9 @@ struct ZSU {
     }
 
     /**
-     * Get the minor version of the current firmware
+     * Returns the minor version of the current firmware
+     *
+     * \note Corresponds to `::libklug_zsu_get_firmware_minor_version`
      *
      * \return std::string_view Minor version
      */
@@ -270,26 +304,31 @@ struct ZSU {
     }
 
     /**
-     * Get the firmware type
+     * Returns the bootloader type of the current firmware (relevant for MX
+     * only)
      *
-     * \details AFAIK this means the bootloader? Which means legacy from the
-     * MX-Generation
+     * \note Corresponds to `::libklug_zsu_get_firmware_type`
      *
      * \return int Bootloader type
      */
     int type() const { return libklug_zsu_get_firmware_type(_zsu, _fwIndex); }
 
     /**
-     * Get the total flash block count of the current firmware
+     * Returns the number of flash blocks within the current firmware
      *
-     * \return unsigned int Block cound
+     * \note Corresponds to `::libklug_zsu_get_firmware_block_count`
+     *
+     * \return unsigned int Block count
      */
     unsigned int blockCount() const {
       return libklug_zsu_get_firmware_block_count(_zsu, _fwIndex);
     }
 
     /**
-     * Get the flash data of the current firmware
+     * Returns the data of the current firmware as a span
+     *
+     * \note Corresponds to `::libklug_zsu_get_firmware_data` and
+     * `::libklug_zsu_get_firmware_data_size` combined
      *
      * \return std::span data
      */
@@ -312,6 +351,8 @@ struct ZSU {
 
   /**
    * CTor
+   *
+   * \note Corresponds to `::libklug_zsu_read`
    *
    * \warning Since reading the file at path may fail, use of \ref ZSU::valid
    * is recommended.
@@ -336,21 +377,21 @@ struct ZSU {
    * \return true   Valid
    * \return false  Not valid
    */
-  bool valid() { return _zsu; }
+  bool valid() const { return _zsu; }
 
   /**
    * Begin
    *
    * \return iterator Begin iterator
    */
-  iterator begin() { return FirmwareIterator{_zsu}; }
+  iterator begin() const { return FirmwareIterator{_zsu}; }
 
   /**
    * End
    *
    * \return iterator End iterator
    */
-  iterator end() {
+  iterator end() const {
     return FirmwareIterator{_zsu, libklug_zsu_get_firmware_count(_zsu)};
   }
 
@@ -364,12 +405,7 @@ private:
 struct LibKLUG; // Forward declare
 
 /**
- * COM component wrapper
- *
- * \details Interface for ops following the ULF_COM protocol
- *
- * \note This class exists to avoid polluting the namespace like the C API
- * does.
+ * The COM protocol API group
  *
  */
 struct COM {
@@ -384,7 +420,7 @@ struct COM {
   ~COM() = default;
 
   /**
-   * PING
+   * Sends a PING command to the device
    *
    * \return std::string  Response
    * \return err::Error   Error
@@ -400,7 +436,7 @@ struct COM {
   }
 
   /**
-   * RESET
+   * Sends a RESET command to the device
    *
    * \return bool         Response
    * \return err::Error   Error
@@ -412,7 +448,7 @@ struct COM {
   }
 
   /**
-   * SUSIV2
+   * Sends a SUSIV2 command to the device
    *
    * \return bool         Response
    * \return err::Error   Error
@@ -424,7 +460,7 @@ struct COM {
   }
 
   /**
-   * MDU_EIN
+   * Sends a MDU_EIN command to the device
    *
    * \return bool         Response
    * \return err::Error   Error
@@ -443,11 +479,7 @@ private:
 };
 
 /**
- * SUSIV2 component wrapper
- *
- * \details Interface for ops following the ULF_SUSIV2 protocol
- *
- * \details This exits to avoid polluting the namespace like the C API does
+ * The SUSIV2 protocol API group
  *
  */
 struct SUSIV2 {
@@ -462,7 +494,7 @@ struct SUSIV2 {
   ~SUSIV2() = default;
 
   /**
-   * CV read
+   * Reads a CV from the decoder
    *
    * \param cv    Cv address to read
    *
@@ -477,7 +509,7 @@ struct SUSIV2 {
   }
 
   /**
-   * CV write
+   * Writes a CV to the decoder
    *
    * \param cv    Cv address to write
    * \param value Cv value to write
@@ -494,7 +526,7 @@ struct SUSIV2 {
   }
 
   /**
-   * ZPP erase
+   * Erases the sound flash of the decoder
    *
    * \return bool         Response
    * \return err::Error   Error
@@ -507,7 +539,7 @@ struct SUSIV2 {
   }
 
   /**
-   * ZPP write
+   * Writes a sound flash block to the decoder
    *
    * \param zpp     ZPP
    * \param index   Block index
@@ -525,7 +557,7 @@ struct SUSIV2 {
   }
 
   /**
-   * Features
+   * Requests decoder features
    *
    * \return bool         Response
    * \return err::Error   Error
@@ -538,7 +570,7 @@ struct SUSIV2 {
   }
 
   /**
-   * Exit
+   * Requests the decoder to quit ZUSI mode
    *
    * \param reboot      Reboot decoder
    * \param cv8_reset   Cv8 reset (reload CVs from flash)
@@ -558,7 +590,8 @@ struct SUSIV2 {
   }
 
   /**
-   * ZPP LC DC
+   * Checks, if the load code on the decoder is valid for the developer
+   * code of the given ZPP
    *
    * \param zpp   ZPP
    *
@@ -582,11 +615,7 @@ private:
 };
 
 /**
- * MDU_EIN component wrapper
- *
- * \details Interface for ops following the ULF_MDU_EIN protocol
- *
- * \details This exits to avoid polluting the namespace like the C API does
+ * The MDU_EIN protocol API group
  *
  */
 struct MDU_EIN {
@@ -601,7 +630,9 @@ struct MDU_EIN {
   ~MDU_EIN() = default;
 
   /**
-   * MDU (Powercycle) entry
+   * Commands all decoders to enter MDU mode (Update)
+   *
+   * \note Corresponds to `::libklug_mdu_ein_enter_mdu`
    *
    * \return bool         Response
    * \return err::Error   Error
@@ -614,7 +645,9 @@ struct MDU_EIN {
   }
 
   /**
-   * DCC ZSU entry
+   * Commands selected decoders to enter MDU mode (Update)
+   *
+   * \note Corresponds to `::libklug_mdu_ein_enter_dcc_zsu`
    *
    * \param id    Decoder ID
    * \param sh    Decoder serial number
@@ -634,7 +667,9 @@ struct MDU_EIN {
   }
 
   /**
-   * DCC ZPP entry
+   * Commands selected decoders to enter MDU mode (SoundLoad)
+   *
+   * \note Corresponds to `::libklug_mdu_ein_enter_dcc_zpp`
    *
    * \param sn    Decoder ID
    * \param done  `true` done with entry, `false` more sn will follow
@@ -653,7 +688,9 @@ struct MDU_EIN {
   }
 
   /**
-   * Ping
+   * Pings decoder(-s)
+   *
+   * \note Corresponds to `::libklug_mdu_ein_ping`
    *
    * \param sn  Decoder serial number
    * \param id  Decoder ID
@@ -669,7 +706,9 @@ struct MDU_EIN {
   }
 
   /**
-   * Config transfer rate
+   * Configures transfer rate for decoder and USB device
+   *
+   * \note Corresponds to `::libklug_mdu_ein_config_transfer_rate`
    *
    * \note Both, the decoder speed and device speed will be updated. If the
    * update fails, device speed will be set to fallback.
@@ -692,7 +731,9 @@ struct MDU_EIN {
   }
 
   /**
-   * CV read
+   * Reads a CV from the decoder
+   *
+   * \note Corresponds to `::libklug_mdu_ein_cv_read`
    *
    * \param cv  Cv address to read
    *
@@ -707,7 +748,9 @@ struct MDU_EIN {
   }
 
   /**
-   * CV write
+   * Writes a CV to the decoder
+   *
+   * \note Corresponds to `::libklug_mdu_ein_cv_write`
    *
    * \param cv    Cv address to write
    * \param value Cv value to write
@@ -724,7 +767,9 @@ struct MDU_EIN {
   }
 
   /**
-   * Busy
+   * Checks if the decoder is busy
+   *
+   * \note Corresponds to `::libklug_mdu_ein_busy`
    *
    * \return bool         Response
    * \return err::Error   Error
@@ -736,7 +781,9 @@ struct MDU_EIN {
   }
 
   /**
-   * ZPP valid query
+   * Checks if the given ZPP can fit into the decoder
+   *
+   * \note Corresponds to `::libklug_mdu_ein_zpp_valid_query`
    *
    * \param zpp   ZPP
    *
@@ -753,7 +800,10 @@ struct MDU_EIN {
   }
 
   /**
-   * ZPP LC DC query
+   * Checks, if the load code on the decoder is valid for the developer
+   * code of the given ZPP
+   *
+   * \note Corresponds to `::libklug_mdu_ein_zpp_lc_dc_query`
    *
    * \param zpp   ZPP
    *
@@ -770,7 +820,9 @@ struct MDU_EIN {
   }
 
   /**
-   * ZPP erase
+   * Erases the sound flash of the decoder
+   *
+   * \note Corresponds to `::libklug_mdu_ein_zpp_erase`
    *
    * \param zpp ZPP
    *
@@ -787,7 +839,9 @@ struct MDU_EIN {
   }
 
   /**
-   * ZPP update
+   * Writes a sound flash block to the decoder
+   *
+   * \note Corresponds to `::libklug_mdu_ein_zpp_update`
    *
    * \param zpp   ZPP
    * \param index Block index
@@ -805,7 +859,9 @@ struct MDU_EIN {
   }
 
   /**
-   * ZPP update end
+   * Semantic end of the sound flash update
+   *
+   * \note Corresponds to `::libklug_mdu_ein_zpp_update_end`
    *
    * \param zpp ZPP
    *
@@ -822,7 +878,9 @@ struct MDU_EIN {
   }
 
   /**
-   * ZPP exit reset
+   * Command the decoder to exit MDU and reset
+   *
+   * \note Corresponds to `::libklug_mdu_ein_zpp_exit_reset`
    *
    * \return bool         Response
    * \return err::Error   Error
@@ -835,7 +893,9 @@ struct MDU_EIN {
   }
 
   /**
-   * ZSU salsa20
+   * Initializes the Salsa20 encryption
+   *
+   * \note Corresponds to `::libklug_mdu_ein_zsu_salsa_20_iv`
    *
    * \param firmware  FirmwareIterator
    *
@@ -853,7 +913,9 @@ struct MDU_EIN {
   }
 
   /**
-   * ZSU erase
+   * Erases the firmware flash of the decoder
+   *
+   * \note Corresponds to `::libklug_mdu_ein_zsu_erase`
    *
    * \param firmware  FirmwareIterator
    *
@@ -870,7 +932,9 @@ struct MDU_EIN {
   }
 
   /**
-   * ZSU update
+   * Writes firmware flash block to the decoder
+   *
+   * \note Corresponds to `::libklug_mdu_ein_zsu_update`
    *
    * \param firmware  FirmwareIterator
    * \param index     Block index
@@ -889,7 +953,9 @@ struct MDU_EIN {
   }
 
   /**
-   * ZSU crc32 start
+   * Starts the firmware flash verification (CRC32)
+   *
+   * \note Corresponds to `::libklug_mdu_ein_zsu_crc32_start`
    *
    * \param firmware  FirmwareIterator
    *
@@ -907,7 +973,9 @@ struct MDU_EIN {
   }
 
   /**
-   * ZSU crc32 result
+   * Checks the result of the firmware flash verification
+   *
+   * \note Corresponds to `::libklug_mdu_ein_zsu_crc32_result`
    *
    * \return bool         Response
    * \return err::Error   Error
@@ -921,7 +989,10 @@ struct MDU_EIN {
   }
 
   /**
-   * ZSU crc32 result and exit
+   * Checks the result of the firmware flash verification and commands the
+   * decoder to leave MDU mode
+   *
+   * \note Corresponds to `::libklug_mdu_ein_resul_zsu_crc32_result_exit`
    *
    * \return bool         Response
    * \return err::Error   Error
@@ -959,7 +1030,9 @@ struct LibKLUG {
   ~LibKLUG() { libklug_destroy(_lib); }
 
   /**
-   * Init
+   * Initializes the USB layer
+   *
+   * \note Corresponds to `::libklug_init`
    *
    * \return int
    * \retval Any error occurred
@@ -967,7 +1040,9 @@ struct LibKLUG {
   err::Error init() { return static_cast<err::Error>(libklug_init(_lib)); }
 
   /**
-   * Open device
+   * Opens the first USB device mathing the given identifiers
+   *
+   * \note Corresponds to `::libklug_open`
    *
    * \param vid VID
    * \param pid PID
@@ -979,7 +1054,9 @@ struct LibKLUG {
   }
 
   /**
-   * Open device by File descripor
+   * Opens a the given USB device via its file descriptor
+   *
+   * \note Corresponds to `::libklug_openFd`
    *
    * \warning This exists only for the libusb backend.
    *
@@ -992,26 +1069,28 @@ struct LibKLUG {
   }
 
   /**
-   * Close device
+   * Closes the open USB device
+   *
+   * \note Corresponds to `::libklug_close`
    */
   err::Error close() { return static_cast<err::Error>(libklug_close(_lib)); }
 
   /**
-   * Get COM interface
+   * Returns the COM API interface group
    *
    * \return COM&
    */
   COM& com() { return _com; }
 
   /**
-   * Get SUSIV2 interface
+   * Returns the SUSIV2 API interface group
    *
    * \return SUSIV2&
    */
   SUSIV2& susiv2() { return _susiv2; }
 
   /**
-   * Get MDU_EIN interface
+   * Returns the MDU_EIN API interface group
    *
    * \return MDU_EIN&
    */

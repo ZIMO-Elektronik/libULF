@@ -1,4 +1,6 @@
-build
+build/
+.cxx/
+.gradle/
 **.o
 **.so
 test

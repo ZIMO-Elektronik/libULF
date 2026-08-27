@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 include(FetchContent)
@@ -75,16 +75,6 @@ add_library(
   src/libklug/internal/bridge/bridge_zpp.cpp
   src/libklug/internal/bridge/bridge_zsu.cpp
   src/libklug/libklug.cpp)
-
-if(ANDROID)
-  # Add JNI bindings to compile
-  target_sources(
-    ${TARGET}
-    PUBLIC src/libklug/libklug_jni.cpp
-           src/libklug/internal/platform/android/jni_functor.cpp
-           src/libklug/internal/platform/android/jni_dispatch.cpp
-           src/libklug/internal/platform/android/jni_context.cpp)
-endif()
 
 if(LIBKLUG_BACKEND_LIBUSB)
   target_sources(${TARGET}
