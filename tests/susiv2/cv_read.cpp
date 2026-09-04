@@ -25,7 +25,7 @@ TEST_F(TestSUSIV2, cv_read_payload) {
     EXPECT_CALL(conn, _read_all(_, _, _, _)).Times(1);
   }
 
-  uint8_t r{};
+  int r{};
   libklug_susiv2_cv_read(libHandle, cv_index, &r);
 }
 
@@ -42,7 +42,7 @@ TEST_F(TestSUSIV2, cv_read_result_success) {
         return 0;
       });
 
-  uint8_t r{};
+  int r{};
   ASSERT_EQ(libklug_susiv2_cv_read(libHandle, cv_index, &r), LIBKLUG_OK);
   ASSERT_EQ(r, cv_value);
 }
@@ -50,27 +50,27 @@ TEST_F(TestSUSIV2, cv_read_result_success) {
 TEST_F(TestSUSIV2, cv_read_write_error) {
   assertTransmitErrorCalls<true>();
 
-  uint8_t r{};
+  int r{};
   libklug_susiv2_cv_read(libHandle, cv_index, &r);
 }
 
 TEST_F(TestSUSIV2, cv_read_write_error_result) {
   throwTransmitException();
 
-  uint8_t r{};
+  int r{};
   ASSERT_NE(libklug_susiv2_cv_read(libHandle, cv_index, &r), LIBKLUG_OK);
 }
 
 TEST_F(TestSUSIV2, cv_read_receive_error) {
   assertReceiveErrorCalls<true>();
 
-  uint8_t r{};
+  int r{};
   libklug_susiv2_cv_read(libHandle, cv_index, &r);
 }
 
 TEST_F(TestSUSIV2, cv_read_receive_error_result) {
   throwReceiveException();
 
-  uint8_t r{};
+  int r{};
   ASSERT_NE(libklug_susiv2_cv_read(libHandle, cv_index, &r), LIBKLUG_OK);
 }

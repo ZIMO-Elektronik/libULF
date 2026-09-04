@@ -1,6 +1,6 @@
 #pragma once
 
-#include <libklug/libklug.h>
+#include <klug/c/libklug.h>
 
 namespace setup {
 

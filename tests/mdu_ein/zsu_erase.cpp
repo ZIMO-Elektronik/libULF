@@ -2,7 +2,6 @@
 #include "../range_matcher.hpp"
 #include "f_mdu_ein.hpp"
 #include "helper.hpp"
-#include "libklug/libklug.h"
 
 TEST_F(TestMDU_EIN, zsu_erase_payload) {
   {

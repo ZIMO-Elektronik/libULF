@@ -2,9 +2,9 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <libklug/libklug.h>
-#include <libklug/internal/bridge/bridge.hpp>
-#include <libklug/internal/exception/e_generic.hpp>
+#include <klug/c/libklug.h>
+#include <bridge/bridge.hpp>
+#include <klug/cpp/klug_error.hpp>
 #include <memory>
 #include "mock_connection.hpp"
 
@@ -26,7 +26,7 @@ struct TestBase : public testing::Test {
 
   template<bool read_all = false>
   void assertTransmitErrorCalls() {
-    throwTransmitException(err::Error::usb);
+    throwTransmitException(libklug::Error::usb);
     EXPECT_CALL(conn, _write(_, _)).Times(1);
     if constexpr (read_all) EXPECT_CALL(conn, _read_all(_, _, _, _)).Times(0);
     else EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(0);
@@ -34,7 +34,7 @@ struct TestBase : public testing::Test {
 
   template<bool read_all = false>
   void assertReceiveErrorCalls() {
-    throwReceiveException(err::Error::usb);
+    throwReceiveException(libklug::Error::usb);
     {
       InSequence i;
       EXPECT_CALL(conn, _write(_, _)).Times(1);
@@ -43,20 +43,18 @@ struct TestBase : public testing::Test {
     }
   }
 
-  void throwTransmitException(err::Error error = err::Error::usb) {
-    using std::operator""sv;
+  void throwTransmitException(libklug::Error error = libklug::Error::usb) {
     ON_CALL(conn, _write(_, _))
-      .WillByDefault(Throw(
-        except::generic_error{error, "A very important error message"sv}));
+      .WillByDefault(
+        Throw(libklug::klug_error{error, "A very important error message"}));
   }
 
-  void throwReceiveException(err::Error error = err::Error::usb) {
-    using std::operator""sv;
+  void throwReceiveException(libklug::Error error = libklug::Error::usb) {
     ON_CALL(conn, _read_all(_, _, _, _))
-      .WillByDefault(Throw(
-        except::generic_error{error, "A very important error message"sv}));
+      .WillByDefault(
+        Throw(libklug::klug_error{error, "A very important error message"}));
     ON_CALL(conn, _read_until(_, _, _, _, _))
-      .WillByDefault(Throw(
-        except::generic_error{error, "A very important error message"sv}));
+      .WillByDefault(
+        Throw(libklug::klug_error{error, "A very important error message"}));
   }
 };
