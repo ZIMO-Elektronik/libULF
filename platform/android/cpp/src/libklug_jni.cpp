@@ -33,11 +33,11 @@
 #include <jni.h>
 #include <array>
 
+#include <klug/c/libklug.h>
 #include "inc/jni_context.hpp"
 #include "inc/jni_defines.hpp"
 #include "inc/jni_helper.hpp"
 #include "inc/jni_libklug.hpp"
-#include "libklug/libklug.h"
 
 /**
  * Overload JNI OnLoad to create class context
@@ -108,7 +108,7 @@ JNI_METHOD(jboolean, comMduEin, jlong hlib) {
  */
 
 JNI_METHOD(jint, susiv2CvRead, jlong hlib, jint cv) {
-  return byteFn(env, [&](auto r) {
+  return valueFn(env, [&](auto r) {
     return libklug_susiv2_cv_read(to_lib(hlib), static_cast<uint16_t>(cv), r);
   });
 }
@@ -199,7 +199,7 @@ JNI_METHOD(jboolean, mduEinConfigTransferRate, jlong hlib, jint transfer_rate) {
 }
 
 JNI_METHOD(jint, mduEinCvRead, jlong hlib, jint cv) {
-  return byteFn(env, [&](auto r) {
+  return valueFn(env, [&](auto r) {
     return libklug_mdu_ein_cv_read(to_lib(hlib), static_cast<uint16_t>(cv), r);
   });
 }

@@ -26,7 +26,7 @@
  */
 
 #include <jni.h>
-#include <libklug.h>
+#include <klug/c/libklug.h>
 #include <cassert>
 
 /**
@@ -146,8 +146,8 @@ jstring stringFn(JNIEnv* env, F&& f, Args&&... args) {
  * \return jint Result of Function
  */
 template<typename F, typename... Args>
-jint byteFn(JNIEnv* env, F&& f, Args&&... args) {
-  uint8_t r{};
+jint valueFn(JNIEnv* env, F&& f, Args&&... args) {
+  int r{};
 
   auto const err{f(std::forward<Args>(args)..., &r)};
 

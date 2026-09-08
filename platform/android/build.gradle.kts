@@ -5,14 +5,68 @@ plugins {
 }
 
 val localProperties = Properties().apply {
-    rootProject.file("local.properties").inputStream().use {
-        load(it)
+    val file = rootProject.file("local.properties")
+
+    if (file.exists()) {
+        file.inputStream().use {
+            load(it)
+        }
     }
 }
 
+fun getProperty(
+    gradleProperty: String,
+    environmentVariables: List<String>
+): String? {
+    // 1. Check gradle properties
+    providers.gradleProperty(gradleProperty).orNull?.let {
+        return it
+    }
+    
+    val extraProperty = gradleProperty.split(".").mapIndexed { index, value ->
+        if (index > 0) value.replaceFirstChar{it.uppercase()} else value }.joinToString("")
+    // 2. Check rootProject.extra
+    if (rootProject.extra.has(extraProperty)) {
+        rootProject.extra[extraProperty]?.toString()?.let {
+            return it
+        }
+    }
+
+    // 3. Check project.extra
+    if (project.extra.has(extraProperty)) {
+        project.extra[extraProperty]?.toString()?.let {
+            return it
+        }
+    }
+
+    // 4. Check environment variables
+    environmentVariables.firstNotNullOfOrNull {
+        System.getenv(it)
+    }?.let {
+        return it
+    }
+
+    // 5. Check local.properties
+    gradleProperty?.let {
+        localProperties.getProperty(it)?.let { value ->
+            return value
+        }
+    }
+    return null
+}
+
+
+
 val sdkDir = File(
-    localProperties.getProperty("sdk.dir")
-        ?: throw GradleException("sdk.dir not found in local.properties")
+    getProperty(
+        gradleProperty = "sdk.dir",
+        environmentVariables = listOf(
+            "ANDROID_SDK_ROOT",
+            "ANDROID_HOME"
+        )
+    ) ?: throw GradleException(
+        "Android SDK not found."
+    )
 )
 
 fun compareVersions(a: String, b: String): Int {
@@ -45,16 +99,28 @@ fun findLatestVersion(
             "No version >= $minimumVersion found in $directory"
         )
 
-val cmakeVersion = findLatestVersion(
+val cmakeMinVersion = "3.25.0"
+val ndkMinVersion = "29.0.14206865"
+
+val cmakeVer = getProperty(
+    gradleProperty = "cmake.version",
+    environmentVariables = listOf(
+        "CMAKE_VERSION"
+    )
+) ?: findLatestVersion(
     File(sdkDir, "cmake"),
-    "3.25.0"
+    cmakeMinVersion
 )
 
-val ndkVersion = findLatestVersion(
+val ndkVer = getProperty(
+    gradleProperty = "ndk.version",
+    environmentVariables = listOf(
+        "NDK_VERSION"
+    )
+) ?: findLatestVersion(
     File(sdkDir, "ndk"),
-    "29.0.14206865"
+    ndkMinVersion
 )
-
 
 android {
     namespace = "at.zimo.klug"
@@ -62,13 +128,13 @@ android {
 
     defaultConfig {
         minSdk = 24
-        ndkVersion = ndkVersion
+        ndkVersion = ndkVer
     }
 
     externalNativeBuild {
         cmake {
             path = file("cpp/CMakeLists.txt")
-            version = cmakeVersion
+            version = cmakeVer
         }
     }
 }

@@ -47,9 +47,9 @@ constexpr uint32_t transmit{100uz};
 
 namespace com {
 
-constexpr uint32_t ping{2'000uz};
-constexpr uint32_t reset{2'000uz};
-constexpr uint32_t mdu_ein{2'000uz};
+constexpr uint32_t ping{1'000uz};
+constexpr uint32_t reset{4'000uz};
+constexpr uint32_t mdu_ein{4'000uz};
 constexpr uint32_t susiv2{4'000uz};
 
 } // namespace com

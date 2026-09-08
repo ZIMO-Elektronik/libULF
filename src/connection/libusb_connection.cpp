@@ -75,7 +75,7 @@ void LibusbConnection::open(uint16_t vid, uint16_t pid) {
   }
   _handle = libusb_open_device_with_vid_pid(nullptr, vid, pid);
   if (!_handle) {
-    throw libklug::klug_error{err::Error::usb, "Unable to open device."};
+    throw libklug::klug_error{libklug::Error::usb, "Unable to open device."};
     std::unreachable();
   }
 
@@ -97,13 +97,13 @@ void LibusbConnection::open(uint16_t vid, uint16_t pid) {
 void LibusbConnection::openFd(int Fd) {
   if (_handle) {
     throw libklug::klug_error{
-      err::Error::usb,
+      libklug::Error::usb,
       "Attempted to open a new device, but a device exists already"};
     std::unreachable();
   }
   auto rc{libusb_wrap_sys_device(nullptr, (intptr_t)Fd, &_handle)};
   if (rc != LIBUSB_SUCCESS) {
-    throw libklug::klug_error{err::map(rc), "Unable to open device."};
+    throw libklug::klug_error{libklug::map(rc), "Unable to open device."};
     std::unreachable();
   }
 
@@ -125,7 +125,7 @@ void LibusbConnection::config() {
   using std::operator""sv;
   if (!_handle) {
     throw libklug::klug_error{
-      err::Error::usb,
+      libklug::Error::usb,
       "Attempted to configure connection without an open device!"};
     std::unreachable();
   }
@@ -135,7 +135,7 @@ void LibusbConnection::config() {
   auto rc{
     libusb_get_active_config_descriptor(libusb_get_device(_handle), &config)};
   if (rc != LIBUSB_SUCCESS) {
-    throw libklug::klug_error{err::map(rc),
+    throw libklug::klug_error{libklug::map(rc),
                               "Unable to retrieve config descriptor."};
     std::unreachable();
   }
@@ -164,12 +164,12 @@ void LibusbConnection::config() {
   libusb_free_config_descriptor(config);
 
   if (tx_eps.size() != 1) {
-    throw libklug::klug_error{err::Error::usb,
+    throw libklug::klug_error{libklug::Error::usb,
                               "Unexpected number of TX endpoints"};
     std::unreachable();
   }
   if (rx_eps.size() != 1) {
-    throw libklug::klug_error{err::Error::usb,
+    throw libklug::klug_error{libklug::Error::usb,
                               "Unexpected number of RC endpoints"};
     std::unreachable();
   }
@@ -191,7 +191,7 @@ void LibusbConnection::claim() {
   using std::operator""sv;
   if (!_handle) {
     throw libklug::klug_error{
-      err::Error::usb,
+      libklug::Error::usb,
       "Attempted to claim an interface without an open device!"};
     std::unreachable();
   }
@@ -204,145 +204,148 @@ void LibusbConnection::claim() {
 
     rc = libusb_detach_kernel_driver(_handle, _interface);
     if (rc != LIBUSB_SUCCESS) {
-      throw libklug::klug_error {
-        err::map(rc), "Unable to detach kernel driver.";
-        std::unreachable();
-      }
-      LOG_TRACE("Detached kernel driver from interface {}", _interface);
-    } else {
-      LOG_TRACE("libusb returned {} on driver check", rc);
-    }
-
-    libusb_detach_kernel_driver(_handle, _interface);
-
-    rc = libusb_claim_interface(_handle, _interface);
-    if (rc != LIBUSB_SUCCESS) {
-      throw libklug::klug_error{err::map(rc), "Unable to claim interface {}."};
+      throw libklug::klug_error{libklug::map(rc),
+                                "Unable to detach kernel driver."};
       std::unreachable();
     }
-
-    LOG_TRACE("Successfully claimed interface {}", _interface);
+    LOG_TRACE("Detached kernel driver from interface {}", _interface);
+  } else {
+    LOG_TRACE("libusb returned {} on driver check", rc);
   }
 
-  /**
-   * Release Interface
-   *
-   * \throw generic_error   If no device is set or an unhandled libusb error
-   *                        occurs
-   */
-  void LibusbConnection::release() {
-    using std::operator""sv;
-    if (!_handle) {
-      throw libklug::klug_error{
-        err::Error::usb,
-        "Attempted to release an interface without an open device!"};
-      std::unreachable();
-    }
+  libusb_detach_kernel_driver(_handle, _interface);
 
-    auto rc{libusb_release_interface(_handle, _interface)};
-    if (rc != LIBUSB_SUCCESS) {
-      throw libklug::klug_error{err::map(rc), "Unable to release interface."};
-      std::unreachable();
-    }
+  rc = libusb_claim_interface(_handle, _interface);
+  if (rc != LIBUSB_SUCCESS) {
+    throw libklug::klug_error{libklug::map(rc),
+                              "Unable to claim interface {}."};
+    std::unreachable();
   }
 
-  /**
-   * Close device
-   *
-   * \warning On Android, the device should be opened and closed from Java /
-   * Kotlin
-   *
-   */
-  void LibusbConnection::close() {
-    release();
+  LOG_TRACE("Successfully claimed interface {}", _interface);
+}
 
-    if (!_handle) {
-      LOG_WARN("Attemted to close a device without an open device!");
-      return;
-    }
+/**
+ * Release Interface
+ *
+ * \throw generic_error   If no device is set or an unhandled libusb error
+ *                        occurs
+ */
+void LibusbConnection::release() {
+  using std::operator""sv;
+  if (!_handle) {
+    throw libklug::klug_error{
+      libklug::Error::usb,
+      "Attempted to release an interface without an open device!"};
+    std::unreachable();
+  }
 
-    libusb_close(_handle);
-    _handle = nullptr;
+  auto rc{libusb_release_interface(_handle, _interface)};
+  if (rc != LIBUSB_SUCCESS) {
+    throw libklug::klug_error{libklug::map(rc), "Unable to release interface."};
+    std::unreachable();
+  }
+}
+
+/**
+ * Close device
+ *
+ * \warning On Android, the device should be opened and closed from Java /
+ * Kotlin
+ *
+ */
+void LibusbConnection::close() {
+  release();
+
+  if (!_handle) {
+    LOG_WARN("Attemted to close a device without an open device!");
     return;
   }
 
-  /**
-   * Flush RX Buffer
-   *
-   * \todo Refactor, as waiting for an exception is probably not the most
-   * elegant thing here
-   */
-  void LibusbConnection::flush() {
-    ztl::inplace_vector<uint8_t, 64u> buffer;
-    try {
-      while (true) read_all(buffer, 1);
+  libusb_close(_handle);
+  _handle = nullptr;
+  return;
+}
 
-    } catch (libklug::klug_error e) {}
-  }
+/**
+ * Flush RX Buffer
+ *
+ * \todo Refactor, as waiting for an exception is probably not the most
+ * elegant thing here
+ */
+void LibusbConnection::flush() {
+  ztl::inplace_vector<uint8_t, 64u> buffer;
+  try {
+    while (true) read_all(buffer, 1);
 
-  /**
-   * Write payload
-   *
-   * \param payload Payload
-   * \param timeout Timeout
-   *
-   * \throw generic_error
-   */
-  void LibusbConnection::_write(std::span<uint8_t const> payload,
-                                uint32_t timeout) {
-    using std::operator""sv;
-    if (auto rc{
-          libusb_bulk_transfer(_handle,
-                               _tx_ep,
-                               std::bit_cast<unsigned char*>(payload.data()),
-                               payload.size(),
-                               nullptr,
-                               timeout)};
-        rc != LIBUSB_SUCCESS)
-      throw libklug::klug_error{err::map(rc), "Transmit Error"};
-  }
+  } catch (libklug::klug_error e) {}
+}
 
-  /**
-   * Receive to buffer
-   *
-   * \param buffer      Buffer
-   * \param length      Buffer length
-   * \param received    Actual received
-   * \param terminator  Terminator
-   * \param timeout     Timeout
-   *
-   * \throw generic_error
-   */
-  void LibusbConnection::_read_until(uint8_t* buffer,
-                                     uint32_t length,
-                                     int* received,
-                                     uint8_t terminator,
-                                     uint32_t timeout) {
-    using std::operator""sv;
-    if (auto rc{libusb_bulk_transfer(
-          _handle, _rx_ep, buffer, length, received, timeout)};
-        rc != LIBUSB_SUCCESS)
-      throw libklug::klug_error{err::map(rc), "Receive Error"};
+/**
+ * Write payload
+ *
+ * \param payload Payload
+ * \param timeout Timeout
+ *
+ * \throw generic_error
+ */
+void LibusbConnection::_write(std::span<uint8_t const> payload,
+                              uint32_t timeout) {
+  using std::operator""sv;
+  if (auto rc{
+        libusb_bulk_transfer(_handle,
+                             _tx_ep,
+                             std::bit_cast<unsigned char*>(payload.data()),
+                             payload.size(),
+                             nullptr,
+                             timeout)};
+      rc != LIBUSB_SUCCESS)
+    throw libklug::klug_error{libklug::map(rc), "Transmit Error"};
+}
 
-  } // namespace internal
+/**
+ * Receive to buffer
+ *
+ * \param buffer      Buffer
+ * \param length      Buffer length
+ * \param received    Actual received
+ * \param terminator  Terminator
+ * \param timeout     Timeout
+ *
+ * \throw generic_error
+ */
+void LibusbConnection::_read_until(uint8_t* buffer,
+                                   uint32_t length,
+                                   int* received,
+                                   uint8_t terminator,
+                                   uint32_t timeout) {
+  using std::operator""sv;
+  if (auto rc{libusb_bulk_transfer(
+        _handle, _rx_ep, buffer, length, received, timeout)};
+      rc != LIBUSB_SUCCESS)
+    throw libklug::klug_error{libklug::map(rc), "Receive Error"};
 
-  /**
-   * Receive to buffer
-   *
-   * \param buffer    Buffer
-   * \param length    Buffer length
-   * \param received  Actual received
-   * \param timeout   Timeout
-   *
-   * \throw generic_error
-   */
-  void LibusbConnection::_read_all(
-    uint8_t* buffer, uint32_t length, int* received, uint32_t timeout) {
-    using std::operator""sv;
-    if (auto rc{libusb_bulk_transfer(
-          _handle, _rx_ep, buffer, length, received, timeout)};
-        rc != LIBUSB_SUCCESS)
-      throw libklug::klug_error{err::map(rc), "Receive Error"};
-  }
+} // namespace internal
+
+/**
+ * Receive to buffer
+ *
+ * \param buffer    Buffer
+ * \param length    Buffer length
+ * \param received  Actual received
+ * \param timeout   Timeout
+ *
+ * \throw generic_error
+ */
+void LibusbConnection::_read_all(uint8_t* buffer,
+                                 uint32_t length,
+                                 int* received,
+                                 uint32_t timeout) {
+  using std::operator""sv;
+  if (auto rc{libusb_bulk_transfer(
+        _handle, _rx_ep, buffer, length, received, timeout)};
+      rc != LIBUSB_SUCCESS)
+    throw libklug::klug_error{libklug::map(rc), "Receive Error"};
+}
 
 } // namespace internal
