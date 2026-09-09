@@ -28,6 +28,7 @@
 #include "klug/c/libklug.h"
 #include <cassert>
 #include <functional>
+#include <thread>
 #include "bridge/bridge.hpp"
 #include "bridge/bridge_zpp.hpp"
 #include "bridge/bridge_zsu.hpp"
@@ -45,9 +46,11 @@ zsu::File* to_zsu(zsu_handle handle) {
   return reinterpret_cast<zsu::File*>(handle);
 }
 
-/// Template helper to cover `libklug_bool` and `int` results
+thread_local char const* last_what = nullptr;
+
+/// Template helper to cover `bool` and `int` results
 template<typename F, typename O>
-requires std::same_as<O, libklug_bool> || std::same_as<O, int>
+requires std::same_as<O, bool> || std::same_as<O, int>
 libklug_error execute_impl(F&& operation, O* out) {
   auto const res{std::invoke(operation)};
   *out = static_cast<O>(res);
@@ -70,8 +73,12 @@ libklug_error execute(F&& operation, Args&&... args) {
     return execute_impl(std::forward<F>(operation),
                         std::forward<Args>(args)...);
   } catch (libklug::klug_error const& e) {
+    last_what = e.what();
     return static_cast<libklug_error>(static_cast<libklug::Error>(e));
-  } catch (...) { return LIBKLUG_ERR_UNKNOWN; }
+  } catch (...) {
+    last_what = "BUG! Sonething bad has happened and no one knows what!";
+    return LIBKLUG_ERR_UNKNOWN;
+  }
 }
 
 /** ---------------------------------------------------
@@ -90,8 +97,12 @@ libklug_error libklug_init(libklug_handle handle) {
     to_bridge(handle)->init();
     return LIBKLUG_OK;
   } catch (libklug::klug_error const& e) {
+    last_what = e.what();
     return static_cast<libklug_error>(static_cast<libklug::Error>(e));
-  } catch (...) { return LIBKLUG_ERR_UNKNOWN; }
+  } catch (...) {
+    last_what = "BUG! Sonething bad has happened and no one knows what!";
+    return LIBKLUG_ERR_UNKNOWN;
+  }
 }
 
 libklug_error libklug_open(libklug_handle handle, uint16_t vid, uint16_t pid) {
@@ -99,8 +110,12 @@ libklug_error libklug_open(libklug_handle handle, uint16_t vid, uint16_t pid) {
     to_bridge(handle)->open(vid, pid);
     return LIBKLUG_OK;
   } catch (libklug::klug_error const& e) {
+    last_what = e.what();
     return static_cast<libklug_error>(static_cast<libklug::Error>(e));
-  } catch (...) { return LIBKLUG_ERR_UNKNOWN; }
+  } catch (...) {
+    last_what = "BUG! Sonething bad has happened and no one knows what!";
+    return LIBKLUG_ERR_UNKNOWN;
+  }
 }
 
 libklug_error libklug_openFd(libklug_handle handle, int Fd) {
@@ -108,8 +123,12 @@ libklug_error libklug_openFd(libklug_handle handle, int Fd) {
     to_bridge(handle)->openFd(Fd);
     return LIBKLUG_OK;
   } catch (libklug::klug_error const& e) {
+    last_what = e.what();
     return static_cast<libklug_error>(static_cast<libklug::Error>(e));
-  } catch (...) { return LIBKLUG_ERR_UNKNOWN; }
+  } catch (...) {
+    last_what = "BUG! Sonething bad has happened and no one knows what!";
+    return LIBKLUG_ERR_UNKNOWN;
+  }
 }
 
 libklug_error libklug_close(libklug_handle handle) {
@@ -117,13 +136,15 @@ libklug_error libklug_close(libklug_handle handle) {
     to_bridge(handle)->close();
     return LIBKLUG_OK;
   } catch (libklug::klug_error const& e) {
+    last_what = e.what();
     return static_cast<libklug_error>(static_cast<libklug::Error>(e));
-  } catch (...) { return LIBKLUG_ERR_UNKNOWN; }
+  } catch (...) {
+    last_what = "BUG! Sonething bad has happened and no one knows what!";
+    return LIBKLUG_ERR_UNKNOWN;
+  }
 }
 
-char const* libklug_last_error_string(libklug_handle const handle) {
-  return to_bridge(handle)->lastWhat();
-}
+char const* libklug_last_error_string() { return last_what; }
 
 /** ---------------------------------------------------
  *  Bridge COM
@@ -134,15 +155,15 @@ libklug_error libklug_com_ping(libklug_handle hlib, char* buf, size_t* len) {
   return execute([&]() { return to_bridge(hlib)->com().ping(); }, buf, len);
 }
 
-libklug_error libklug_com_reset(libklug_handle hlib, libklug_bool* success) {
+libklug_error libklug_com_reset(libklug_handle hlib, bool* success) {
   return execute([&]() { return to_bridge(hlib)->com().reset(); }, success);
 }
 
-libklug_error libklug_com_susiv2(libklug_handle hlib, libklug_bool* success) {
+libklug_error libklug_com_susiv2(libklug_handle hlib, bool* success) {
   return execute([&]() { return to_bridge(hlib)->com().susiv2(); }, success);
 }
 
-libklug_error libklug_com_mdu_ein(libklug_handle hlib, libklug_bool* success) {
+libklug_error libklug_com_mdu_ein(libklug_handle hlib, bool* success) {
   return execute([&]() { return to_bridge(hlib)->com().mdu_ein(); }, success);
 }
 
@@ -159,13 +180,12 @@ libklug_susiv2_cv_read(libklug_handle hlib, uint16_t cv, int* value) {
 libklug_error libklug_susiv2_cv_write(libklug_handle hlib,
                                       uint16_t cv,
                                       uint8_t value,
-                                      libklug_bool* success) {
+                                      bool* success) {
   return execute([&]() { return to_bridge(hlib)->susiv2().cvWrite(cv, value); },
                  success);
 }
 
-libklug_error libklug_susiv2_zpp_erase(libklug_handle hlib,
-                                       libklug_bool* success) {
+libklug_error libklug_susiv2_zpp_erase(libklug_handle hlib, bool* success) {
   return execute([&]() { return to_bridge(hlib)->susiv2().zppErase(); },
                  success);
 }
@@ -173,22 +193,21 @@ libklug_error libklug_susiv2_zpp_erase(libklug_handle hlib,
 libklug_error libklug_susiv2_zpp_write(libklug_handle hlib,
                                        zpp_handle hzpp,
                                        uint32_t index,
-                                       libklug_bool* success) {
+                                       bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->susiv2().zppWrite(to_zpp(hzpp), index); },
     success);
 }
 
-libklug_error libklug_susiv2_features(libklug_handle hlib,
-                                      libklug_bool* success) {
+libklug_error libklug_susiv2_features(libklug_handle hlib, bool* success) {
   return execute([&]() { return to_bridge(hlib)->susiv2().features(); },
                  success);
 }
 
 libklug_error libklug_susiv2_exit(libklug_handle hlib,
-                                  libklug_bool reboot,
-                                  libklug_bool cv8_reset,
-                                  libklug_bool* success) {
+                                  bool reboot,
+                                  bool cv8_reset,
+                                  bool* success) {
   return execute(
     [&]() {
       return to_bridge(hlib)->susiv2().exit(reboot == 0 ? false : true,
@@ -199,7 +218,7 @@ libklug_error libklug_susiv2_exit(libklug_handle hlib,
 
 libklug_error libklug_susiv2_zpp_lc_dc_query(libklug_handle hlib,
                                              zpp_handle hzpp,
-                                             libklug_bool* success) {
+                                             bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->susiv2().zppLcDcQuery(to_zpp(hzpp)); },
     success);
@@ -210,17 +229,13 @@ libklug_error libklug_susiv2_zpp_lc_dc_query(libklug_handle hlib,
  *  ---------------------------------------------------
  */
 
-libklug_error libklug_mdu_ein_enter_mdu(libklug_handle hlib,
-                                        libklug_bool* success) {
+libklug_error libklug_mdu_ein_enter_mdu(libklug_handle hlib, bool* success) {
   return execute([&]() { return to_bridge(hlib)->mdu_ein().enterMDU(); },
                  success);
 }
 
-libklug_error libklug_mdu_ein_enter_dcc_zsu(libklug_handle hlib,
-                                            uint32_t id,
-                                            uint32_t sn,
-                                            libklug_bool done,
-                                            libklug_bool* success) {
+libklug_error libklug_mdu_ein_enter_dcc_zsu(
+  libklug_handle hlib, uint32_t id, uint32_t sn, bool done, bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->mdu_ein().enterDCCZSU(id, sn, done > 0); },
     success);
@@ -228,8 +243,8 @@ libklug_error libklug_mdu_ein_enter_dcc_zsu(libklug_handle hlib,
 
 libklug_error libklug_mdu_ein_enter_dcc_zpp(libklug_handle hlib,
                                             uint32_t sn,
-                                            libklug_bool done,
-                                            libklug_bool* success) {
+                                            bool done,
+                                            bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->mdu_ein().enterDCCZPP(sn, done > 0); },
     success);
@@ -238,19 +253,18 @@ libklug_error libklug_mdu_ein_enter_dcc_zpp(libklug_handle hlib,
 libklug_error libklug_mdu_ein_ping(libklug_handle hlib,
                                    uint32_t sn,
                                    uint32_t id,
-                                   libklug_bool* success) {
+                                   bool* success) {
   return execute([&]() { return to_bridge(hlib)->mdu_ein().ping(sn, id); },
                  success);
 }
 
-libklug_error libklug_mdu_ein_ping_all(libklug_handle hlib,
-                                       libklug_bool* success) {
+libklug_error libklug_mdu_ein_ping_all(libklug_handle hlib, bool* success) {
   return execute([&]() { return to_bridge(hlib)->mdu_ein().ping(); }, success);
 }
 
 libklug_error libklug_mdu_ein_config_transfer_rate(libklug_handle hlib,
                                                    uint8_t transfer_rate,
-                                                   libklug_bool* success) {
+                                                   bool* success) {
   assert(transfer_rate >= 0u && transfer_rate <= 4u);
   return execute(
     [&]() {
@@ -269,18 +283,18 @@ libklug_mdu_ein_cv_read(libklug_handle hlib, uint16_t cv, int* value) {
 libklug_error libklug_mdu_ein_cv_write(libklug_handle hlib,
                                        uint16_t cv,
                                        uint8_t value,
-                                       libklug_bool* success) {
+                                       bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->mdu_ein().cvWrite(cv, value); }, success);
 }
 
-libklug_error libklug_mdu_ein_busy(libklug_handle hlib, libklug_bool* success) {
+libklug_error libklug_mdu_ein_busy(libklug_handle hlib, bool* success) {
   return execute([&]() { return to_bridge(hlib)->mdu_ein().busy(); }, success);
 }
 
 libklug_error libklug_mdu_ein_zpp_valid_query(libklug_handle hlib,
                                               zpp_handle hzpp,
-                                              libklug_bool* success) {
+                                              bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->mdu_ein().zppValidQuery(to_zpp(hzpp)); },
     success);
@@ -288,15 +302,14 @@ libklug_error libklug_mdu_ein_zpp_valid_query(libklug_handle hlib,
 
 libklug_error libklug_mdu_ein_zpp_lc_dc_query(libklug_handle hlib,
                                               zpp_handle hzpp,
-                                              libklug_bool* success) {
+                                              bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->mdu_ein().zppLcDcQuery(to_zpp(hzpp)); },
     success);
 }
 
-libklug_error libklug_mdu_ein_zpp_erase(libklug_handle hlib,
-                                        zpp_handle hzpp,
-                                        libklug_bool* success) {
+libklug_error
+libklug_mdu_ein_zpp_erase(libklug_handle hlib, zpp_handle hzpp, bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->mdu_ein().zppErase(to_zpp(hzpp)); },
     success);
@@ -305,7 +318,7 @@ libklug_error libklug_mdu_ein_zpp_erase(libklug_handle hlib,
 libklug_error libklug_mdu_ein_zpp_update(libklug_handle hlib,
                                          zpp_handle hzpp,
                                          uint32_t index,
-                                         libklug_bool* success) {
+                                         bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->mdu_ein().zppUpdate(to_zpp(hzpp), index); },
     success);
@@ -313,14 +326,14 @@ libklug_error libklug_mdu_ein_zpp_update(libklug_handle hlib,
 
 libklug_error libklug_mdu_ein_zpp_update_end(libklug_handle hlib,
                                              zpp_handle hzpp,
-                                             libklug_bool* success) {
+                                             bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->mdu_ein().zppUpdateEnd(to_zpp(hzpp)); },
     success);
 }
 
 libklug_error libklug_mdu_ein_zpp_exit_reset(libklug_handle hlib,
-                                             libklug_bool* success) {
+                                             bool* success) {
   return execute([&]() { return to_bridge(hlib)->mdu_ein().zppExitReset(); },
                  success);
 }
@@ -328,7 +341,7 @@ libklug_error libklug_mdu_ein_zpp_exit_reset(libklug_handle hlib,
 libklug_error libklug_mdu_ein_zsu_salsa20_iv(libklug_handle hlib,
                                              zsu_handle hzsu,
                                              size_t firmware_index,
-                                             libklug_bool* success) {
+                                             bool* success) {
   return execute(
     [&]() {
       return to_bridge(hlib)->mdu_ein().zsuSalsa20IV(
@@ -340,7 +353,7 @@ libklug_error libklug_mdu_ein_zsu_salsa20_iv(libklug_handle hlib,
 libklug_error libklug_mdu_ein_zsu_erase(libklug_handle hlib,
                                         zsu_handle hzsu,
                                         size_t firmware_index,
-                                        libklug_bool* success) {
+                                        bool* success) {
   return execute(
     [&]() {
       return to_bridge(hlib)->mdu_ein().zsuErase(
@@ -353,7 +366,7 @@ libklug_error libklug_mdu_ein_zsu_update(libklug_handle hlib,
                                          zsu_handle hzsu,
                                          size_t firmware_index,
                                          uint32_t index,
-                                         libklug_bool* success) {
+                                         bool* success) {
   return execute(
     [&]() {
       return to_bridge(hlib)->mdu_ein().zsuUpdate(
@@ -365,7 +378,7 @@ libklug_error libklug_mdu_ein_zsu_update(libklug_handle hlib,
 libklug_error libklug_mdu_ein_zsu_crc32_start(libklug_handle hlib,
                                               zsu_handle hzsu,
                                               size_t firmware_index,
-                                              libklug_bool* success) {
+                                              bool* success) {
   return execute(
     [&]() {
       return to_bridge(hlib)->mdu_ein().zsuCRC32Start(
@@ -375,13 +388,13 @@ libklug_error libklug_mdu_ein_zsu_crc32_start(libklug_handle hlib,
 }
 
 libklug_error libklug_mdu_ein_zsu_crc32_result(libklug_handle hlib,
-                                               libklug_bool* success) {
+                                               bool* success) {
   return execute([&]() { return to_bridge(hlib)->mdu_ein().zsuCRC32Result(); },
                  success);
 }
 
 libklug_error libklug_mdu_ein_zsu_crc32_result_exit(libklug_handle hlib,
-                                                    libklug_bool* success) {
+                                                    bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->mdu_ein().zsuCRC32ResultExit(); }, success);
 }

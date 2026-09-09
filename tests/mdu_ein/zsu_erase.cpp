@@ -14,7 +14,7 @@ TEST_F(TestMDU_EIN, zsu_erase_payload) {
     EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
   }
 
-  libklug_bool r{};
+  bool r{};
   libklug_mdu_ein_zsu_erase(libHandle, zsuHandle, fwIndex, &r);
 }
 
@@ -22,7 +22,7 @@ TEST_F(TestMDU_EIN, zsu_erase_result_success) {
   ON_CALL(conn, _read_until(_, _, _, _, _))
     .WillByDefault(helper::mdu::receive_ack);
 
-  libklug_bool r{};
+  bool r{};
   ASSERT_EQ(libklug_mdu_ein_zsu_erase(libHandle, zsuHandle, fwIndex, &r),
             LIBKLUG_OK);
   ASSERT_TRUE(r);
@@ -32,7 +32,7 @@ TEST_F(TestMDU_EIN, zsu_erase_result_no_success) {
   ON_CALL(conn, _read_until(_, _, _, _, _))
     .WillByDefault(helper::mdu::receive_nak);
 
-  libklug_bool r{};
+  bool r{};
   ASSERT_EQ(libklug_mdu_ein_zsu_erase(libHandle, zsuHandle, fwIndex, &r),
             LIBKLUG_OK);
   ASSERT_FALSE(r);
@@ -41,14 +41,14 @@ TEST_F(TestMDU_EIN, zsu_erase_result_no_success) {
 TEST_F(TestMDU_EIN, zsu_erase_write_error) {
   assertTransmitErrorCalls();
 
-  libklug_bool r{};
+  bool r{};
   libklug_mdu_ein_zsu_erase(libHandle, zsuHandle, fwIndex, &r);
 }
 
 TEST_F(TestMDU_EIN, zsu_erase_write_error_result) {
   throwTransmitException();
 
-  libklug_bool r{};
+  bool r{};
   ASSERT_NE(libklug_mdu_ein_zsu_erase(libHandle, zsuHandle, fwIndex, &r),
             LIBKLUG_OK);
 }
@@ -56,14 +56,14 @@ TEST_F(TestMDU_EIN, zsu_erase_write_error_result) {
 TEST_F(TestMDU_EIN, zsu_erase_receive_error) {
   assertReceiveErrorCalls();
 
-  libklug_bool r{};
+  bool r{};
   libklug_mdu_ein_zsu_erase(libHandle, zsuHandle, fwIndex, &r);
 }
 
 TEST_F(TestMDU_EIN, zsu_erase_receive_error_result) {
   throwReceiveException();
 
-  libklug_bool r{};
+  bool r{};
   ASSERT_NE(libklug_mdu_ein_zsu_erase(libHandle, zsuHandle, fwIndex, &r),
             LIBKLUG_OK);
 }

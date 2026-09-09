@@ -50,8 +50,7 @@ void LibserialportConnection::init() {}
  * \param vid Device VID
  * \param pid Device PID
  *
- * \throw generic_error   If no device exists or an unhandled libusb error
- *                        occurs
+ * \throws klug_error   First error occurred
  */
 void LibserialportConnection::open(uint16_t vid, uint16_t pid) {
   using std::operator""sv;
@@ -101,8 +100,7 @@ void LibserialportConnection::open(uint16_t vid, uint16_t pid) {
  *
  * \param Fd
  *
- * \throw generic_error   If no device exists or an unhandled libusb error
- *                        occurs
+ * \throws klug_error   First error occurred
  */
 void LibserialportConnection::openFd(int Fd) {
   using std::operator""sv;
@@ -115,9 +113,7 @@ void LibserialportConnection::openFd(int Fd) {
 /**
  * Configure device
  *
- * \throw generic_error   If no device exists or an unhandled libusb error
- *                        occurs
- *
+ * \throws klug_error   First error occurred
  */
 void LibserialportConnection::config() {
   using std::operator""sv;
@@ -170,10 +166,10 @@ void LibserialportConnection::flush() {
 /**
  * Write payload to out buffer
  *
- * \throw generic_error   If a timeout occurs
- *
  * \param payload Payload
  * \param timeout Timeout
+ *
+ * \throws klug_error   On timeout or other error
  */
 void LibserialportConnection::_write(std::span<uint8_t const> payload,
                                      uint32_t timeout) {
@@ -194,13 +190,13 @@ void LibserialportConnection::_write(std::span<uint8_t const> payload,
 /**
  * Read until terminator symbol
  *
- * \throw generic_error   If a timeout occurs
- *
  * \param buffer      Buffer to read into
  * \param length      Length of buffer
  * \param received    Size of data received
  * \param terminator  Terminator symbol
  * \param timeout     Timeout
+ *
+ * \throws klug_error   On timeout or other error
  */
 void LibserialportConnection::_read_until(uint8_t* buffer,
                                           uint32_t length,
@@ -238,6 +234,8 @@ void LibserialportConnection::_read_until(uint8_t* buffer,
  * \param length    Size of read buffer
  * \param received  Received data size
  * \param timeout   Timeout
+ *
+ * \throws klug_error   On timeout or other error
  */
 void LibserialportConnection::_read_all(uint8_t* buffer,
                                         uint32_t length,

@@ -29,10 +29,12 @@
 #define LIBKLUG_H
 
 #ifdef __cplusplus
+#  include <cstdbool>
 #  include <cstddef>
 #  include <cstdint>
 extern "C" {
 #else
+#  include <stdbool.h>
 #  include <stddef.h>
 #  include <stdint.h>
 #endif
@@ -43,11 +45,6 @@ extern "C" {
 typedef struct libklug_instance* libklug_handle;
 typedef struct zpp_instance* zpp_handle;
 typedef struct zsu_instance* zsu_handle;
-
-typedef enum libklug_bool_t {
-  LIBKLUG_FALSE = 0,
-  LIBKLUG_TRUE = 1,
-} libklug_bool;
 
 /** ---------------------------------------------------
  *  Bridge
@@ -81,8 +78,6 @@ libklug_handle libklug_create();
  * should be avoided
  *
  * \param handle libklug handle
- *
- * \return libklug_error LIBKLUG_OK on succes, LIBKLUG_ERR_ else
  */
 void libklug_destroy(libklug_handle handle);
 
@@ -169,7 +164,7 @@ libklug_error libklug_close(libklug_handle handle);
  * \param handle
  * \return char const*
  */
-char const* libklug_last_error_string(libklug_handle const handle);
+char const* libklug_last_error_string();
 
 /** ---------------------------------------------------
  *  Bridge COM
@@ -206,11 +201,11 @@ libklug_error libklug_com_ping(libklug_handle hlib, char* buf, size_t* len);
  * should be avoided
  *
  * \param [inout] handle  libklug handle
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error LIBKLUG_OK on succes, LIBKLUG_ERR_ else
  */
-libklug_error libklug_com_reset(libklug_handle hlib, libklug_bool* success);
+libklug_error libklug_com_reset(libklug_handle hlib, bool* success);
 
 /**
  * Enter SUSIV2 Mode
@@ -223,11 +218,11 @@ libklug_error libklug_com_reset(libklug_handle hlib, libklug_bool* success);
  * should be avoided
  *
  * \param [inout] handle  libklug handle
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error LIBKLUG_OK on succes, LIBKLUG_ERR_ else
  */
-libklug_error libklug_com_susiv2(libklug_handle hlib, libklug_bool* success);
+libklug_error libklug_com_susiv2(libklug_handle hlib, bool* success);
 
 /**
  * Enter MDU_EIN Mode
@@ -240,11 +235,11 @@ libklug_error libklug_com_susiv2(libklug_handle hlib, libklug_bool* success);
  * should be avoided
  *
  * \param [inout] handle  libklug handle
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error LIBKLUG_OK on succes, LIBKLUG_ERR_ else
  */
-libklug_error libklug_com_mdu_ein(libklug_handle hlib, libklug_bool* success);
+libklug_error libklug_com_mdu_ein(libklug_handle hlib, bool* success);
 
 /** ---------------------------------------------------
  *  Bridge SUSIV2
@@ -264,7 +259,7 @@ libklug_error libklug_com_mdu_ein(libklug_handle hlib, libklug_bool* success);
  *
  * \param [inout] handle  libklug handle
  * \param [in]    cv      Cv address (zero-based, meaning Cv - 1)
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error LIBKLUG_OK on succes, LIBKLUG_ERR_ else
  */
@@ -288,14 +283,14 @@ libklug_susiv2_cv_read(libklug_handle handle, uint16_t cv, int* value);
  * \param [inout] handle  libklug handle
  * \param [in]    cv      Cv address (zero based, meaning Cv - 1)
  * \param [in]    value   Cv value
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error LIBKLUG_OK on succes, LIBKLUG_ERR_ else
  */
 libklug_error libklug_susiv2_cv_write(libklug_handle hlib,
                                       uint16_t cv,
                                       uint8_t value,
-                                      libklug_bool* success);
+                                      bool* success);
 
 /**
  * ZPP erase (erase sound flash)
@@ -309,12 +304,11 @@ libklug_error libklug_susiv2_cv_write(libklug_handle hlib,
  * should be avoided
  *
  * \param [inout] hlib    libklug handle
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
-libklug_error libklug_susiv2_zpp_erase(libklug_handle hlib,
-                                       libklug_bool* success);
+libklug_error libklug_susiv2_zpp_erase(libklug_handle hlib, bool* success);
 
 /**
  * ZPP write (blockwise sound flash write)
@@ -330,14 +324,14 @@ libklug_error libklug_susiv2_zpp_erase(libklug_handle hlib,
  * \param [inout] hlib    libklug handle
  * \param [in]    hzpp    zpp handle
  * \param [in]    index   Block index
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
 libklug_error libklug_susiv2_zpp_write(libklug_handle hlib,
                                        zpp_handle hzpp,
                                        uint32_t index,
-                                       libklug_bool* success);
+                                       bool* success);
 
 /**
  * Request features (actually, this just sets the max transfer speed possible)
@@ -351,12 +345,11 @@ libklug_error libklug_susiv2_zpp_write(libklug_handle hlib,
  * should be avoided
  *
  * \param [inout] hlib    libklug handle
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
-libklug_error libklug_susiv2_features(libklug_handle hlib,
-                                      libklug_bool* success);
+libklug_error libklug_susiv2_features(libklug_handle hlib, bool* success);
 
 /**
  * Exit protocol (plus options)
@@ -372,14 +365,14 @@ libklug_error libklug_susiv2_features(libklug_handle hlib,
  * \param [inout] hlib      libklug_handle
  * \param [in]    reboot    Reboot decoder
  * \param [in]    cv8_reset Perform CV8 reset on decoder
- * \param [out]   success   Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success   true, if successful, false else
  *
  * \return libklug_error LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
 libklug_error libklug_susiv2_exit(libklug_handle hlib,
-                                  libklug_bool reboot,
-                                  libklug_bool cv8_reset,
-                                  libklug_bool* success);
+                                  bool reboot,
+                                  bool cv8_reset,
+                                  bool* success);
 
 /**
  * ZPP LC DC Query (Checks if the load- / developer- code is valid)
@@ -394,13 +387,13 @@ libklug_error libklug_susiv2_exit(libklug_handle hlib,
  *
  * \param [inout] hlib    libklug handle
  * \param [in]    hzpp    zpp handle
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
 libklug_error libklug_susiv2_zpp_lc_dc_query(libklug_handle hlib,
                                              zpp_handle hzpp,
-                                             libklug_bool* success);
+                                             bool* success);
 
 /** ---------------------------------------------------
  *  Bridge MDU_EIN
@@ -419,12 +412,11 @@ libklug_error libklug_susiv2_zpp_lc_dc_query(libklug_handle hlib,
  * should be avoided
  *
  * \param [inout] hlib    libklug_handle
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
-libklug_error libklug_mdu_ein_enter_mdu(libklug_handle hlib,
-                                        libklug_bool* success);
+libklug_error libklug_mdu_ein_enter_mdu(libklug_handle hlib, bool* success);
 
 /**
  * Enter Bootloader (via OpsMode)
@@ -442,15 +434,12 @@ libklug_error libklug_mdu_ein_enter_mdu(libklug_handle hlib,
  * \param [in]    sn      Decoder Serial Number
  * \param [in]    done    True, if this was the last `id-sn` to enter, else
  *                        false
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
-libklug_error libklug_mdu_ein_enter_dcc_zsu(libklug_handle hlib,
-                                            uint32_t id,
-                                            uint32_t sn,
-                                            libklug_bool done,
-                                            libklug_bool* success);
+libklug_error libklug_mdu_ein_enter_dcc_zsu(
+  libklug_handle hlib, uint32_t id, uint32_t sn, bool done, bool* success);
 
 /**
  * Enter SoundLoad mode (via OpsMode)
@@ -466,14 +455,14 @@ libklug_error libklug_mdu_ein_enter_dcc_zsu(libklug_handle hlib,
  * \param [inout] hlib    libklug handle
  * \param [in]    sn      Decoder Serial Number
  * \param [in]    done    True, if this was the last `sn` to enter, else false
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
 libklug_error libklug_mdu_ein_enter_dcc_zpp(libklug_handle hlib,
                                             uint32_t sn,
-                                            libklug_bool done,
-                                            libklug_bool* success);
+                                            bool done,
+                                            bool* success);
 
 /**
  * Ping decoder
@@ -489,14 +478,14 @@ libklug_error libklug_mdu_ein_enter_dcc_zpp(libklug_handle hlib,
  * \param [inout] hlib    libklug handle
  * \param [in]    sn      Decoder Serial Number
  * \param [in]    id      Decoder ID
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
 libklug_error libklug_mdu_ein_ping(libklug_handle hlib,
                                    uint32_t sn,
                                    uint32_t id,
-                                   libklug_bool* success);
+                                   bool* success);
 
 /**
  * Ping any decoder
@@ -510,12 +499,11 @@ libklug_error libklug_mdu_ein_ping(libklug_handle hlib,
  * should be avoided
  *
  * \param [inout] hlib    libklug_handle
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
-libklug_error libklug_mdu_ein_ping_all(libklug_handle hlib,
-                                       libklug_bool* success);
+libklug_error libklug_mdu_ein_ping_all(libklug_handle hlib, bool* success);
 
 /**
  * Configure transfer rate
@@ -533,13 +521,13 @@ libklug_error libklug_mdu_ein_ping_all(libklug_handle hlib,
  *
  * \param [inout] hlib            libklug_handle
  * \param [in]    transfer_rate   Transfer Rate to configure.
- * \param [out]   success         Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success         true, if successful, false else
  *
  * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
 libklug_error libklug_mdu_ein_config_transfer_rate(libklug_handle hlib,
                                                    uint8_t transfer_rate,
-                                                   libklug_bool* success);
+                                                   bool* success);
 
 /**
  * CV read
@@ -573,14 +561,14 @@ libklug_mdu_ein_cv_read(libklug_handle hlib, uint16_t cv, int* value);
  * \param [inout] hlib    libklug handle
  * \param [in]    cv      CV address to write
  * \param [in]    value   CV value to write
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
 libklug_error libklug_mdu_ein_cv_write(libklug_handle hlib,
                                        uint16_t cv,
                                        uint8_t value,
-                                       libklug_bool* success);
+                                       bool* success);
 
 /**
  * Busy query
@@ -593,11 +581,11 @@ libklug_error libklug_mdu_ein_cv_write(libklug_handle hlib,
  * should be avoided
  *
  * \param [inout] hlib    libklug handle
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
-libklug_error libklug_mdu_ein_busy(libklug_handle hlib, libklug_bool* success);
+libklug_error libklug_mdu_ein_busy(libklug_handle hlib, bool* success);
 
 /**
  * ZPP valid query
@@ -611,13 +599,13 @@ libklug_error libklug_mdu_ein_busy(libklug_handle hlib, libklug_bool* success);
  *
  * \param [inout] hlib    libklug handle
  * \param [in]    hzpp    zpp handle
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
 libklug_error libklug_mdu_ein_zpp_valid_query(libklug_handle hlib,
                                               zpp_handle hzpp,
-                                              libklug_bool* success);
+                                              bool* success);
 
 /**
  * ZPP LC DC Query
@@ -631,13 +619,13 @@ libklug_error libklug_mdu_ein_zpp_valid_query(libklug_handle hlib,
  *
  * \param [inout] hlib    libklug handle
  * \param [in]    hzpp    zpp handle
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
 libklug_error libklug_mdu_ein_zpp_lc_dc_query(libklug_handle hlib,
                                               zpp_handle hzpp,
-                                              libklug_bool* success);
+                                              bool* success);
 
 /**
  * ZPP Erase (erases decoder sound flash)
@@ -651,13 +639,12 @@ libklug_error libklug_mdu_ein_zpp_lc_dc_query(libklug_handle hlib,
  *
  * \param [inout] hlib    libklug handle
  * \param [in]    hzpp    zpp handle
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
-libklug_error libklug_mdu_ein_zpp_erase(libklug_handle hlib,
-                                        zpp_handle hzpp,
-                                        libklug_bool* success);
+libklug_error
+libklug_mdu_ein_zpp_erase(libklug_handle hlib, zpp_handle hzpp, bool* success);
 
 /**
  * ZPP Update
@@ -672,14 +659,14 @@ libklug_error libklug_mdu_ein_zpp_erase(libklug_handle hlib,
  * \param [inout] hlib    libklug handle
  * \param [in]    hzpp    zpp handle
  * \param [in]    index   Flash block index
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
 libklug_error libklug_mdu_ein_zpp_update(libklug_handle hlib,
                                          zpp_handle hzpp,
                                          uint32_t index,
-                                         libklug_bool* success);
+                                         bool* success);
 
 /**
  * ZPP Update end
@@ -693,13 +680,13 @@ libklug_error libklug_mdu_ein_zpp_update(libklug_handle hlib,
  *
  * \param [inout] hlib    libklug handle
  * \param [in]    hzpp    zpp handle
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
 libklug_error libklug_mdu_ein_zpp_update_end(libklug_handle hlib,
                                              zpp_handle hzpp,
-                                             libklug_bool* success);
+                                             bool* success);
 
 /**
  * ZPP Exit and Reset
@@ -712,12 +699,12 @@ libklug_error libklug_mdu_ein_zpp_update_end(libklug_handle hlib,
  * should be avoided
  *
  * \param [inout] hlib    libklug handle
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
 libklug_error libklug_mdu_ein_zpp_exit_reset(libklug_handle hlib,
-                                             libklug_bool* success);
+                                             bool* success);
 
 /**
  * ZSU Salsa20 IV
@@ -732,14 +719,14 @@ libklug_error libklug_mdu_ein_zpp_exit_reset(libklug_handle hlib,
  * \param [inout] hlib            libklug handle
  * \param [in]    hzsu            zsu handle
  * \param [in]    firmware_index  Firmware index
- * \param [out]   success         Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success         true, if successful, false else
  *
  * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
 libklug_error libklug_mdu_ein_zsu_salsa20_iv(libklug_handle hlib,
                                              zsu_handle hzsu,
                                              size_t firmware_index,
-                                             libklug_bool* success);
+                                             bool* success);
 
 /**
  * ZSU Erase (Erase firmware flash)
@@ -754,14 +741,14 @@ libklug_error libklug_mdu_ein_zsu_salsa20_iv(libklug_handle hlib,
  * \param [inout] hlib            libklug handle
  * \param [in]    hzsu            zsu handle
  * \param [in]    firmware_index  Firmware index
- * \param [out]   success         Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success         true, if successful, false else
  *
  * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
 libklug_error libklug_mdu_ein_zsu_erase(libklug_handle hlib,
                                         zsu_handle hzsu,
                                         size_t firmware_index,
-                                        libklug_bool* success);
+                                        bool* success);
 
 /**
  * ZSU Update
@@ -777,7 +764,7 @@ libklug_error libklug_mdu_ein_zsu_erase(libklug_handle hlib,
  * \param [in]    hzsu            zsu handle
  * \param [in]    firmware_index  Firmware index
  * \param [in]    index           Firmware block index
- * \param [out]   success         Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success         true, if successful, false else
  *
  * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
@@ -785,7 +772,7 @@ libklug_error libklug_mdu_ein_zsu_update(libklug_handle hlib,
                                          zsu_handle hzsu,
                                          size_t firmware_index,
                                          uint32_t index,
-                                         libklug_bool* success);
+                                         bool* success);
 
 /**
  * ZSU CRC32 Start
@@ -800,14 +787,14 @@ libklug_error libklug_mdu_ein_zsu_update(libklug_handle hlib,
  * \param [inout] hlib            libklug handle
  * \param [in]    hzsu            zsu handle
  * \param [in]    firmware_index  Firmware index
- * \param [out]   success         Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success         true, if successful, false else
  *
  * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
 libklug_error libklug_mdu_ein_zsu_crc32_start(libklug_handle hlib,
                                               zsu_handle hzsu,
                                               size_t firmware_index,
-                                              libklug_bool* success);
+                                              bool* success);
 
 /**
  * ZSU CRC32 Result
@@ -820,12 +807,12 @@ libklug_error libklug_mdu_ein_zsu_crc32_start(libklug_handle hlib,
  * should be avoided
  *
  * \param [inout] hlib    libklug handle
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
 libklug_error libklug_mdu_ein_zsu_crc32_result(libklug_handle hlib,
-                                               libklug_bool* success);
+                                               bool* success);
 
 /**
  * ZSU CRC32 Result and Exit
@@ -838,12 +825,12 @@ libklug_error libklug_mdu_ein_zsu_crc32_result(libklug_handle hlib,
  * should be avoided
  *
  * \param [inout] hlib    libklug handle
- * \param [out]   success Contains either LIBKLUG_TRUE or LIBKLUG_FALSE
+ * \param [out]   success true, if successful, false else
  *
  * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
  */
 libklug_error libklug_mdu_ein_zsu_crc32_result_exit(libklug_handle hlib,
-                                                    libklug_bool* success);
+                                                    bool* success);
 
 /** ---------------------------------------------------
  *  Bridge ZPP

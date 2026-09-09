@@ -48,7 +48,7 @@ public class KLUGAdapter {
   static native int close(long hlib);
 
   /** ----------------------------------------------------------------
-   *  Create/Configure/Destroy
+   *  Bridge COM
    *  ----------------------------------------------------------------
    */ 
 

@@ -62,7 +62,8 @@ Ping::Ping(std::shared_ptr<internal::IConnection> conn,
  * \note
  * This is the inverse operation, since a decoder naks when it responds
  *
- * \throw generic_error When format does not match protocol
+ * \throw libklug_error   If format does not match protocol or the device is
+ *                        unresponsive
  *
  * \retval Evaluated bool
  */

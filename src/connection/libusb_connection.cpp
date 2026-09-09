@@ -40,9 +40,7 @@ namespace internal {
 /**
  * Initialize the Libusb context
  *
- * \return int
- * \retval LIBUSB_ERROR   Error
- * \retval LIBUSB_SUCCESS Success
+ * \throws klug_error   First error occurred
  */
 void LibusbConnection::init() {
 #ifdef ANDROID
@@ -60,11 +58,10 @@ void LibusbConnection::init() {
  *
  * \warning DO NOT CALL THIS ON ANDROID
  *
- * \throw generic_error   If no device exists or an unhandled libusb error
- *                        occurs
- *
  * \param vid VID
  * \param pid PID
+ *
+ * \throws klug_error   First error occurred
  */
 void LibusbConnection::open(uint16_t vid, uint16_t pid) {
   if (_handle) {
@@ -88,11 +85,10 @@ void LibusbConnection::open(uint16_t vid, uint16_t pid) {
 /**
  * Open connection from file descriptor
  *
- * \throw generic_error   If no device exists or an unhandled libusb error
- *                        occurs
- *
  * \note This exists mainly for Android, as the devices need to be opened from
  * Java / Kotlin side
+ *
+ * \throws klug_error   First error occurred
  */
 void LibusbConnection::openFd(int Fd) {
   if (_handle) {
@@ -116,10 +112,9 @@ void LibusbConnection::openFd(int Fd) {
 /**
  * Config connection
  *
- * \throw generic_error   If no device exists or an unhandled libusb error
- *                        occurs
- *
  * \note Configures internals
+ *
+ * \throws klug_error   First error occurred
  */
 void LibusbConnection::config() {
   using std::operator""sv;
@@ -184,8 +179,7 @@ void LibusbConnection::config() {
 /**
  * Claim Interface
  *
- * \throw generic_error   If no device exists or an unhandled libusb error
- *                        occurs
+ * \throws klug_error   First error occurred
  */
 void LibusbConnection::claim() {
   using std::operator""sv;
@@ -228,8 +222,7 @@ void LibusbConnection::claim() {
 /**
  * Release Interface
  *
- * \throw generic_error   If no device is set or an unhandled libusb error
- *                        occurs
+ * \throws klug_error   First error occurred
  */
 void LibusbConnection::release() {
   using std::operator""sv;
@@ -252,7 +245,6 @@ void LibusbConnection::release() {
  *
  * \warning On Android, the device should be opened and closed from Java /
  * Kotlin
- *
  */
 void LibusbConnection::close() {
   release();
@@ -287,7 +279,7 @@ void LibusbConnection::flush() {
  * \param payload Payload
  * \param timeout Timeout
  *
- * \throw generic_error
+\throws klug_error   On timeout or other error
  */
 void LibusbConnection::_write(std::span<uint8_t const> payload,
                               uint32_t timeout) {
@@ -312,7 +304,7 @@ void LibusbConnection::_write(std::span<uint8_t const> payload,
  * \param terminator  Terminator
  * \param timeout     Timeout
  *
- * \throw generic_error
+\throws klug_error   On timeout or other error
  */
 void LibusbConnection::_read_until(uint8_t* buffer,
                                    uint32_t length,
@@ -335,7 +327,7 @@ void LibusbConnection::_read_until(uint8_t* buffer,
  * \param received  Actual received
  * \param timeout   Timeout
  *
- * \throw generic_error
+\throws klug_error   On timeout or other error
  */
 void LibusbConnection::_read_all(uint8_t* buffer,
                                  uint32_t length,

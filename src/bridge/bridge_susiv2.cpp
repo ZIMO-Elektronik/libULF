@@ -46,12 +46,11 @@ SUSIV2::SUSIV2(Context& ctx, ZPP& zpp) : _ctx{ctx}, _zpp{zpp} {}
 /**
  * Cv Read
  *
- * \note
- * Will throw an exception on error
- *
  * \param cv  Cv address
  *
- * \return int Response
+ * \return int  A value >= 0 is the read value, < 0 is an invalid value
+ *
+ * \throws klug_error   First error occurred
  */
 int SUSIV2::cvRead(uint16_t cv) {
   transmission::susiv2::CvRead t{_ctx.connection, 2000uz, cv};
@@ -62,15 +61,12 @@ int SUSIV2::cvRead(uint16_t cv) {
 /**
  * Cv Write
  *
- * \note
- * Will throw an exception on error
- *
  * \param cv    Cv address
  * \param value Cv value
  *
- * \return bool Response
+ * \return bool true, if successful, false else
  *
- * \todo Implement
+ * \throws klug_error   First error occurred
  */
 bool SUSIV2::cvWrite(uint16_t cv, uint8_t value) {
   using std::operator""sv;
@@ -81,10 +77,9 @@ bool SUSIV2::cvWrite(uint16_t cv, uint8_t value) {
 /**
  * ZPP erase
  *
- * \note
- * Will throw an exception on error
+ * \return bool true, if successful, false else
  *
- * \return bool Response
+ * \throws klug_error   First error occurred
  */
 bool SUSIV2::zppErase() {
   transmission::susiv2::Base t{
@@ -100,13 +95,12 @@ bool SUSIV2::zppErase() {
 /**
  * ZPP write
  *
- * \note
- * Will throw an exception on error
- *
  * \param address Block address
  * \param block   Block
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool SUSIV2::zppWrite(uint32_t address, std::span<uint8_t const> block) {
   transmission::susiv2::Base t{
@@ -122,13 +116,12 @@ bool SUSIV2::zppWrite(uint32_t address, std::span<uint8_t const> block) {
 /**
  * ZPP write from file
  *
- * \note
- * Will throw an exception on error
- *
  * \param file  ZPP file
  * \param index Block index
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool SUSIV2::zppWrite(zpp::File* file, uint32_t index) {
   auto const block{_zpp.block(file, index)};
@@ -138,10 +131,9 @@ bool SUSIV2::zppWrite(zpp::File* file, uint32_t index) {
 /**
  * Feature request
  *
- * \note
- * Will throw an exception on error
+ * \return bool true, if successful, false else
  *
- * \return bool Response
+ * \throws klug_error   First error occurred
  */
 bool SUSIV2::features() {
   transmission::susiv2::Base t{
@@ -157,13 +149,12 @@ bool SUSIV2::features() {
 /**
  * Exit
  *
- * \note
- * Will throw an exception on error
- *
  * \param reboot    Decoder reboot
  * \param cv8_reset Decoder Cv8 reset
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool SUSIV2::exit(bool reboot, bool cv8_reset) {
   transmission::susiv2::Base t{
@@ -179,12 +170,11 @@ bool SUSIV2::exit(bool reboot, bool cv8_reset) {
 /**
  * LC DC query
  *
- * \note
- * Will throw an exception on error
- *
  * \param dev_code Developer code
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool SUSIV2::zppLcDcQuery(uint32_t dev_code) {
   transmission::susiv2::Base t{
@@ -200,12 +190,11 @@ bool SUSIV2::zppLcDcQuery(uint32_t dev_code) {
 /**
  * LC DC query
  *
- * \note
- * Will throw an exception on error
- *
  * \param file  ZPP file
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool SUSIV2::zppLcDcQuery(zpp::File* file) {
   return zppLcDcQuery(zusi::data2uint32(file->developer_code.data()));

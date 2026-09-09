@@ -59,7 +59,8 @@ Base::Base(std::shared_ptr<internal::IConnection> conn,
 /**
  * Evaluate a bool
  *
- * \throw generic_error  If format does not match protocol
+ * \throw libklug_error   If format does not match protocol or the device is
+ *                        unresponsive
  *
  * \return Evaluated bool
  */

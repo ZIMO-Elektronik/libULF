@@ -37,10 +37,6 @@ namespace bridge {
 /**
  * Bridge context
  *
- * \details Holds the current transmission state, as well as the Connection info
- *
- * \todo Maybe construct a state of connection to use later on.
- *
  */
 struct Context {
   Context();

@@ -19,7 +19,7 @@ int main() {
   if (!z_handle) return -1;
 
   long const count{libklug_zpp_blocks(z_handle)};
-  libklug_bool boolean{}; // Result container (implicit bool)
+  bool boolean{}; // Result container (implicit bool)
 
   std::cout << "2. Change Mode to SUSIV2" << std::endl;
   if (libklug_com_susiv2(handle, &boolean) != LIBKLUG_OK || !boolean) return -1;
@@ -48,8 +48,7 @@ int main() {
   }
 
   std::cout << "6. Tell decoder to exit ZUSI" << std::endl;
-  if (libklug_susiv2_exit(handle, LIBKLUG_TRUE, LIBKLUG_TRUE, &boolean) !=
-        LIBKLUG_OK ||
+  if (libklug_susiv2_exit(handle, true, true, &boolean) != LIBKLUG_OK ||
       !boolean)
     return -1;
 

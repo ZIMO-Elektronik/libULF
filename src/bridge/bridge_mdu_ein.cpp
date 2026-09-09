@@ -48,10 +48,9 @@ MDU_EIN::MDU_EIN(Context& ctx, ZPP& zpp, ZSU& zsu)
 /**
  * MDU entry
  *
- * \note
- * Will throw an exception on error
+ * \return bool true, if successful, false else
  *
- * \return bool Response
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::enterMDU() {
   std::array<uint8_t, 16u> payload{};
@@ -66,14 +65,13 @@ bool MDU_EIN::enterMDU() {
 /**
  * DCC ZSU entry
  *
- * \note
- * Will throw an exception on error
- *
  * \param id    Decoder ID
  * \param sn    Decoder SN
  * \param done  true, if entry is done
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::enterDCCZSU(uint32_t id, uint32_t sn, bool done) {
   std::vector<uint8_t> payload{};
@@ -94,13 +92,12 @@ bool MDU_EIN::enterDCCZSU(uint32_t id, uint32_t sn, bool done) {
 /**
  * DCC ZPP entry
  *
- * \note
- * Will throw an exception on error
- *
  * \param sn    Decoder SN
  * \param done  True, if entry is done
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::enterDCCZPP(uint32_t sn, bool done) {
   std::vector<uint8_t> payload{};
@@ -120,13 +117,12 @@ bool MDU_EIN::enterDCCZPP(uint32_t sn, bool done) {
 /**
  * Ping
  *
- * \note
- * Will throw an exception on error
- *
  * \param sn  Decoder SN
  * \param id  Decoder ID
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::ping(uint32_t sn, uint32_t id) {
   transmission::mdu_ein::Ping t{
@@ -140,12 +136,11 @@ bool MDU_EIN::ping(uint32_t sn, uint32_t id) {
 /**
  * Config Transfer Rate
  *
- * \note
- * Will throw an exception on error
- *
  * \param transfer_rate Transfer Rate
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::configTransferRate(mdu::TransferRate transfer_rate) {
   transmission::mdu_ein::ConfigTransferRate t{_ctx.connection, transfer_rate};
@@ -155,11 +150,6 @@ bool MDU_EIN::configTransferRate(mdu::TransferRate transfer_rate) {
 
 /**
  * Binary Tree Search
- *
- * \note
- * Will throw an exception on error
- *
- * \return bool Response
  *
  * \todo Implement
  */
@@ -172,12 +162,11 @@ bool MDU_EIN::binaryTreeSearch() {
 /**
  * Cv Read
  *
- * \note
- * Will throw an exception on error
- *
  * \param cv  Cv address
  *
- * \return uint8_t Response
+ * \return int  A value >= 0 is the read value, < 0 is an invalid value
+ *
+ * \throws klug_error   First error occurred
  */
 int MDU_EIN::cvRead(uint16_t cv) {
   transmission::mdu_ein::CvRead t{_ctx.connection, cv};
@@ -188,13 +177,12 @@ int MDU_EIN::cvRead(uint16_t cv) {
 /**
  * Cv Write
  *
- * \note
- * Will throw an exception on error
- *
  * \param cv    Cv address
  * \param value Cv value
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::cvWrite(uint16_t cv, uint8_t value) {
   transmission::mdu_ein::Base t{
@@ -208,10 +196,9 @@ bool MDU_EIN::cvWrite(uint16_t cv, uint8_t value) {
 /**
  * Busy
  *
- * \note
- * Will throw an exception on error
+ * \return bool true, if successful, false else
  *
- * \return bool Response
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::busy() {
   transmission::mdu_ein::Base t{
@@ -225,13 +212,12 @@ bool MDU_EIN::busy() {
 /**
  * ZPP Valid Query
  *
- * \note
- * Will throw an exception on error
- *
  * \param id    ZPP Id
  * \param size  ZPP size
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zppValidQuery(std::string_view id, uint32_t size) {
   transmission::mdu_ein::Base t{
@@ -245,12 +231,11 @@ bool MDU_EIN::zppValidQuery(std::string_view id, uint32_t size) {
 /**
  * ZPP Valid Query
  *
- * \note
- * Will throw an exception on error
- *
  * \param file  ZPP File
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zppValidQuery(zpp::File* file) {
   return zppValidQuery(file->id, file->flash.size());
@@ -259,12 +244,11 @@ bool MDU_EIN::zppValidQuery(zpp::File* file) {
 /**
  * ZPP LC DC Query
  *
- * \note
- * Will throw an exception on error
- *
  * \param dev_code Developer code
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zppLcDcQuery(std::span<uint8_t const, 4uz> dev_code) {
   transmission::mdu_ein::Base t{
@@ -278,12 +262,11 @@ bool MDU_EIN::zppLcDcQuery(std::span<uint8_t const, 4uz> dev_code) {
 /**
  * ZPP LC DC Query
  *
- * \note
- * Will throw an exception on error
- *
  * \param file ZPP File
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zppLcDcQuery(zpp::File* file) {
   return zppLcDcQuery(file->developer_code);
@@ -292,13 +275,12 @@ bool MDU_EIN::zppLcDcQuery(zpp::File* file) {
 /**
  *  ZPP Erase
  *
- * \note
- * Will throw an exception on error
- *
  * \param start_address Start Address
  * \param end_address   End Address
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zppErase(uint32_t start_address, uint32_t end_address) {
   transmission::mdu_ein::Base t{
@@ -313,12 +295,11 @@ bool MDU_EIN::zppErase(uint32_t start_address, uint32_t end_address) {
 /**
  * ZPP Erase
  *
- * \note
- * Will throw an exception on error
- *
  * \param file ZPP File
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zppErase(zpp::File* file) {
   return zppErase(0uz, file->flash.size() - 1u);
@@ -327,13 +308,12 @@ bool MDU_EIN::zppErase(zpp::File* file) {
 /**
  * ZPP Update
  *
- * \note
- * Will throw an exception on error
- *
  * \param address Block Address
  * \param block   Block
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zppUpdate(uint32_t address,
                         std::span<uint8_t const, 256uz> block) {
@@ -348,13 +328,12 @@ bool MDU_EIN::zppUpdate(uint32_t address,
 /**
  * ZPP Update
  *
- * \note
- * Will throw an exception on error
- *
  * \param file  ZPP File
  * \param index Block index
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zppUpdate(zpp::File* file, uint32_t index) {
   auto const addressed_block{_zpp.block(file, index)};
@@ -364,13 +343,12 @@ bool MDU_EIN::zppUpdate(zpp::File* file, uint32_t index) {
 /**
  * ZPP Update End
  *
- * \note
- * Will throw an exception on error
- *
  * \param start_address Start Address
  * \param end_address   End Address
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zppUpdateEnd(uint32_t start_address, uint32_t end_address) {
   transmission::mdu_ein::Base t{
@@ -385,12 +363,11 @@ bool MDU_EIN::zppUpdateEnd(uint32_t start_address, uint32_t end_address) {
 /**
  * ZPP Update End
  *
- * \note
- * Will throw an exception on error
- *
  * \param file  ZPP File
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zppUpdateEnd(zpp::File* file) {
   return zppUpdateEnd(0uz, file->flash.size());
@@ -399,10 +376,9 @@ bool MDU_EIN::zppUpdateEnd(zpp::File* file) {
 /**
  * ZPP Exit and Reset
  *
- * \note
- * Will throw an exception on error
+ * \return bool true, if successful, false else
  *
- * \return bool Response
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zppExitReset() {
   transmission::mdu_ein::Base t{
@@ -416,12 +392,11 @@ bool MDU_EIN::zppExitReset() {
 /**
  * ZSU Init Salsa20
  *
- * \note
- * Will throw an exception on error
- *
  * \param iv  IV
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zsuSalsa20IV(std::span<uint8_t const, 8uz> iv) {
   transmission::mdu_ein::Base t{
@@ -435,14 +410,13 @@ bool MDU_EIN::zsuSalsa20IV(std::span<uint8_t const, 8uz> iv) {
 /**
  * ZSU Init Salsa20
  *
- * \note
- * Will throw an exception on error
- *
  * \note If the Firmware does not contain an IV, the op will return an error
  *
  * \param firmware  Firmware
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zsuSalsa20IV(zsu::Firmware const& firmware) {
   if (!firmware.iv) return false;
@@ -452,13 +426,12 @@ bool MDU_EIN::zsuSalsa20IV(zsu::Firmware const& firmware) {
 /**
  * ZSU Erase
  *
- * \note
- * Will throw an exception on error
- *
  * \param start_address Start Address
  * \param end_address   End Address
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zsuErase(uint32_t start_address, uint32_t end_address) {
   transmission::mdu_ein::Base t{
@@ -473,12 +446,11 @@ bool MDU_EIN::zsuErase(uint32_t start_address, uint32_t end_address) {
 /**
  * ZSU Erase
  *
- * \note
- * Will throw an exception on error
- *
  * \param firmware  Firmware
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zsuErase(zsu::Firmware const& firmware) {
   return zsuErase(0uz, firmware.bin.size() - 1u);
@@ -487,13 +459,12 @@ bool MDU_EIN::zsuErase(zsu::Firmware const& firmware) {
 /**
  * ZSU Update
  *
- * \note
- * Will throw an exception on error
- *
  * \param address Address
  * \param block   Block
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zsuUpdate(uint32_t address,
                         std::span<uint8_t const, 64uz> block) {
@@ -508,13 +479,12 @@ bool MDU_EIN::zsuUpdate(uint32_t address,
 /**
  * ZSU Update
  *
- * \note
- * Will throw an exception on error
- *
  * \param firmware Address
  * \param index    Block Index
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zsuUpdate(zsu::Firmware const& firmware, uint32_t index) {
   auto const addressed_block{_zsu.block(firmware, index)};
@@ -524,14 +494,13 @@ bool MDU_EIN::zsuUpdate(zsu::Firmware const& firmware, uint32_t index) {
 /**
  * ZSU CRC32 start
  *
- * \note
- * Will throw an exception on error
- *
  * \param start_address Start address
  * \param end_address   End address
  * \param crc           CRC32
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zsuCRC32Start(uint32_t start_address,
                             uint32_t end_address,
@@ -548,12 +517,11 @@ bool MDU_EIN::zsuCRC32Start(uint32_t start_address,
 /**
  * ZSU CRC32 start
  *
- * \note
- * Will throw an exception on error
- *
  * \param firmware Firmware
  *
- * \return bool Response
+ * \return bool true, if successful, false else
+ *
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zsuCRC32Start(zsu::Firmware const& firmware) {
   return zsuCRC32Start(
@@ -563,10 +531,9 @@ bool MDU_EIN::zsuCRC32Start(zsu::Firmware const& firmware) {
 /**
  * ZSU CRC32 result
  *
- * \note
- * Will throw an exception on error
+ * \return bool true, if successful, false else
  *
- * \return bool Response
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zsuCRC32Result() {
   transmission::mdu_ein::Base t{
@@ -580,10 +547,9 @@ bool MDU_EIN::zsuCRC32Result() {
 /**
  * ZSU CRC32 result and exit
  *
- * \note
- * Will throw an exception on error
+ * \return bool true, if successful, false else
  *
- * \return bool Response
+ * \throws klug_error   First error occurred
  */
 bool MDU_EIN::zsuCRC32ResultExit() {
   transmission::mdu_ein::Base t{

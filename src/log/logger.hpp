@@ -36,6 +36,20 @@
 #include "formatter/ranges.hpp"
 #include "level.hpp"
 
+#ifdef ANDROID
+#  include <android/log.h>
+#  define LOG_TAG "NativeKLUG"
+#  define OUT(...)                                                             \
+    __android_log_print(                                                       \
+      ANDROID_LOG_DEBUG, LOG_TAG, "%s", std::format(__VA_ARGS__).c_str())
+#  define ERR(...)                                                             \
+    __android_log_print(                                                       \
+      ANDROID_LOG_ERROR, LOG_TAG, "%s", std::format(__VA_ARGS__).c_str())
+#else
+#  define OUT(...) std::cout << std::format(__VA_ARGS__).c_str() << std::endl;
+#  define ERR(...) std::cerr << std::format(__VA_ARGS__).c_str() << std::endl;
+#endif
+
 namespace internal::log {
 
 using Functor = std::function<void(Level, std::string const&)>;
@@ -52,14 +66,10 @@ struct Logger {
   constexpr void log(Level level, std::string const& message) {
     if (level < _level) return;
     if constexpr (config::log::log_to_stdout)
-      if (level < Level::Warning)
-        std::cout << "[" << levelToString(level) << "] " << message
-                  << std::endl;
+      if (level < Level::Warning) OUT("[", levelToString(level), "]", message);
 
     if constexpr (config::log::log_to_stderr)
-      if (level >= Level::Warning)
-        std::cerr << "[" << levelToString(level) << "] " << message
-                  << std::endl;
+      if (level >= Level::Warning) ERR("[", levelToString(level), "]", message);
 
     if (_functor) _functor(level, message);
   }

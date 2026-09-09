@@ -79,7 +79,7 @@ void throwLibKLUGException(JNIEnv* env, libklug_error err) {
  */
 template<typename F, typename... Args>
 jboolean boolFn(JNIEnv* env, F&& f, Args&&... args) {
-  libklug_bool r{LIBKLUG_FALSE};
+  bool r{false};
 
   auto const err{f(std::forward<Args>(args)..., &r)};
 
@@ -88,7 +88,7 @@ jboolean boolFn(JNIEnv* env, F&& f, Args&&... args) {
     return JNI_FALSE;
   }
 
-  return r == LIBKLUG_TRUE ? JNI_TRUE : JNI_FALSE;
+  return r == true ? JNI_TRUE : JNI_FALSE;
 }
 
 /**
@@ -180,7 +180,7 @@ constexpr auto to_zsu(jlong handle) {
 }
 
 /// Cast to bool
-constexpr auto to_bool(jint i) { return static_cast<libklug_bool>(i); }
+constexpr auto to_bool(jint i) { return static_cast<bool>(i); }
 
 /// Cast from libklug
 constexpr jlong to_jlong(libklug_handle handle) {
@@ -201,4 +201,4 @@ constexpr jlong to_jlong(zsu_handle handle) {
 constexpr jint to_jint(libklug_error e) { return static_cast<jint>(e); }
 
 /// Cast bool
-constexpr jint to_jint(libklug_bool b) { return static_cast<jint>(b); }
+constexpr jint to_jint(bool b) { return static_cast<jint>(b); }

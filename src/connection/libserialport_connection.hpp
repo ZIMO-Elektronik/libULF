@@ -44,9 +44,6 @@ namespace internal {
  * Probably, using this is better on Windows as we dont have to change the
  * driver..
  *
- * \todo
- * Change error handling to exception model, since we throw anyway
- *
  */
 struct LibserialportConnection : public IConnection {
   virtual void init() override;

@@ -76,9 +76,6 @@ struct Bridge {
   ZPP& zpp();
   ZSU& zsu();
 
-  void lastWhat(char const* str);
-  char const* lastWhat() const;
-
 private:
   Context _ctx; ///< Bridge context
   ZPP _zpp{};   ///< ZPP bridge
@@ -87,8 +84,6 @@ private:
   COM _com{_ctx};                     ///< COM bridge
   SUSIV2 _susiv2{_ctx, _zpp};         ///< SUSIV2 bridge
   MDU_EIN _mdu_ein{_ctx, _zpp, _zsu}; ///< MDU_EIN bridge
-
-  char const* _lastWhat{}; ///< Last exception string
 };
 
 } // namespace bridge

@@ -39,9 +39,7 @@ ConfigTransferRate::ConfigTransferRate(
 /**
  * Execute
  *
- * \throw generic_error
- *
- * \todo Maybe refactor to avoid exception abuse
+ * \throw libklug_error   Device unresponsive or other Error
  *
  */
 void ConfigTransferRate::execute() {
@@ -81,8 +79,10 @@ int ConfigTransferRate::evaluateValue() {
 /**
  * Set the transfer rate for the decoder
  *
- * \return true   Success
- * \return false  Error
+ * \return true, if successful, false else
+ *
+ * \throw libklug_error   If format does not match protocol or the device is
+ *                        unresponsive
  */
 bool ConfigTransferRate::packet() {
   Base t{
@@ -98,8 +98,10 @@ bool ConfigTransferRate::packet() {
  *
  * \param fallback  Should use fallback speed
  *
- * \return true   Success
- * \return false  Error
+ * \return true, if successful, false else
+ *
+ * \throw libklug_error   If format does not match protocol or the device is
+ *                        unresponsive
  */
 bool ConfigTransferRate::special(bool fallback) {
   Base t{_conn,

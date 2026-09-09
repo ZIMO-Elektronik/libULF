@@ -26,7 +26,7 @@ int main() {
   size_t fwIndex{};
   size_t const maxFwIndex{libklug_zsu_get_firmware_count(zsu) - 1uz};
 
-  libklug_bool result{}; // Result container (implicit bool)
+  bool result{}; // Result container (implicit bool)
 
   gsl::final_action a([&]() {
     if (libklug_com_reset(lib, &result) != LIBKLUG_OK || !result) {

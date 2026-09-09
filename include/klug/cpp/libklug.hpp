@@ -451,7 +451,7 @@ struct COM {
     r.resize(128uz);
     size_t s{r.size()};
     if (auto const e{libklug_com_ping(_lib, r.data(), &s)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
 
     r.resize(s);
     return r;
@@ -465,9 +465,9 @@ struct COM {
    * \throws klug_error   If an error occurred
    */
   bool reset() {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_com_reset(_lib, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -479,9 +479,9 @@ struct COM {
    * \throws klug_error   If an error occurred
    */
   bool susiv2() {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_com_susiv2(_lib, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -493,9 +493,9 @@ struct COM {
    * \throws klug_error   If an error occurred
    */
   bool mdu_ein() {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_com_mdu_ein(_lib, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -534,7 +534,7 @@ struct SUSIV2 {
   std::optional<uint8_t> cvRead(uint16_t cv) {
     int r{};
     if (auto const e{libklug_susiv2_cv_read(_lib, cv, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
 
     if (r >= 0) return static_cast<uint8_t>(r);
     return std::nullopt;
@@ -551,10 +551,10 @@ struct SUSIV2 {
    * \throws klug_error   If an error occurred
    */
   bool cvWrite(uint16_t cv, uint8_t value) {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_susiv2_cv_write(_lib, cv, value, &r)};
         e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -566,9 +566,9 @@ struct SUSIV2 {
    * \throws klug_error   If an error occurred
    */
   bool zppErase() {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_susiv2_zpp_erase(_lib, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -583,11 +583,11 @@ struct SUSIV2 {
    * \throws klug_error   If an error occurred
    */
   bool zppWrite(ZPP& zpp, uint32_t index) {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_susiv2_zpp_write(
           _lib, static_cast<zpp_handle>(zpp), index, &r)};
         e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -599,9 +599,9 @@ struct SUSIV2 {
    * \throws klug_error   If an error occurred
    */
   bool features() {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_susiv2_features(_lib, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -616,13 +616,11 @@ struct SUSIV2 {
    * \throws klug_error   If an error occurred
    */
   bool exit(bool reboot, bool cv8_reset) {
-    libklug_bool r{};
-    if (auto const e{libklug_susiv2_exit(_lib,
-                                         static_cast<libklug_bool>(reboot),
-                                         static_cast<libklug_bool>(cv8_reset),
-                                         &r)};
+    bool r{};
+    if (auto const e{libklug_susiv2_exit(
+          _lib, static_cast<bool>(reboot), static_cast<bool>(cv8_reset), &r)};
         e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -637,11 +635,11 @@ struct SUSIV2 {
    * \throws klug_error   If an error occurred
    */
   bool zppLcDcQuery(ZPP& zpp) {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_susiv2_zpp_lc_dc_query(
           _lib, static_cast<zpp_handle>(zpp), &r)};
         e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -677,9 +675,9 @@ struct MDU_EIN {
    * \throws klug_error   If an error occurred
    */
   bool enterMDU() {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_mdu_ein_enter_mdu(_lib, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -697,11 +695,11 @@ struct MDU_EIN {
    * \throws klug_error   If an error occurred
    */
   bool enterDCCZSU(uint32_t id = 0uz, uint32_t sn = 0uz, bool done = true) {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_mdu_ein_enter_dcc_zsu(
-          _lib, id, sn, static_cast<libklug_bool>(done), &r)};
+          _lib, id, sn, static_cast<bool>(done), &r)};
         e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -718,11 +716,11 @@ struct MDU_EIN {
    * \throws klug_error   If an error occurred
    */
   bool enterDCCZPP(uint32_t sn = 0uz, bool done = true) {
-    libklug_bool r{};
-    if (auto const e{libklug_mdu_ein_enter_dcc_zpp(
-          _lib, sn, static_cast<libklug_bool>(done), &r)};
+    bool r{};
+    if (auto const e{
+          libklug_mdu_ein_enter_dcc_zpp(_lib, sn, static_cast<bool>(done), &r)};
         e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -739,9 +737,9 @@ struct MDU_EIN {
    * \throws klug_error   If an error occurred
    */
   bool ping(uint32_t sn, uint32_t id) {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_mdu_ein_ping(_lib, sn, id, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -763,11 +761,11 @@ struct MDU_EIN {
    * \throws klug_error   If an error occurred
    */
   bool configTransferRate(mdu::Speed speed) {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_mdu_ein_config_transfer_rate(
           _lib, std::to_underlying(speed), &r)};
         e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -785,7 +783,7 @@ struct MDU_EIN {
   uint8_t cvRead(uint16_t cv) {
     int r{};
     if (auto const e{libklug_mdu_ein_cv_read(_lib, cv, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return static_cast<uint8_t>(r);
   }
 
@@ -802,10 +800,10 @@ struct MDU_EIN {
    * \throws klug_error   If an error occurred
    */
   bool cvWrite(uint16_t cv, uint8_t value) {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_mdu_ein_cv_write(_lib, cv, value, &r)};
         e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -819,9 +817,9 @@ struct MDU_EIN {
    * \throws klug_error   If an error occurred
    */
   bool busy() {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_mdu_ein_busy(_lib, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -837,11 +835,11 @@ struct MDU_EIN {
    * \throws klug_error   If an error occurred
    */
   bool zppValidQuery(ZPP& zpp) {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_mdu_ein_zpp_valid_query(
           _lib, static_cast<zpp_handle>(zpp), &r)};
         e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -858,11 +856,11 @@ struct MDU_EIN {
    * \throws klug_error   If an error occurred
    */
   bool zppLcDcQuery(ZPP& zpp) {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_mdu_ein_zpp_lc_dc_query(
           _lib, static_cast<zpp_handle>(zpp), &r)};
         e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -878,11 +876,11 @@ struct MDU_EIN {
    * \throws klug_error   If an error occurred
    */
   bool zppErase(ZPP& zpp) {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{
           libklug_mdu_ein_zpp_erase(_lib, static_cast<zpp_handle>(zpp), &r)};
         e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -899,11 +897,11 @@ struct MDU_EIN {
    * \throws klug_error   If an error occurred
    */
   bool zppUpdate(ZPP& zpp, uint32_t index) {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_mdu_ein_zpp_update(
           _lib, static_cast<zpp_handle>(zpp), index, &r)};
         e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -919,11 +917,11 @@ struct MDU_EIN {
    * \throws klug_error   If an error occurred
    */
   bool zppUpdateEnd(ZPP& zpp) {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_mdu_ein_zpp_update_end(
           _lib, static_cast<zpp_handle>(zpp), &r)};
         e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -937,9 +935,9 @@ struct MDU_EIN {
    * \throws klug_error   If an error occurred
    */
   bool zppExitReset() {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_mdu_ein_zpp_exit_reset(_lib, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -955,11 +953,11 @@ struct MDU_EIN {
    * \throws klug_error   If an error occurred
    */
   bool zsuSalsa20Iv(ZSU::FirmwareIterator& firmware) {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_mdu_ein_zsu_salsa20_iv(
           _lib, firmware._zsu, firmware._fwIndex, &r)};
         e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -975,11 +973,11 @@ struct MDU_EIN {
    * \throws klug_error   If an error occurred
    */
   bool zsuErase(ZSU::FirmwareIterator& firmware) {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_mdu_ein_zsu_erase(
           _lib, firmware._zsu, firmware._fwIndex, &r)};
         e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -996,11 +994,11 @@ struct MDU_EIN {
    * \throws klug_error   If an error occurred
    */
   bool zsuUpdate(ZSU::FirmwareIterator& firmware, uint32_t index) {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_mdu_ein_zsu_update(
           _lib, firmware._zsu, firmware._fwIndex, index, &r)};
         e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -1016,11 +1014,11 @@ struct MDU_EIN {
    * \throws klug_error   If an error occurred
    */
   bool zsuCrc32Start(ZSU::FirmwareIterator& firmware) {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_mdu_ein_zsu_crc32_start(
           _lib, firmware._zsu, firmware._fwIndex, &r)};
         e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -1034,10 +1032,10 @@ struct MDU_EIN {
    * \throws klug_error   If an error occurred
    */
   bool zsuCrc32Result() {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_mdu_ein_zsu_crc32_result(_lib, &r)};
         e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 
@@ -1052,10 +1050,10 @@ struct MDU_EIN {
    * \throws klug_error   If an error occurred
    */
   bool zsuCrc32ResultExit() {
-    libklug_bool r{};
+    bool r{};
     if (auto const e{libklug_mdu_ein_zsu_crc32_result_exit(_lib, &r)};
         e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string(_lib)};
+      throw klug_error{e, libklug_last_error_string()};
     return r;
   }
 

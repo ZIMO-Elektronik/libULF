@@ -47,9 +47,10 @@ CvRead::CvRead(std::shared_ptr<internal::IConnection> conn, uint16_t cv)
 /**
  * Execute
  *
- * \throw generic_error On the first error
+ * \throw libklug_error   If format does not match protocol or the device is
+ *                        unresponsive
  *
- * \todo Refactor, to avoid exception abuse and to retry single bits
+ * \todo Maybe retry single bits
  */
 void CvRead::execute() {
   for (uint8_t i{0}; i < sizeof(_value) * 8u; i++) {

@@ -46,9 +46,8 @@ void Bridge::init() { return _ctx.connection->init(); }
  *
  * \param vid   VID
  * \param pid   PID
- * \return int
- * \retval LIBUSB_ERROR   Error
- * \retval LIBUSB_SUCCESS Success
+ *
+ * \throws klug_error   First error occurred
  */
 void Bridge::open(uint16_t vid, uint16_t pid) {
   return _ctx.connection->open(vid, pid);
@@ -60,18 +59,15 @@ void Bridge::open(uint16_t vid, uint16_t pid) {
  * \note Recommdended for android
  *
  * \param Fd    File descriptor
- * \return int
- * \retval LIBUSB_ERROR   Error
- * \retval LIBUSB_SUCCESS Success
+ *
+ * \throws klug_error   First error occurred
  */
 void Bridge::openFd(int Fd) { return _ctx.connection->openFd(Fd); }
 
 /**
  * Close usb device
  *
- * \return int
- * \retval LIBUSB_ERROR   Error
- * \retval LIBUSB_SUCCESS Success
+ * \throws klug_error   First error occurred
  */
 void Bridge::close() { return _ctx.connection->close(); }
 
@@ -109,19 +105,5 @@ ZPP& Bridge::zpp() { return _zpp; }
  * \return ZSU&
  */
 ZSU& Bridge::zsu() { return _zsu; }
-
-/**
- * Gets the last what (exception string)
- *
- * \return char const* String
- */
-char const* Bridge::lastWhat() const { return _lastWhat; }
-
-/**
- * Sets the last what (exception string)
- *
- * \param str String
- */
-void Bridge::lastWhat(char const* str) { _lastWhat = str; }
 
 } // namespace bridge

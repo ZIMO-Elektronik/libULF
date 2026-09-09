@@ -59,7 +59,7 @@ Base::Base(std::shared_ptr<internal::IConnection> conn,
 Base::Base(std::shared_ptr<internal::IConnection> conn,
            std::span<uint8_t const> payload,
            std::size_t timeout)
-  : TransmissionBase{conn, payload, 'r', timeout} {}
+  : TransmissionBase{conn, payload, '\r', timeout} {}
 
 /**
  * Evaluate a string
@@ -74,7 +74,8 @@ std::string Base::evaluateString() {
 /**
  * Evaluate a bool
  *
- * \throw generic_error If format does not match protocol
+ * \throw libklug_error   If format does not match protocol or the device is
+ *                        unresponsive
  *
  * \return Evaluated bool
  */

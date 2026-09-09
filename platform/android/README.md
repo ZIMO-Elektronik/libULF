@@ -36,8 +36,8 @@ The Library will evaluate properties (and variables) in the following order
 | Step | Evaluated         | CMake Version   | NDK Version   | SDK Dir            |
 | :--- | ----------------- | --------------- | ------------- | ------------------ |
 | 1.   | gradle.properties | `cmake.version` | `ndk.version` | `sdk.dir`          |
-| 2.   | rootProject.extra | `cmake.version` | `ndk.version` | `sdk.dir`          |
-| 3.   | project.extra     | `cmake.version` | `ndk.version` | `sdk.dir`          |
+| 2.   | rootProject.extra | `cmakeVersion`  | `ndkVersion`  | `sdkDir`           |
+| 3.   | project.extra     | `cmakeVersion`  | `ndkVersion`  | `sdkDir`           |
 | 4.   | env Variables     | `CMAKE_VERSION` | `NDK_VERSION` | `ANDROID_SDK_HOME` |
 | 5.   | local.properties  | `cmake.version` | `ndk.version` | `sdk.dir`          |
 

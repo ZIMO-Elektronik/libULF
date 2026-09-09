@@ -105,7 +105,7 @@ TransmissionBase::TransmissionBase(std::shared_ptr<internal::IConnection> conn,
 /**
  * Execute transmission
  *
- * \throw generic_error Forward
+ * \throw libklug_error   If the device is unresponsive
  */
 void TransmissionBase::execute() {
   this->transmit();
@@ -115,7 +115,7 @@ void TransmissionBase::execute() {
 /**
  * Transmit payload
  *
- * \throw generic_error Forward
+ * \throw libklug_error   If the device is unresponsive
  */
 void TransmissionBase::transmit() {
   _conn->flush();
@@ -125,7 +125,7 @@ void TransmissionBase::transmit() {
 /**
  * Receive response
  *
- * \throw generic_error Forward
+ * \throw libklug_error   If the device is unresponsive
  */
 void TransmissionBase::receive() {
   if (_response.size() < 64u) _response.resize(64u);
