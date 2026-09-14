@@ -1,6 +1,6 @@
-# libklug
+# libulf
 
-C / C++ library to communicate with ZIMO KLUG
+C / C++ library to communicate with ZIMO ULF
 
 Based on [Libusb](https://libusb.info/) or [Libserialport](https://sigrok.org/wiki/Libserialport):
 
@@ -57,12 +57,12 @@ This library can be used on android. For more info, please read the [Documentati
 
 ## Typical processes
 
-1. Create libklug `libklug_create`
-2. Initialize libklug `libklug_init`
-3. Open USB device `libklug_open` or `libklug_openFd`
+1. Create libulf `libulf_create`
+2. Initialize libulf `libulf_init`
+3. Open USB device `libulf_open` or `libulf_openFd`
 4. ***Process(-es)***
-5. Close USB device `libklug_close`
-6. Destroy libklug `libklug_destroy`
+5. Close USB device `libulf_close`
+6. Destroy libulf `libulf_destroy`
 
 The procedure for the protocol / action still apply. More information can be found in the corresponding repositories
 

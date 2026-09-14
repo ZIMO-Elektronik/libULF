@@ -78,7 +78,7 @@
     "testPresets": [
         {
             "name": "test",
-            "displayName": "libKLUG Tests",
+            "displayName": "libULF Tests",
             "description": "Run Tests with GTest",
             "configurePreset": "debug_amd64",
             "output": {

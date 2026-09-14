@@ -20,7 +20,7 @@
  *
  * JNI Defines
  *
- * \file    inc/libklug/internal/platform/android/jni_defines.hpp
+ * \file    platform/android/cpp/inc/jni_defines.hpp
  * \author  Jonas Gahlert
  * \date    05.05.2026
  */
@@ -31,7 +31,7 @@
 
 /// Defines the JNI Java class this api should bind to
 #ifndef JNI_CLASS_PATH
-#  define JNI_CLASS_PATH Java_at_zimo_klug_KLUGAdapter_
+#  define JNI_CLASS_PATH Java_at_zimo_ulf_ULFAdapter_
 #endif
 
 #define JNI_CONCAT2(a, b) a##b

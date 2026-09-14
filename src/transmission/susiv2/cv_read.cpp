@@ -29,7 +29,7 @@
 #include <ulf/susiv2.hpp>
 #include <utility>
 #include <zusi/utility.hpp>
-#include "klug/cpp/klug_error.hpp"
+#include "ulf/cpp/ulf_error.hpp"
 
 namespace transmission::susiv2 {
 
@@ -44,9 +44,7 @@ CvRead::CvRead(std::shared_ptr<internal::IConnection> conn,
                size_t timeout,
                uint16_t cv)
   : Base{conn,
-         ulf::susiv2::packet2frame<
-           ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
-           zusi::make_cv_read_packet(0, cv)),
+         ulf::susiv2::packet2frame(zusi::make_cv_read_packet(0, cv)),
          timeout} {}
 
 /**
@@ -57,7 +55,7 @@ CvRead::CvRead(std::shared_ptr<internal::IConnection> conn,
 int CvRead::evaluateValue() {
   using std::operator""sv;
   if (!valid()) {
-    throw libklug::klug_error{libklug::Error::format, "Format Mismatch"};
+    throw libulf::ulf_error{libulf::Error::format, "Format Mismatch"};
     std::unreachable();
   }
   if (_response[0u] == ulf::susiv2::nak) return -1;

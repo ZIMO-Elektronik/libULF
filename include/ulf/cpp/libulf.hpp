@@ -18,9 +18,9 @@
  *
  *
  *
- * Libklug C++ wrapper
+ * Libulf C++ wrapper
  *
- * This is a simple wrapper header, that wraps the LibKLUG C API in flat C++
+ * This is a simple wrapper header, that wraps the LibULF C API in flat C++
  * classes with. The hierarchy remains the same.
  *
  * Pretty much every class here can either be constructed with their own default
@@ -30,7 +30,7 @@
  *
  * And yes, moving an object and then using the moved object WILL crash the APP.
  *
- * \file    include/klug/cpp/libklug.hpp
+ * \file    include/ulf/cpp/libulf.hpp
  * \author  Jonas Gahlert
  * \date    06.05.2026
  */
@@ -49,10 +49,10 @@
 #include <utility>
 #include "error.hpp"
 #include "error2string.hpp"
-#include "klug/c/libklug.h"
-#include "klug_error.hpp"
+#include "ulf/c/libulf.h"
+#include "ulf_error.hpp"
 
-namespace libklug {
+namespace libulf {
 
 namespace mdu {
 
@@ -76,7 +76,7 @@ struct SUSIV2;  // Forward declare
  * ZPP file API group
  *
  * \details
- * This object is a fascade for the `::libklug_zpp_` api group, which manages
+ * This object is a fascade for the `::libulf_zpp_` api group, which manages
  * the `zpp` handle internally.
  *
  */
@@ -87,7 +87,7 @@ struct ZPP {
   /**
    * CTor
    *
-   * \note Corresponds to `::libklug_zpp_read`
+   * \note Corresponds to `::libulf_zpp_read`
    *
    * \details
    * Reads the .zpp file at `path`
@@ -98,7 +98,7 @@ struct ZPP {
    * @param path The path to the .zpp file (must be accessible with full rights)
    */
   ZPP(std::filesystem::path path)
-    : _zpp{libklug_zpp_read(path.string().data(), path.string().size())} {}
+    : _zpp{libulf_zpp_read(path.string().data(), path.string().size())} {}
 
   /**
    * Move CTor
@@ -118,14 +118,14 @@ struct ZPP {
   /**
    * DTor
    *
-   * \note Corresponds to `::libklug_zpp_release`
+   * \note Corresponds to `::libulf_zpp_release`
    *
    * \details
    * Deletest the underlying handle
    *
    */
   ~ZPP() {
-    if (_zpp) libklug_zpp_release(_zpp);
+    if (_zpp) libulf_zpp_release(_zpp);
   }
 
   /**
@@ -139,35 +139,35 @@ struct ZPP {
   /**
    * Returns the number of flash blocks within the project
    *
-   * \note Corresponds to `::libklug_zpp_blocks`
+   * \note Corresponds to `::libulf_zpp_blocks`
    *
    * \warning Crashes without handle ( \ref ZPP::valid )
    *
    * \return unsigned int Block count
    */
-  unsigned int blocks() const { return libklug_zpp_blocks(_zpp); }
+  unsigned int blocks() const { return libulf_zpp_blocks(_zpp); }
 
   /**
    * Returns the author of the project
    *
-   * \note Corresponds to `::libklug_zpp_name`
+   * \note Corresponds to `::libulf_zpp_name`
    *
    * \warning Crashes without handle ( \ref ZPP::valid )
    *
    * \return std::string_view Name
    */
-  std::string_view author() const { return {libklug_zpp_author(_zpp)}; }
+  std::string_view author() const { return {libulf_zpp_author(_zpp)}; }
 
   /**
    * Returns the email of the project author
    *
-   * \note Corresponds to `::libklug_zpp_email`
+   * \note Corresponds to `::libulf_zpp_email`
    *
    * \warning Crashes without handle ( \ref ZPP::valid )
    *
    * \return std::string_view Email
    */
-  std::string_view email() const { return {libklug_zpp_email(_zpp)}; }
+  std::string_view email() const { return {libulf_zpp_email(_zpp)}; }
 
 private:
   /// Internal convenience cast
@@ -182,7 +182,7 @@ struct MDU_EIN; // Forward declare
  * ZPP file API group
  *
  * \details
- * This object is a fascade for the `::libklug_zsu_` api group, which manages
+ * This object is a fascade for the `::libulf_zsu_` api group, which manages
  * the `zsu` handle internally.
  *
  */
@@ -284,77 +284,77 @@ struct ZSU {
      * Returns the ID of the current firmware (matches the compatible decoder
      * ID)
      *
-     * \note Corresponds to `::libklug_zsu_get_firmware_id`
+     * \note Corresponds to `::libulf_zsu_get_firmware_id`
      *
      * \return uint32_t Decoder ID
      */
-    uint32_t id() const { return libklug_zsu_get_firmware_id(_zsu, _fwIndex); }
+    uint32_t id() const { return libulf_zsu_get_firmware_id(_zsu, _fwIndex); }
 
     /**
      * Returns the name of the current firmware
      *
-     * \note Corresponds to `::libklug_zsu_get_firmware_name`
+     * \note Corresponds to `::libulf_zsu_get_firmware_name`
      *
      * \return std::string_view Decoder name
      */
     std::string_view name() const {
-      return {libklug_zsu_get_firmware_name(_zsu, _fwIndex)};
+      return {libulf_zsu_get_firmware_name(_zsu, _fwIndex)};
     }
 
     /**
      * Returns the major version of the current firmware
      *
-     * \note Corresponds to `::libklug_zsu_get_firmware_major_version`
+     * \note Corresponds to `::libulf_zsu_get_firmware_major_version`
      *
      * \return std::string_view Major version
      */
     std::string_view versionMajor() const {
-      return {libklug_zsu_get_firmware_major_version(_zsu, _fwIndex)};
+      return {libulf_zsu_get_firmware_major_version(_zsu, _fwIndex)};
     }
 
     /**
      * Returns the minor version of the current firmware
      *
-     * \note Corresponds to `::libklug_zsu_get_firmware_minor_version`
+     * \note Corresponds to `::libulf_zsu_get_firmware_minor_version`
      *
      * \return std::string_view Minor version
      */
     std::string_view versionMinor() const {
-      return {libklug_zsu_get_firmware_minor_version(_zsu, _fwIndex)};
+      return {libulf_zsu_get_firmware_minor_version(_zsu, _fwIndex)};
     }
 
     /**
      * Returns the bootloader type of the current firmware (relevant for MX
      * only)
      *
-     * \note Corresponds to `::libklug_zsu_get_firmware_type`
+     * \note Corresponds to `::libulf_zsu_get_firmware_type`
      *
      * \return int Bootloader type
      */
-    int type() const { return libklug_zsu_get_firmware_type(_zsu, _fwIndex); }
+    int type() const { return libulf_zsu_get_firmware_type(_zsu, _fwIndex); }
 
     /**
      * Returns the number of flash blocks within the current firmware
      *
-     * \note Corresponds to `::libklug_zsu_get_firmware_block_count`
+     * \note Corresponds to `::libulf_zsu_get_firmware_block_count`
      *
      * \return unsigned int Block count
      */
     unsigned int blockCount() const {
-      return libklug_zsu_get_firmware_block_count(_zsu, _fwIndex);
+      return libulf_zsu_get_firmware_block_count(_zsu, _fwIndex);
     }
 
     /**
      * Returns the data of the current firmware as a span
      *
-     * \note Corresponds to `::libklug_zsu_get_firmware_data` and
-     * `::libklug_zsu_get_firmware_data_size` combined
+     * \note Corresponds to `::libulf_zsu_get_firmware_data` and
+     * `::libulf_zsu_get_firmware_data_size` combined
      *
      * \return std::span data
      */
     std::span<uint8_t const> data() const {
-      return {libklug_zsu_get_firmware_data(_zsu, _fwIndex),
-              libklug_zsu_get_firmware_data_size(_zsu, _fwIndex)};
+      return {libulf_zsu_get_firmware_data(_zsu, _fwIndex),
+              libulf_zsu_get_firmware_data_size(_zsu, _fwIndex)};
     }
 
   private:
@@ -372,7 +372,7 @@ struct ZSU {
   /**
    * CTor
    *
-   * \note Corresponds to `::libklug_zsu_read`
+   * \note Corresponds to `::libulf_zsu_read`
    *
    * \warning Since reading the file at path may fail, use of \ref ZSU::valid
    * is recommended.
@@ -380,7 +380,7 @@ struct ZSU {
    * \param path Path to ZSU
    */
   ZSU(std::filesystem::path path)
-    : _zsu{libklug_zsu_read(path.string().data(), path.string().size())} {}
+    : _zsu{libulf_zsu_read(path.string().data(), path.string().size())} {}
 
   ZSU() = delete;
   ZSU(ZSU const&) = delete;
@@ -388,7 +388,7 @@ struct ZSU {
   ZSU(ZSU&& source) : _zsu{source._zsu} { source._zsu = nullptr; }
   ZSU& operator=(ZSU&&) = delete;
   ~ZSU() {
-    if (_zsu) libklug_zsu_release(_zsu);
+    if (_zsu) libulf_zsu_release(_zsu);
   }
 
   /**
@@ -412,7 +412,7 @@ struct ZSU {
    * \return iterator End iterator
    */
   iterator end() const {
-    return FirmwareIterator{_zsu, libklug_zsu_get_firmware_count(_zsu)};
+    return FirmwareIterator{_zsu, libulf_zsu_get_firmware_count(_zsu)};
   }
 
 private:
@@ -422,14 +422,14 @@ private:
   zsu_handle _zsu; ///< Underlying handle
 };
 
-struct LibKLUG; // Forward declare
+struct LibULF; // Forward declare
 
 /**
  * The COM protocol API group
  *
  */
 struct COM {
-  friend class LibKLUG;
+  friend class LibULF;
 
   // Delete all CTors.. Or just don't construct this manually
   COM() = delete;
@@ -444,14 +444,14 @@ struct COM {
    *
    * \return std::string  Response string
    *
-   * \throws klug_error   If an error occured
+   * \throws ulf_error   If an error occured
    */
   std::string ping() {
     std::string r{};
     r.resize(128uz);
     size_t s{r.size()};
-    if (auto const e{libklug_com_ping(_lib, r.data(), &s)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+    if (auto const e{libulf_com_ping(_lib, r.data(), &s)}; e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
 
     r.resize(s);
     return r;
@@ -462,12 +462,12 @@ struct COM {
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool reset() {
     bool r{};
-    if (auto const e{libklug_com_reset(_lib, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+    if (auto const e{libulf_com_reset(_lib, &r)}; e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
@@ -476,12 +476,12 @@ struct COM {
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool susiv2() {
     bool r{};
-    if (auto const e{libklug_com_susiv2(_lib, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+    if (auto const e{libulf_com_susiv2(_lib, &r)}; e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
@@ -490,20 +490,20 @@ struct COM {
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool mdu_ein() {
     bool r{};
-    if (auto const e{libklug_com_mdu_ein(_lib, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+    if (auto const e{libulf_com_mdu_ein(_lib, &r)}; e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
 private:
   // Internal CTor
-  COM(libklug_handle& lib) : _lib{lib} {}
+  COM(libulf_handle& lib) : _lib{lib} {}
 
-  libklug_handle& _lib; ///< Underlying handle
+  libulf_handle& _lib; ///< Underlying handle
 };
 
 /**
@@ -511,7 +511,7 @@ private:
  *
  */
 struct SUSIV2 {
-  friend class LibKLUG;
+  friend class LibULF;
 
   // Delete all CTors.. Or just don't construct this manually
   SUSIV2() = delete;
@@ -529,12 +529,12 @@ struct SUSIV2 {
    * \return uint8_t      Value of the CV
    * \return std::nullopt No value received
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   std::optional<uint8_t> cvRead(uint16_t cv) {
     int r{};
-    if (auto const e{libklug_susiv2_cv_read(_lib, cv, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+    if (auto const e{libulf_susiv2_cv_read(_lib, cv, &r)}; e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
 
     if (r >= 0) return static_cast<uint8_t>(r);
     return std::nullopt;
@@ -548,13 +548,13 @@ struct SUSIV2 {
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool cvWrite(uint16_t cv, uint8_t value) {
     bool r{};
-    if (auto const e{libklug_susiv2_cv_write(_lib, cv, value, &r)};
-        e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+    if (auto const e{libulf_susiv2_cv_write(_lib, cv, value, &r)};
+        e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
@@ -563,12 +563,12 @@ struct SUSIV2 {
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool zppErase() {
     bool r{};
-    if (auto const e{libklug_susiv2_zpp_erase(_lib, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+    if (auto const e{libulf_susiv2_zpp_erase(_lib, &r)}; e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
@@ -580,14 +580,14 @@ struct SUSIV2 {
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool zppWrite(ZPP& zpp, uint32_t index) {
     bool r{};
-    if (auto const e{libklug_susiv2_zpp_write(
+    if (auto const e{libulf_susiv2_zpp_write(
           _lib, static_cast<zpp_handle>(zpp), index, &r)};
-        e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+        e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
@@ -596,12 +596,12 @@ struct SUSIV2 {
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool features() {
     bool r{};
-    if (auto const e{libklug_susiv2_features(_lib, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+    if (auto const e{libulf_susiv2_features(_lib, &r)}; e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
@@ -613,14 +613,14 @@ struct SUSIV2 {
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool exit(bool reboot, bool cv8_reset) {
     bool r{};
-    if (auto const e{libklug_susiv2_exit(
+    if (auto const e{libulf_susiv2_exit(
           _lib, static_cast<bool>(reboot), static_cast<bool>(cv8_reset), &r)};
-        e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+        e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
@@ -632,22 +632,22 @@ struct SUSIV2 {
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool zppLcDcQuery(ZPP& zpp) {
     bool r{};
-    if (auto const e{libklug_susiv2_zpp_lc_dc_query(
+    if (auto const e{libulf_susiv2_zpp_lc_dc_query(
           _lib, static_cast<zpp_handle>(zpp), &r)};
-        e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+        e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
 private:
   // Internal CTor
-  SUSIV2(libklug_handle& lib) : _lib{lib} {}
+  SUSIV2(libulf_handle& lib) : _lib{lib} {}
 
-  libklug_handle& _lib; ///< Underlying handle
+  libulf_handle& _lib; ///< Underlying handle
 };
 
 /**
@@ -655,7 +655,7 @@ private:
  *
  */
 struct MDU_EIN {
-  friend class LibKLUG;
+  friend class LibULF;
 
   // Delete all CTors.. Or just don't construct this manually
   MDU_EIN() = delete;
@@ -668,23 +668,23 @@ struct MDU_EIN {
   /**
    * Commands all decoders to enter MDU mode (Update)
    *
-   * \note Corresponds to `::libklug_mdu_ein_enter_mdu`
+   * \note Corresponds to `::libulf_mdu_ein_enter_mdu`
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool enterMDU() {
     bool r{};
-    if (auto const e{libklug_mdu_ein_enter_mdu(_lib, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+    if (auto const e{libulf_mdu_ein_enter_mdu(_lib, &r)}; e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
   /**
    * Commands selected decoders to enter MDU mode (Update)
    *
-   * \note Corresponds to `::libklug_mdu_ein_enter_dcc_zsu`
+   * \note Corresponds to `::libulf_mdu_ein_enter_dcc_zsu`
    *
    * \param id    Decoder ID
    * \param sh    Decoder serial number
@@ -692,61 +692,61 @@ struct MDU_EIN {
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool enterDCCZSU(uint32_t id = 0uz, uint32_t sn = 0uz, bool done = true) {
     bool r{};
-    if (auto const e{libklug_mdu_ein_enter_dcc_zsu(
+    if (auto const e{libulf_mdu_ein_enter_dcc_zsu(
           _lib, id, sn, static_cast<bool>(done), &r)};
-        e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+        e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
   /**
    * Commands selected decoders to enter MDU mode (SoundLoad)
    *
-   * \note Corresponds to `::libklug_mdu_ein_enter_dcc_zpp`
+   * \note Corresponds to `::libulf_mdu_ein_enter_dcc_zpp`
    *
    * \param sn    Decoder ID
    * \param done  `true` done with entry, `false` more sn will follow
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool enterDCCZPP(uint32_t sn = 0uz, bool done = true) {
     bool r{};
     if (auto const e{
-          libklug_mdu_ein_enter_dcc_zpp(_lib, sn, static_cast<bool>(done), &r)};
-        e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+          libulf_mdu_ein_enter_dcc_zpp(_lib, sn, static_cast<bool>(done), &r)};
+        e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
   /**
    * Pings decoder(-s)
    *
-   * \note Corresponds to `::libklug_mdu_ein_ping`
+   * \note Corresponds to `::libulf_mdu_ein_ping`
    *
    * \param sn  Decoder serial number
    * \param id  Decoder ID
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool ping(uint32_t sn, uint32_t id) {
     bool r{};
-    if (auto const e{libklug_mdu_ein_ping(_lib, sn, id, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+    if (auto const e{libulf_mdu_ein_ping(_lib, sn, id, &r)}; e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
   /**
    * Configures transfer rate for decoder and USB device
    *
-   * \note Corresponds to `::libklug_mdu_ein_config_transfer_rate`
+   * \note Corresponds to `::libulf_mdu_ein_config_transfer_rate`
    *
    * \note Both, the decoder speed and device speed will be updated. If the
    * update fails, device speed will be set to fallback.
@@ -758,88 +758,88 @@ struct MDU_EIN {
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool configTransferRate(mdu::Speed speed) {
     bool r{};
-    if (auto const e{libklug_mdu_ein_config_transfer_rate(
+    if (auto const e{libulf_mdu_ein_config_transfer_rate(
           _lib, std::to_underlying(speed), &r)};
-        e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+        e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
   /**
    * Reads a CV from the decoder
    *
-   * \note Corresponds to `::libklug_mdu_ein_cv_read`
+   * \note Corresponds to `::libulf_mdu_ein_cv_read`
    *
    * \param cv  Cv address to read
    *
    * \return uint8_t      Value of the CV
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   uint8_t cvRead(uint16_t cv) {
     int r{};
-    if (auto const e{libklug_mdu_ein_cv_read(_lib, cv, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+    if (auto const e{libulf_mdu_ein_cv_read(_lib, cv, &r)}; e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return static_cast<uint8_t>(r);
   }
 
   /**
    * Writes a CV to the decoder
    *
-   * \note Corresponds to `::libklug_mdu_ein_cv_write`
+   * \note Corresponds to `::libulf_mdu_ein_cv_write`
    *
    * \param cv    Cv address to write
    * \param value Cv value to write
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool cvWrite(uint16_t cv, uint8_t value) {
     bool r{};
-    if (auto const e{libklug_mdu_ein_cv_write(_lib, cv, value, &r)};
-        e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+    if (auto const e{libulf_mdu_ein_cv_write(_lib, cv, value, &r)};
+        e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
   /**
    * Checks if the decoder is busy
    *
-   * \note Corresponds to `::libklug_mdu_ein_busy`
+   * \note Corresponds to `::libulf_mdu_ein_busy`
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool busy() {
     bool r{};
-    if (auto const e{libklug_mdu_ein_busy(_lib, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+    if (auto const e{libulf_mdu_ein_busy(_lib, &r)}; e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
   /**
    * Checks if the given ZPP can fit into the decoder
    *
-   * \note Corresponds to `::libklug_mdu_ein_zpp_valid_query`
+   * \note Corresponds to `::libulf_mdu_ein_zpp_valid_query`
    *
    * \param zpp   ZPP
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool zppValidQuery(ZPP& zpp) {
     bool r{};
-    if (auto const e{libklug_mdu_ein_zpp_valid_query(
+    if (auto const e{libulf_mdu_ein_zpp_valid_query(
           _lib, static_cast<zpp_handle>(zpp), &r)};
-        e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+        e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
@@ -847,195 +847,194 @@ struct MDU_EIN {
    * Checks, if the load code on the decoder is valid for the developer
    * code of the given ZPP
    *
-   * \note Corresponds to `::libklug_mdu_ein_zpp_lc_dc_query`
+   * \note Corresponds to `::libulf_mdu_ein_zpp_lc_dc_query`
    *
    * \param zpp   ZPP
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool zppLcDcQuery(ZPP& zpp) {
     bool r{};
-    if (auto const e{libklug_mdu_ein_zpp_lc_dc_query(
+    if (auto const e{libulf_mdu_ein_zpp_lc_dc_query(
           _lib, static_cast<zpp_handle>(zpp), &r)};
-        e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+        e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
   /**
    * Erases the sound flash of the decoder
    *
-   * \note Corresponds to `::libklug_mdu_ein_zpp_erase`
+   * \note Corresponds to `::libulf_mdu_ein_zpp_erase`
    *
    * \param zpp ZPP
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool zppErase(ZPP& zpp) {
     bool r{};
     if (auto const e{
-          libklug_mdu_ein_zpp_erase(_lib, static_cast<zpp_handle>(zpp), &r)};
-        e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+          libulf_mdu_ein_zpp_erase(_lib, static_cast<zpp_handle>(zpp), &r)};
+        e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
   /**
    * Writes a sound flash block to the decoder
    *
-   * \note Corresponds to `::libklug_mdu_ein_zpp_update`
+   * \note Corresponds to `::libulf_mdu_ein_zpp_update`
    *
    * \param zpp   ZPP
    * \param index Block index
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool zppUpdate(ZPP& zpp, uint32_t index) {
     bool r{};
-    if (auto const e{libklug_mdu_ein_zpp_update(
+    if (auto const e{libulf_mdu_ein_zpp_update(
           _lib, static_cast<zpp_handle>(zpp), index, &r)};
-        e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+        e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
   /**
    * Semantic end of the sound flash update
    *
-   * \note Corresponds to `::libklug_mdu_ein_zpp_update_end`
+   * \note Corresponds to `::libulf_mdu_ein_zpp_update_end`
    *
    * \param zpp ZPP
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool zppUpdateEnd(ZPP& zpp) {
     bool r{};
-    if (auto const e{libklug_mdu_ein_zpp_update_end(
+    if (auto const e{libulf_mdu_ein_zpp_update_end(
           _lib, static_cast<zpp_handle>(zpp), &r)};
-        e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+        e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
   /**
    * Command the decoder to exit MDU and reset
    *
-   * \note Corresponds to `::libklug_mdu_ein_zpp_exit_reset`
+   * \note Corresponds to `::libulf_mdu_ein_zpp_exit_reset`
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool zppExitReset() {
     bool r{};
-    if (auto const e{libklug_mdu_ein_zpp_exit_reset(_lib, &r)}; e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+    if (auto const e{libulf_mdu_ein_zpp_exit_reset(_lib, &r)}; e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
   /**
    * Initializes the Salsa20 encryption
    *
-   * \note Corresponds to `::libklug_mdu_ein_zsu_salsa_20_iv`
+   * \note Corresponds to `::libulf_mdu_ein_zsu_salsa_20_iv`
    *
    * \param firmware  FirmwareIterator
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool zsuSalsa20Iv(ZSU::FirmwareIterator& firmware) {
     bool r{};
-    if (auto const e{libklug_mdu_ein_zsu_salsa20_iv(
+    if (auto const e{libulf_mdu_ein_zsu_salsa20_iv(
           _lib, firmware._zsu, firmware._fwIndex, &r)};
-        e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+        e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
   /**
    * Erases the firmware flash of the decoder
    *
-   * \note Corresponds to `::libklug_mdu_ein_zsu_erase`
+   * \note Corresponds to `::libulf_mdu_ein_zsu_erase`
    *
    * \param firmware  FirmwareIterator
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool zsuErase(ZSU::FirmwareIterator& firmware) {
     bool r{};
-    if (auto const e{libklug_mdu_ein_zsu_erase(
-          _lib, firmware._zsu, firmware._fwIndex, &r)};
-        e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+    if (auto const e{
+          libulf_mdu_ein_zsu_erase(_lib, firmware._zsu, firmware._fwIndex, &r)};
+        e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
   /**
    * Writes firmware flash block to the decoder
    *
-   * \note Corresponds to `::libklug_mdu_ein_zsu_update`
+   * \note Corresponds to `::libulf_mdu_ein_zsu_update`
    *
    * \param firmware  FirmwareIterator
    * \param index     Block index
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool zsuUpdate(ZSU::FirmwareIterator& firmware, uint32_t index) {
     bool r{};
-    if (auto const e{libklug_mdu_ein_zsu_update(
+    if (auto const e{libulf_mdu_ein_zsu_update(
           _lib, firmware._zsu, firmware._fwIndex, index, &r)};
-        e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+        e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
   /**
    * Starts the firmware flash verification (CRC32)
    *
-   * \note Corresponds to `::libklug_mdu_ein_zsu_crc32_start`
+   * \note Corresponds to `::libulf_mdu_ein_zsu_crc32_start`
    *
    * \param firmware  FirmwareIterator
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool zsuCrc32Start(ZSU::FirmwareIterator& firmware) {
     bool r{};
-    if (auto const e{libklug_mdu_ein_zsu_crc32_start(
+    if (auto const e{libulf_mdu_ein_zsu_crc32_start(
           _lib, firmware._zsu, firmware._fwIndex, &r)};
-        e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+        e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
   /**
    * Checks the result of the firmware flash verification
    *
-   * \note Corresponds to `::libklug_mdu_ein_zsu_crc32_result`
+   * \note Corresponds to `::libulf_mdu_ein_zsu_crc32_result`
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool zsuCrc32Result() {
     bool r{};
-    if (auto const e{libklug_mdu_ein_zsu_crc32_result(_lib, &r)};
-        e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+    if (auto const e{libulf_mdu_ein_zsu_crc32_result(_lib, &r)}; e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
@@ -1043,58 +1042,58 @@ struct MDU_EIN {
    * Checks the result of the firmware flash verification and commands the
    * decoder to leave MDU mode
    *
-   * \note Corresponds to `::libklug_mdu_ein_resul_zsu_crc32_result_exit`
+   * \note Corresponds to `::libulf_mdu_ein_resul_zsu_crc32_result_exit`
    *
    * \return bool         `true` if successful, `false` else
    *
-   * \throws klug_error   If an error occurred
+   * \throws ulf_error    If an error occurred
    */
   bool zsuCrc32ResultExit() {
     bool r{};
-    if (auto const e{libklug_mdu_ein_zsu_crc32_result_exit(_lib, &r)};
-        e != LIBKLUG_OK)
-      throw klug_error{e, libklug_last_error_string()};
+    if (auto const e{libulf_mdu_ein_zsu_crc32_result_exit(_lib, &r)};
+        e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
     return r;
   }
 
 private:
   // Internal CTor
-  MDU_EIN(libklug_handle& lib) : _lib{lib} {}
+  MDU_EIN(libulf_handle& lib) : _lib{lib} {}
 
-  libklug_handle& _lib; ///< Underlying handle
+  libulf_handle& _lib; ///< Underlying handle
 };
 
 /**
- * LibKLUG library wrapper
+ * LibULF library wrapper
  *
- * \details Wraps libklug behind a class interface. As a limitation, since the
+ * \details Wraps libulf behind a class interface. As a limitation, since the
  * backend is dependent on a handle, an instance of this class can only be
  * moved.
  *
  */
-struct LibKLUG {
-  LibKLUG() : _lib{libklug_create()} {}
-  LibKLUG(LibKLUG const&) = delete;
-  LibKLUG& operator=(LibKLUG const&) = delete;
+struct LibULF {
+  LibULF() : _lib{libulf_create()} {}
+  LibULF(LibULF const&) = delete;
+  LibULF& operator=(LibULF const&) = delete;
 
-  LibKLUG(LibKLUG&& source) : _lib{source._lib} { source._lib = nullptr; }
-  LibKLUG& operator=(LibKLUG&& source) = delete;
-  ~LibKLUG() { libklug_destroy(_lib); }
+  LibULF(LibULF&& source) : _lib{source._lib} { source._lib = nullptr; }
+  LibULF& operator=(LibULF&& source) = delete;
+  ~LibULF() { libulf_destroy(_lib); }
 
   /**
    * Initializes the USB layer
    *
-   * \note Corresponds to `::libklug_init`
+   * \note Corresponds to `::libulf_init`
    *
    * \return int
    * \retval Any error occurred
    */
-  Error init() { return static_cast<Error>(libklug_init(_lib)); }
+  Error init() { return static_cast<Error>(libulf_init(_lib)); }
 
   /**
    * Opens the first USB device mathing the given identifiers
    *
-   * \note Corresponds to `::libklug_open`
+   * \note Corresponds to `::libulf_open`
    *
    * \param vid VID
    * \param pid PID
@@ -1102,13 +1101,13 @@ struct LibKLUG {
    * \return int  Any error occurred
    */
   Error open(uint16_t vid, uint16_t pid) {
-    return static_cast<Error>(libklug_open(_lib, vid, pid));
+    return static_cast<Error>(libulf_open(_lib, vid, pid));
   }
 
   /**
    * Opens a the given USB device via its file descriptor
    *
-   * \note Corresponds to `::libklug_openFd`
+   * \note Corresponds to `::libulf_openFd`
    *
    * \warning This exists only for the libusb backend.
    *
@@ -1116,14 +1115,14 @@ struct LibKLUG {
    *
    * \return int Any error occurred
    */
-  Error openFd(int Fd) { return static_cast<Error>(libklug_openFd(_lib, Fd)); }
+  Error openFd(int Fd) { return static_cast<Error>(libulf_openFd(_lib, Fd)); }
 
   /**
    * Closes the open USB device
    *
-   * \note Corresponds to `::libklug_close`
+   * \note Corresponds to `::libulf_close`
    */
-  Error close() { return static_cast<Error>(libklug_close(_lib)); }
+  Error close() { return static_cast<Error>(libulf_close(_lib)); }
 
   /**
    * Returns the COM API interface group
@@ -1147,11 +1146,11 @@ struct LibKLUG {
   MDU_EIN& mdu_ein() { return _mdu_ein; }
 
 private:
-  libklug_handle _lib; ///< Underlying handle
+  libulf_handle _lib; ///< Underlying handle
 
   COM _com{_lib};         ///< COM interface
   SUSIV2 _susiv2{_lib};   ///< SUSIV2 interface
   MDU_EIN _mdu_ein{_lib}; ///< MDU_EIN interface
 };
 
-} // namespace libklug
+} // namespace libulf

@@ -27,7 +27,7 @@
 
 #include "base.hpp"
 #include <utility>
-#include "klug/cpp/klug_error.hpp"
+#include "ulf/cpp/ulf_error.hpp"
 
 std::array<char, 64> tmp_buffer;
 
@@ -74,7 +74,7 @@ std::string Base::evaluateString() {
 /**
  * Evaluate a bool
  *
- * \throw libklug_error   If format does not match protocol or the device is
+ * \throw libulf_error   If format does not match protocol or the device is
  *                        unresponsive
  *
  * \return Evaluated bool
@@ -88,7 +88,7 @@ bool Base::evaluateBool() {
                             _response.size()} == "NOT_OK\r"sv)
     return false;
 
-  throw libklug::klug_error{libklug::Error::format, "Format mismatch"};
+  throw libulf::ulf_error{libulf::Error::format, "Format mismatch"};
   std::unreachable();
 }
 

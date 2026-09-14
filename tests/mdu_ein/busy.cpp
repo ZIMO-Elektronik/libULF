@@ -16,7 +16,7 @@ TEST_F(TestMDU_EIN, busy_payload) {
   }
 
   bool r{};
-  libklug_mdu_ein_busy(libHandle, &r);
+  libulf_mdu_ein_busy(libHandle, &r);
 }
 
 TEST_F(TestMDU_EIN, busy_result_not_busy) {
@@ -24,7 +24,7 @@ TEST_F(TestMDU_EIN, busy_result_not_busy) {
     .WillByDefault(helper::mdu::receive_ack);
 
   bool r{};
-  libklug_mdu_ein_busy(libHandle, &r);
+  libulf_mdu_ein_busy(libHandle, &r);
 }
 
 TEST_F(TestMDU_EIN, busy_result_busy) {
@@ -32,7 +32,7 @@ TEST_F(TestMDU_EIN, busy_result_busy) {
     .WillByDefault(helper::mdu::receive_nak);
 
   bool r{};
-  ASSERT_EQ(libklug_mdu_ein_busy(libHandle, &r), LIBKLUG_OK);
+  ASSERT_EQ(libulf_mdu_ein_busy(libHandle, &r), LIBULF_OK);
   ASSERT_FALSE(r);
 }
 
@@ -40,26 +40,26 @@ TEST_F(TestMDU_EIN, busy_write_error) {
   assertTransmitErrorCalls();
 
   bool r{};
-  libklug_mdu_ein_busy(libHandle, &r);
+  libulf_mdu_ein_busy(libHandle, &r);
 }
 
 TEST_F(TestMDU_EIN, busy_write_error_result) {
   throwTransmitException();
 
   bool r{};
-  ASSERT_NE(libklug_mdu_ein_busy(libHandle, &r), LIBKLUG_OK);
+  ASSERT_NE(libulf_mdu_ein_busy(libHandle, &r), LIBULF_OK);
 }
 
 TEST_F(TestMDU_EIN, busy_receive_error) {
   assertReceiveErrorCalls();
 
   bool r{};
-  libklug_mdu_ein_busy(libHandle, &r);
+  libulf_mdu_ein_busy(libHandle, &r);
 }
 
 TEST_F(TestMDU_EIN, busy_receive_error_result) {
   throwReceiveException();
 
   bool r{};
-  ASSERT_NE(libklug_mdu_ein_busy(libHandle, &r), LIBKLUG_OK);
+  ASSERT_NE(libulf_mdu_ein_busy(libHandle, &r), LIBULF_OK);
 }

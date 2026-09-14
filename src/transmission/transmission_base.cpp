@@ -30,7 +30,7 @@
 #include <string>
 #include <utility>
 #include "connection/i_connection.hpp"
-#include "klug/cpp/klug_error.hpp"
+#include "ulf/cpp/ulf_error.hpp"
 
 namespace transmission {
 
@@ -105,7 +105,7 @@ TransmissionBase::TransmissionBase(std::shared_ptr<internal::IConnection> conn,
 /**
  * Execute transmission
  *
- * \throw libklug_error   If the device is unresponsive
+ * \throw libulf_error   If the device is unresponsive
  */
 void TransmissionBase::execute() {
   this->transmit();
@@ -115,7 +115,7 @@ void TransmissionBase::execute() {
 /**
  * Transmit payload
  *
- * \throw libklug_error   If the device is unresponsive
+ * \throw libulf_error   If the device is unresponsive
  */
 void TransmissionBase::transmit() {
   _conn->flush();
@@ -125,7 +125,7 @@ void TransmissionBase::transmit() {
 /**
  * Receive response
  *
- * \throw libklug_error   If the device is unresponsive
+ * \throw libulf_error   If the device is unresponsive
  */
 void TransmissionBase::receive() {
   if (_response.size() < 64u) _response.resize(64u);
@@ -135,19 +135,19 @@ void TransmissionBase::receive() {
 
 /// Stub
 std::string TransmissionBase::evaluateString() {
-  throw libklug::klug_error{libklug::Error::unknown, "Missing Implementation"};
+  throw libulf::ulf_error{libulf::Error::unknown, "Missing Implementation"};
   std::unreachable();
 }
 
 /// Stub
 bool TransmissionBase::evaluateBool() {
-  throw libklug::klug_error{libklug::Error::unknown, "Missing Implementation"};
+  throw libulf::ulf_error{libulf::Error::unknown, "Missing Implementation"};
   std::unreachable();
 }
 
 /// Stub
 int TransmissionBase::evaluateValue() {
-  throw libklug::klug_error{libklug::Error::unknown, "Missing Implementation"};
+  throw libulf::ulf_error{libulf::Error::unknown, "Missing Implementation"};
   std::unreachable();
 }
 

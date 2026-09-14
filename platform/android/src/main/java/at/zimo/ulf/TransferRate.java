@@ -1,6 +1,6 @@
 /**
  * 
- * KLUGException
+ * TransferRate
  * 
  * 08.09.2026
  * 
@@ -20,22 +20,25 @@
  * along with this program. If not, see <https://gnu.org>.
  */
 
-package at.zimo.klug;
+package at.zimo.ulf;
 
 /**
- * An exception to signal internal errors (any internal error actually)
- * 
- * This is mostly thrown from the underlying JNI.
+ * MDU Transfer rate enum
  */
-public class KLUGException extends RuntimeException {
-    private final int errorCode;
-
-    public KLUGException(int errorCode) {
-        super("libklug error: " + errorCode);
-        this.errorCode = errorCode;
-    }
-
-    public int getErrorCode() {
-        return errorCode;
-    }
+public enum TransferRate {
+  Fallback(0), 
+  Fast(1),
+  Medium(2),
+  Slow(3), 
+  Default(4);
+  
+  TransferRate(int value) {
+    if (value < 0 || value > 4) throw new IllegalArgumentException("Value must be between 0 and 4");
+    this._value = value; 
+  }
+  
+  public int value() {
+    return _value; 
+  }
+  private final int _value;
 }

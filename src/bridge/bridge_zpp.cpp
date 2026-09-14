@@ -60,7 +60,7 @@ zpp::File* ZPP::read(std::filesystem::path path) {
  */
 void ZPP::release(zpp::File* file) {
   LOG_INFO("Releasing ZPP file");
-  LIBKLUG_ASSERT(file) << "Attempted to release NULL";
+  LIBULF_ASSERT(file) << "Attempted to release NULL";
   return delete file;
 }
 
@@ -71,7 +71,7 @@ void ZPP::release(zpp::File* file) {
  * \return unsigned int flash block count
  */
 unsigned int ZPP::blocks(zpp::File* file) {
-  LIBKLUG_ASSERT(file) << "Attempted to get blocks from NULL";
+  LIBULF_ASSERT(file) << "Attempted to get blocks from NULL";
   return (file->flash.size() + _blockSize - 1uz) / _blockSize;
 }
 
@@ -82,7 +82,7 @@ unsigned int ZPP::blocks(zpp::File* file) {
  * \return unsigned int cv cound
  */
 unsigned int ZPP::cvs(zpp::File* file) {
-  LIBKLUG_ASSERT(file) << "Attempted to get CVs from NULL";
+  LIBULF_ASSERT(file) << "Attempted to get CVs from NULL";
   return file->cvs.size();
 }
 
@@ -98,8 +98,8 @@ unsigned int ZPP::cvs(zpp::File* file) {
 ZPP::AddressedBlock ZPP::block(zpp::File* file, unsigned int block) {
   LOG_INFO("Getting block nr. ", block + 1);
 
-  LIBKLUG_ASSERT(file) << "Attempted to get block from NULL";
-  LIBKLUG_ASSERT(block < blocks(file)) << "Block out of bounds";
+  LIBULF_ASSERT(file) << "Attempted to get block from NULL";
+  LIBULF_ASSERT(block < blocks(file)) << "Block out of bounds";
 
   return {block * _blockSize,
           std::span<uint8_t const, 256uz>{
@@ -113,7 +113,7 @@ ZPP::AddressedBlock ZPP::block(zpp::File* file, unsigned int block) {
  * \return std::string_view Author
  */
 std::string_view ZPP::author(zpp::File* file) {
-  LIBKLUG_ASSERT(file) << "Attempted to get author from NULL";
+  LIBULF_ASSERT(file) << "Attempted to get author from NULL";
   return file->author;
 }
 
@@ -124,7 +124,7 @@ std::string_view ZPP::author(zpp::File* file) {
  * \return std::string_view Email
  */
 std::string_view ZPP::email(zpp::File* file) {
-  LIBKLUG_ASSERT(file) << "Attempted to get email from NULL";
+  LIBULF_ASSERT(file) << "Attempted to get email from NULL";
   return file->email;
 }
 

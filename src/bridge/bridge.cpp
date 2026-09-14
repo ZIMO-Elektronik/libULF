@@ -47,7 +47,7 @@ void Bridge::init() { return _ctx.connection->init(); }
  * \param vid   VID
  * \param pid   PID
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 void Bridge::open(uint16_t vid, uint16_t pid) {
   return _ctx.connection->open(vid, pid);
@@ -60,14 +60,14 @@ void Bridge::open(uint16_t vid, uint16_t pid) {
  *
  * \param Fd    File descriptor
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 void Bridge::openFd(int Fd) { return _ctx.connection->openFd(Fd); }
 
 /**
  * Close usb device
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 void Bridge::close() { return _ctx.connection->close(); }
 

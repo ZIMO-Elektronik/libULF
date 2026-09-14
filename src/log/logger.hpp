@@ -38,7 +38,7 @@
 
 #ifdef ANDROID
 #  include <android/log.h>
-#  define LOG_TAG "NativeKLUG"
+#  define LOG_TAG "NativeULF"
 #  define OUT(...)                                                             \
     __android_log_print(                                                       \
       ANDROID_LOG_DEBUG, LOG_TAG, "%s", std::format(__VA_ARGS__).c_str())

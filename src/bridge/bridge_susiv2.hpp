@@ -20,7 +20,7 @@
  *
  * Internal SUSIV2 bridge
  *
- * \file    inc/libklug/internal/bridge/bridge_susiv2.hpp
+ * \file    src/bridge/bridge_susiv2.hpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */

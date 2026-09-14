@@ -20,9 +20,9 @@
  *
  *
  *
- * \file error.hpp
- * \author Jonas Gahlert
- * \date 04.09.2026
+ * \file    include/ulf/cpp/error.hpp
+ * \author  Jonas Gahlert
+ * \date    04.09.2026
  */
 
 #pragma once
@@ -35,7 +35,7 @@
 #  include <libusb.h>
 #endif
 
-namespace libklug {
+namespace libulf {
 
 enum class Error : int {
   ok = 0, ///< No error
@@ -83,4 +83,4 @@ constexpr Error map(int r) {
 }
 #endif
 
-} // namespace libklug
+} // namespace libulf

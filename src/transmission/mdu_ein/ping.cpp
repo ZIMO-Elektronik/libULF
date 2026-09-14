@@ -28,7 +28,7 @@
 #include "ping.hpp"
 #include <ulf/mdu_ein.hpp>
 #include <utility>
-#include "klug/cpp/klug_error.hpp"
+#include "ulf/cpp/ulf_error.hpp"
 
 namespace transmission::mdu_ein {
 
@@ -62,7 +62,7 @@ Ping::Ping(std::shared_ptr<internal::IConnection> conn,
  * \note
  * This is the inverse operation, since a decoder naks when it responds
  *
- * \throw libklug_error   If format does not match protocol or the device is
+ * \throw libulf_error   If format does not match protocol or the device is
  *                        unresponsive
  *
  * \retval Evaluated bool
@@ -70,7 +70,7 @@ Ping::Ping(std::shared_ptr<internal::IConnection> conn,
 bool Ping::evaluateBool() {
   using std::operator""sv;
   if (!valid()) {
-    throw libklug::klug_error{libklug::Error::format, "Format Mismatch"};
+    throw libulf::ulf_error{libulf::Error::format, "Format Mismatch"};
     std::unreachable();
   }
   return _response[0] == ulf::mdu_ein::ack && _response[2] == ulf::mdu_ein::nak;

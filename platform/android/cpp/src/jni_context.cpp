@@ -20,7 +20,7 @@
  *
  * JNI Context
  *
- * \file    src/libklug/internal/platform/android/jni_context.cpp
+ * \file    platform/android/cpp/src/jni_context.cpp
  * \author  Jonas Gahlert
  * \date    05.05.2026
  */

@@ -20,18 +20,18 @@
  * along with this program. If not, see <https://gnu.org>.
  */
 
-package at.zimo.klug;
+package at.zimo.ulf;
 
 /**
- * Represents a single firmware within a {@link at.zimo.klug.ZSU} file. Methods use the {@link [at.zimo.klug.KLUGAdapter]} 
+ * Represents a single firmware within a {@link at.zimo.ulf.ZSU} file. Methods use the {@link [at.zimo.ulf.ULFAdapter]} 
  * API if applicable and an instance only holds constant identifiers of a firmware.
  */
 public class Firmware {
   /**
    * Construct a firmware
    * 
-   * @param zsu     The {@link at.zimo.klug.ZSU} file this firmware is part of
-   * @param index   The index within the {@link at.zimo.klug.ZSU} file
+   * @param zsu     The {@link at.zimo.ulf.ZSU} file this firmware is part of
+   * @param index   The index within the {@link at.zimo.ulf.ZSU} file
    */
   Firmware(ZSU zsu, int index) {
     _zsu = zsu; 
@@ -43,10 +43,10 @@ public class Firmware {
    * 
    * @return Firmware ID
    * 
-   * @throws IllegalStateException If the {@link at.zimo.klug.ZSU} was closed
+   * @throws IllegalStateException If the {@link at.zimo.ulf.ZSU} was closed
    */
   public long id() {
-    return KLUGAdapter.zsuGetFirmwareId(_zsu.get(), _index);
+    return ULFAdapter.zsuGetFirmwareId(_zsu.get(), _index);
   }
 
   /**
@@ -54,10 +54,10 @@ public class Firmware {
    * 
    * @return Firmware Name
    * 
-   * @throws IllegalStateException If the {@link at.zimo.klug.ZSU} was closed
+   * @throws IllegalStateException If the {@link at.zimo.ulf.ZSU} was closed
    */
   public String name() {
-    return KLUGAdapter.zsuGetFirmwareName(_zsu.get(), _index);
+    return ULFAdapter.zsuGetFirmwareName(_zsu.get(), _index);
   }
 
   /**
@@ -65,10 +65,10 @@ public class Firmware {
    * 
    * @return Bootloader type
    * 
-   * @throws IllegalStateException If the {@link at.zimo.klug.ZSU} was closed
+   * @throws IllegalStateException If the {@link at.zimo.ulf.ZSU} was closed
    */
   public int type() {
-    return KLUGAdapter.zsuGetFirmwareType(_zsu.get(), _index);
+    return ULFAdapter.zsuGetFirmwareType(_zsu.get(), _index);
   }
 
   /**
@@ -76,10 +76,10 @@ public class Firmware {
    * 
    * @return Flash block count
    * 
-   * @throws IllegalStateException If the {@link at.zimo.klug.ZSU} was closed
+   * @throws IllegalStateException If the {@link at.zimo.ulf.ZSU} was closed
    */
   public int blocks() {
-    return KLUGAdapter.zsuGetFirmwareBlockCount(_zsu.get(), _index);
+    return ULFAdapter.zsuGetFirmwareBlockCount(_zsu.get(), _index);
   }
 
   /**
@@ -87,10 +87,10 @@ public class Firmware {
    * 
    * @return Major version
    *  
-   * @throws IllegalStateException If the {@link at.zimo.klug.ZSU} was closed
+   * @throws IllegalStateException If the {@link at.zimo.ulf.ZSU} was closed
    */
   public String versionMajor() {
-    return KLUGAdapter.zsuGetFirmwareMajorVersion(_zsu.get(), _index);
+    return ULFAdapter.zsuGetFirmwareMajorVersion(_zsu.get(), _index);
   }
 
   /**
@@ -98,14 +98,14 @@ public class Firmware {
    * 
    * @return Minor version
    * 
-   * @throws IllegalStateException If the {@link at.zimo.klug.ZSU} was closed
+   * @throws IllegalStateException If the {@link at.zimo.ulf.ZSU} was closed
    */
   public String versionMinor() {
-    return KLUGAdapter.zsuGetFirmwareMinorVersion(_zsu.get(), _index);
+    return ULFAdapter.zsuGetFirmwareMinorVersion(_zsu.get(), _index);
   }
 
   /**
-   * Returns the index of this firmware within the {@link at.zimo.klug.ZSU} file
+   * Returns the index of this firmware within the {@link at.zimo.ulf.ZSU} file
    * 
    * @return Index
    */
@@ -114,7 +114,7 @@ public class Firmware {
   }
 
   /**
-   * Returns the holding {@link at.zimo.klug.ZSU} file
+   * Returns the holding {@link at.zimo.ulf.ZSU} file
    * 
    * @return zsu
    */

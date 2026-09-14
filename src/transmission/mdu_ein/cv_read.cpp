@@ -30,8 +30,8 @@
 #include <ulf/mdu_ein.hpp>
 #include <utility>
 #include "config.hpp"
-#include "klug/cpp/klug_error.hpp"
 #include "transmission/mdu_ein/base.hpp"
+#include "ulf/cpp/ulf_error.hpp"
 
 namespace transmission::mdu_ein {
 
@@ -47,7 +47,7 @@ CvRead::CvRead(std::shared_ptr<internal::IConnection> conn, uint16_t cv)
 /**
  * Execute
  *
- * \throw libklug_error   If format does not match protocol or the device is
+ * \throw libulf_error   If format does not match protocol or the device is
  *                        unresponsive
  *
  * \todo Maybe retry single bits
@@ -65,14 +65,14 @@ void CvRead::execute() {
 /// Stub
 std::string CvRead::evaluateString() {
   using std::operator""sv;
-  throw libklug::klug_error{libklug::Error::unknown, "Missing Implementation"};
+  throw libulf::ulf_error{libulf::Error::unknown, "Missing Implementation"};
   std::unreachable();
 }
 
 /// Stub
 bool CvRead::evaluateBool() {
   using std::operator""sv;
-  throw libklug::klug_error{libklug::Error::unknown, "Missing Implementation"};
+  throw libulf::ulf_error{libulf::Error::unknown, "Missing Implementation"};
   std::unreachable();
 }
 

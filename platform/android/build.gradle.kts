@@ -123,7 +123,7 @@ val ndkVer = getProperty(
 )
 
 android {
-    namespace = "at.zimo.klug"
+    namespace = "at.zimo.ulf"
     compileSdk = 36
 
     defaultConfig {

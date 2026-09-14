@@ -30,10 +30,10 @@
 #include <cassert>
 #include <string_view>
 #include <utility>
-#include "klug/cpp/error.hpp"
-#include "klug/cpp/klug_error.hpp"
 #include "log/asserter.hpp"
 #include "log/logger.hpp"
+#include "ulf/cpp/error.hpp"
+#include "ulf/cpp/ulf_error.hpp"
 
 namespace internal {
 
@@ -50,7 +50,7 @@ void LibserialportConnection::init() {}
  * \param vid Device VID
  * \param pid Device PID
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 void LibserialportConnection::open(uint16_t vid, uint16_t pid) {
   using std::operator""sv;
@@ -59,8 +59,8 @@ void LibserialportConnection::open(uint16_t vid, uint16_t pid) {
   sp_port* found_port = nullptr;
 
   if (sp_list_ports(&port_list) != SP_OK) {
-    throw libklug::klug_error{libklug::map(sp_last_error_code()),
-                              "Unable to retrieve port list"};
+    throw libulf::ulf_error{libulf::map(sp_last_error_code()),
+                            "Unable to retrieve port list"};
     std::unreachable();
   }
 
@@ -79,14 +79,14 @@ void LibserialportConnection::open(uint16_t vid, uint16_t pid) {
   sp_free_port_list(port_list);
 
   if (!found_port) {
-    throw libklug::klug_error{libklug::Error::usb, "No ZIMO_Interface found"};
+    throw libulf::ulf_error{libulf::Error::usb, "No ZIMO_Interface found"};
     std::unreachable();
   }
 
   this->_port = found_port;
   if (sp_open(_port, SP_MODE_READ_WRITE) != SP_OK) {
-    throw libklug::klug_error{
-      libklug::map(sp_last_error_code()),
+    throw libulf::ulf_error{
+      libulf::map(sp_last_error_code()),
       "Unable to open device",
     };
     std::unreachable();
@@ -100,12 +100,12 @@ void LibserialportConnection::open(uint16_t vid, uint16_t pid) {
  *
  * \param Fd
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 void LibserialportConnection::openFd(int Fd) {
   using std::operator""sv;
-  throw libklug::klug_error{
-    libklug::Error::usb,
+  throw libulf::ulf_error{
+    libulf::Error::usb,
     "Libserialport is unable to open a device by FileDescriptor"};
   std::unreachable();
 }
@@ -113,13 +113,13 @@ void LibserialportConnection::openFd(int Fd) {
 /**
  * Configure device
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 void LibserialportConnection::config() {
   using std::operator""sv;
   if (!_port) {
-    throw libklug::klug_error{libklug::Error::usb,
-                              "Attempted to configure port=NULL"};
+    throw libulf::ulf_error{libulf::Error::usb,
+                            "Attempted to configure port=NULL"};
     std::unreachable();
   }
 
@@ -131,10 +131,10 @@ void LibserialportConnection::config() {
       case 2: rc = sp_set_parity(_port, SP_PARITY_NONE); break;
       case 3: rc = sp_set_stopbits(_port, 1); break;
       case 4: rc = sp_set_flowcontrol(_port, SP_FLOWCONTROL_NONE); break;
-      default: LIBKLUG_ASSERT(false) << "Config counter out of bounds\n"; break;
+      default: LIBULF_ASSERT(false) << "Config counter out of bounds\n"; break;
     }
     if (rc != SP_OK) {
-      throw libklug::klug_error{libklug::map(rc), "Unable to configure device"};
+      throw libulf::ulf_error{libulf::map(rc), "Unable to configure device"};
       std::unreachable();
     }
   }
@@ -169,7 +169,7 @@ void LibserialportConnection::flush() {
  * \param payload Payload
  * \param timeout Timeout
  *
- * \throws klug_error   On timeout or other error
+ * \throws ulf_error   On timeout or other error
  */
 void LibserialportConnection::_write(std::span<uint8_t const> payload,
                                      uint32_t timeout) {
@@ -180,8 +180,8 @@ void LibserialportConnection::_write(std::span<uint8_t const> payload,
     "Attempting to transmit. Timeout: {}, Payload {:x}", timeout, payload);
   auto r{sp_blocking_write(_port, payload.data(), payload.size(), timeout)};
   if (r < 0) {
-    throw libklug::klug_error{libklug::map(sp_last_error_code()),
-                              "Transmit error"};
+    throw libulf::ulf_error{libulf::map(sp_last_error_code()),
+                            "Transmit error"};
     std::unreachable();
   }
   LOG_TRACE("Successfully transmitted {} bytes", std::to_underlying(r));
@@ -196,7 +196,7 @@ void LibserialportConnection::_write(std::span<uint8_t const> payload,
  * \param terminator  Terminator symbol
  * \param timeout     Timeout
  *
- * \throws klug_error   On timeout or other error
+ * \throws ulf_error   On timeout or other error
  */
 void LibserialportConnection::_read_until(uint8_t* buffer,
                                           uint32_t length,
@@ -213,8 +213,8 @@ void LibserialportConnection::_read_until(uint8_t* buffer,
   while (true) {
     // Receive until timeout, error, or terminator
     if (sp_blocking_read(_port, buffer + _received, 1, timeout) <= 0) {
-      throw libklug::klug_error{libklug::map(sp_last_error_code()),
-                                "Receive Error"};
+      throw libulf::ulf_error{libulf::map(sp_last_error_code()),
+                              "Receive Error"};
       std::unreachable();
     }
 
@@ -235,7 +235,7 @@ void LibserialportConnection::_read_until(uint8_t* buffer,
  * \param received  Received data size
  * \param timeout   Timeout
  *
- * \throws klug_error   On timeout or other error
+ * \throws ulf_error   On timeout or other error
  */
 void LibserialportConnection::_read_all(uint8_t* buffer,
                                         uint32_t length,
@@ -245,8 +245,7 @@ void LibserialportConnection::_read_all(uint8_t* buffer,
   LOG_TRACE("Attempting to receive. Timeout: {}", timeout);
   auto r{sp_blocking_read_next(_port, buffer, length, timeout)};
   if (r < 0) {
-    throw libklug::klug_error{libklug::map(sp_last_error_code()),
-                              "Receive Error"};
+    throw libulf::ulf_error{libulf::map(sp_last_error_code()), "Receive Error"};
     std::unreachable();
   }
   LOG_TRACE("Successfully received {} bytes. Payload {:x}",

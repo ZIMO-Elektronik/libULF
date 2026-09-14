@@ -1,6 +1,6 @@
 /**
  * 
- * KLUG
+ * ULF
  * 
  * 08.09.2026
  * 
@@ -20,11 +20,11 @@
  * along with this program. If not, see <https://gnu.org>.
  */
 
-package at.zimo.klug;
+package at.zimo.ulf;
 
 /**
- * The KLUG API interface. This is tightly coupled to the 
- * {@link at.zimo.klug.KLUGAdapter} class, as it is only a 
+ * The ULF API interface. This is tightly coupled to the 
+ * {@link at.zimo.ulf.ULFAdapter} class, as it is only a 
  * slightly nicer wrapper to avoid flinging typeless handles 
  * around. 
  * 
@@ -36,64 +36,64 @@ package at.zimo.klug;
  *    - susiv2
  *    - mdu_ein
  */
-public class KLUG {
-  public KLUG() {
-    _lib = KLUGAdapter.create();
+public class ULF {
+  public ULF() {
+    _lib = ULFAdapter.create();
   }
 
   /**
    * Destroys the owned handle and invalidates the object
    * 
-   * Corresponds to ::libklug_destroy
+   * Corresponds to ::libulf_destroy
    */
   public void cleanup() {
     validateState();
-    KLUGAdapter.destroy(_lib);
+    ULFAdapter.destroy(_lib);
     _lib = 0; 
   }
 
   /**
    * Initializes the USB layer
    * 
-   * Corresponds to ::libklug_init
+   * Corresponds to ::libulf_init
    * 
    * @return Error or 0
    */
   public int init() {
-    return KLUGAdapter.init(_lib);
+    return ULFAdapter.init(_lib);
   }
 
   /**
    * Opens the first USB device mathing the given identifiers
    * 
-   * Corresponds to ::libklug_open 
+   * Corresponds to ::libulf_open 
    * 
    * @return Error or 0
    */
   public int open(int vid, int pid) {
-    return KLUGAdapter.open(_lib, vid, pid);
+    return ULFAdapter.open(_lib, vid, pid);
   }
 
   /**
    * Opens a the given USB device via its file descriptor
    * 
-   * Corresponds to ::libklug_openFd
+   * Corresponds to ::libulf_openFd
    * 
    * @return Error or 0
    */
   public int openFd(int Fd) {
-    return KLUGAdapter.openFd(_lib, Fd);
+    return ULFAdapter.openFd(_lib, Fd);
   }
 
   /**
    * Closes the open USB device 
    * 
-   * Corresponds to ::libklug_close
+   * Corresponds to ::libulf_close
    * 
    * @return Error or 0
    */
   public int close() {
-    return KLUGAdapter.close(_lib);
+    return ULFAdapter.close(_lib);
   }
 
   private long _lib;
@@ -115,61 +115,61 @@ public class KLUG {
     /**
      * Send a PING command to the USB device
      * 
-     * Corresponds to ::libklug_com_ping
+     * Corresponds to ::libulf_com_ping
      * 
      * @return Response string
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public String ping() {
       validateState();
-      return KLUGAdapter.comPing(_lib);
+      return ULFAdapter.comPing(_lib);
     }
 
     /**
      * Send a RESET command to the USB device
      * 
-     * Corresponds to ::libklug_com_reset
+     * Corresponds to ::libulf_com_reset
      * 
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean reset() {
       validateState();
-      return KLUGAdapter.comReset(_lib);
+      return ULFAdapter.comReset(_lib);
     }
 
     /**
      * Send a SUSIV2 command to the USB device
      * 
-     * Corresponds to ::libklug_com_susiv2
+     * Corresponds to ::libulf_com_susiv2
      * 
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean susiv2() {
       validateState();
-      return KLUGAdapter.comSusiv2(_lib);
+      return ULFAdapter.comSusiv2(_lib);
     }
 
     /**
      * Send a MDU_EIN command to the USB device
      * 
-     * Corresponds to ::libklug_com_mdu_ein
+     * Corresponds to ::libulf_com_mdu_ein
      * 
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean mdu_ein() {
       validateState();
-      return KLUGAdapter.comMduEin(_lib);
+      return ULFAdapter.comMduEin(_lib);
     }
   }
 
@@ -190,24 +190,24 @@ public class KLUG {
     /**
      * Reads a CV from the decoder
      * 
-     * Corresponds to ::libklug_susiv2_cv_read
+     * Corresponds to ::libulf_susiv2_cv_read
      * 
      * @param cv Address of the CV (CV - 1)
      * 
      * @return CV value
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public int cvRead(int cv) {
       validateState();
-      return KLUGAdapter.susiv2CvRead(_lib, cv);
+      return ULFAdapter.susiv2CvRead(_lib, cv);
     }
 
     /**
      * Writes a CV to the decoder
      * 
-     * Corresponds to ::libklug_susiv2_cv_write
+     * Corresponds to ::libulf_susiv2_cv_write
      * 
      * @param cv  Address of the CV (CV - 1)
      * @param val Value to write
@@ -215,32 +215,32 @@ public class KLUG {
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean cvWrite(int cv, int val) {
       validateState();
-      return KLUGAdapter.susiv2CvWrite(_lib, cv, val);
+      return ULFAdapter.susiv2CvWrite(_lib, cv, val);
     }
 
     /**
      * Erases the sound flash of the decoder
      * 
-     * Corresponds to ::libklug_susiv2_zpp_erase
+     * Corresponds to ::libulf_susiv2_zpp_erase
      * 
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean zppErase() {
       validateState();
-      return KLUGAdapter.susiv2ZppErase(_lib);
+      return ULFAdapter.susiv2ZppErase(_lib);
     }
 
     /**
      * Writes a sound flash block to the decoder
      * 
-     * Corresponds to ::libklug_susiv2_zpp_write
+     * Corresponds to ::libulf_susiv2_zpp_write
      * 
      * The flash blocks have to be written in ascending index order. 
      * 
@@ -250,32 +250,32 @@ public class KLUG {
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean zppWrite(ZPP zpp, int index) {
       validateState();
-      return KLUGAdapter.susiv2ZppWrite(_lib, zpp.get(), index);
+      return ULFAdapter.susiv2ZppWrite(_lib, zpp.get(), index);
     }
 
     /**
      * Requests decoder features
      * 
-     * Corresponds to ::libklug_susiv2_features
+     * Corresponds to ::libulf_susiv2_features
      * 
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean features() {
       validateState();
-      return KLUGAdapter.susiv2Features(_lib);
+      return ULFAdapter.susiv2Features(_lib);
     }
 
     /**
      * Requests the decoder to quit ZUSI mode
      * 
-     * Corresponds to ::libklug_susiv2_exit
+     * Corresponds to ::libulf_susiv2_exit
      * 
      * @param reset     Reset decoder
      * @param cv8_reset CV8 Reset
@@ -283,29 +283,29 @@ public class KLUG {
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean exit(boolean reset, boolean cv8_reset) {
       validateState();
-      return KLUGAdapter.susiv2Exit(_lib, reset, cv8_reset);
+      return ULFAdapter.susiv2Exit(_lib, reset, cv8_reset);
     }
 
     /**
      * Checks, if the load code on the decoder is valid for the developer 
      * code of the given ZPP
      * 
-     * Corresponds to ::libklug_susiv2_zpp_lc_dc_query
+     * Corresponds to ::libulf_susiv2_zpp_lc_dc_query
      * 
      * @param zpp A valid ZPP instance
      * 
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean zppLcDcQuery(ZPP zpp) {
       validateState();
-      return KLUGAdapter.susiv2ZppLcDcQuery(_lib, zpp.get());
+      return ULFAdapter.susiv2ZppLcDcQuery(_lib, zpp.get());
     }
   }
 
@@ -326,22 +326,22 @@ public class KLUG {
     /**
      * Commands all decoders to enter MDU mode (Update)
      * 
-     * Corresponds to ::libklug_mdu_ein_enter_mdu
+     * Corresponds to ::libulf_mdu_ein_enter_mdu
      * 
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean enterMDU() {
       validateState();
-      return KLUGAdapter.mduEinEnterMdu(_lib);
+      return ULFAdapter.mduEinEnterMdu(_lib);
     }
 
     /**
      * Commands selected decoders to enter MDU mode (Update)
      * 
-     * Corresponds to ::libklug_mdu_ein_enter_dcc_zsu
+     * Corresponds to ::libulf_mdu_ein_enter_dcc_zsu
      * 
      * @param id    Decoder ID
      * @param sn    Decoder Serial number
@@ -350,17 +350,17 @@ public class KLUG {
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean enterDCCZSU(long id, long sn, boolean done) {
       validateState();
-      return KLUGAdapter.mduEinEnterDccZsu(_lib, id, sn, done);
+      return ULFAdapter.mduEinEnterDccZsu(_lib, id, sn, done);
     } 
 
     /**
      * Commands selected decoders to enter MDU mode (SoundLoad)
      * 
-     * Corresponds to ::libklug_mdu_ein_enter_dcc_zpp
+     * Corresponds to ::libulf_mdu_ein_enter_dcc_zpp
      * 
      * @param id    Decoder ID
      * @param done  No more IDs to enter
@@ -368,17 +368,17 @@ public class KLUG {
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean enterDCCZPP(long id, boolean done) {
       validateState();
-      return KLUGAdapter.mduEinEnterDccZpp(_lib, id, done);
+      return ULFAdapter.mduEinEnterDccZpp(_lib, id, done);
     }
 
     /**
      * Pings decoder(-s)
      * 
-     * Corresponds to ::libklug_mdu_ein_ping
+     * Corresponds to ::libulf_mdu_ein_ping
      * 
      * @param sn Decoder Serial Number
      * @param id Decoder ID
@@ -386,66 +386,66 @@ public class KLUG {
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean ping(long sn, long id) {
       validateState();
-      return KLUGAdapter.mduEinPing(_lib, sn, id);
+      return ULFAdapter.mduEinPing(_lib, sn, id);
     }
 
     /**
      * Pings all decoders
      * 
-     * Corresponds to ::libklug_mdu_ein_ping_all
+     * Corresponds to ::libulf_mdu_ein_ping_all
      * 
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean pingAll() {
       validateState();
-      return KLUGAdapter.mduEinPingAll(_lib);
+      return ULFAdapter.mduEinPingAll(_lib);
     }
 
     /**
      * Configures transfer rate for decoder and USB device
      * 
-     * Corresponds to ::libklug_mdu_ein_config_transfer_rate
+     * Corresponds to ::libulf_mdu_ein_config_transfer_rate
      * 
      * @param transfer_rate Transfer Rate to set
      * 
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean configTransferRate(TransferRate transfer_rate) {
       validateState();
-      return KLUGAdapter.mduEinConfigTransferRate(_lib, transfer_rate.value());
+      return ULFAdapter.mduEinConfigTransferRate(_lib, transfer_rate.value());
     }
 
     /**
      * Reads a CV from the decoder
      * 
-     * Corresponds to ::libklug_mdu_ein_cv_read
+     * Corresponds to ::libulf_mdu_ein_cv_read
      * 
      * @param cv CV address
      * 
      * @return Value of the CV
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public int cvRead(int cv) {
       validateState();
-      return KLUGAdapter.mduEinCvRead(_lib, cv);
+      return ULFAdapter.mduEinCvRead(_lib, cv);
     }
 
     /** 
      * Writes a CV to the decoder
      * 
-     * Corresponds to ::libklug_mdu_ein_cv_write
+     * Corresponds to ::libulf_mdu_ein_cv_write
      * 
      * @param cv  CV address
      * @param val CV Value
@@ -453,43 +453,43 @@ public class KLUG {
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean cvWrite(int cv, int val) {
       validateState();
-      return KLUGAdapter.mduEinCvWrite(_lib, cv, val);
+      return ULFAdapter.mduEinCvWrite(_lib, cv, val);
     }
 
     /**
      * Checks if the decoder is busy
      * 
-     * Corresponds to ::libklug_mdu_ein_busy
+     * Corresponds to ::libulf_mdu_ein_busy
      * 
      * @return True, if busy
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean busy() {
       validateState();
-      return KLUGAdapter.mduEinBusy(_lib);
+      return ULFAdapter.mduEinBusy(_lib);
     }
 
     /**
      * Checks if the given ZPP can fit into the decoder
      * 
-     * Corresponds to ::libklug_mdu_ein_zpp_valid_query
+     * Corresponds to ::libulf_mdu_ein_zpp_valid_query
      * 
      * @param zpp A valid ZPP instance
      * 
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean zppValidQuery(ZPP zpp) {
       validateState();
-      return KLUGAdapter.mduEinZppValidQuery(_lib, zpp.get());
+      return ULFAdapter.mduEinZppValidQuery(_lib, zpp.get());
     }
 
     /**
@@ -501,34 +501,34 @@ public class KLUG {
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean zppLcDcQuery(ZPP zpp) {
       validateState();
-      return KLUGAdapter.mduEinZppLcDcQuery(_lib, zpp.get());
+      return ULFAdapter.mduEinZppLcDcQuery(_lib, zpp.get());
     }
 
     /**
      * Erases the sound flash of the decoder
      * 
-     * Corresponds to ::libklug_mdu_ein_zpp_erase
+     * Corresponds to ::libulf_mdu_ein_zpp_erase
      * 
      * @param zpp A valid ZPP instance
      * 
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean zppErase(ZPP zpp) {
       validateState();
-      return KLUGAdapter.mduEinZppErase(_lib, zpp.get());
+      return ULFAdapter.mduEinZppErase(_lib, zpp.get());
     }
 
     /**
      * Writes a sound flash block to the decoder
      * 
-     * Corresponds to ::libklug_mdu_ein_zpp_update
+     * Corresponds to ::libulf_mdu_ein_zpp_update
      * 
      * The flash blocks have to be written in ascending index order
      * 
@@ -538,83 +538,83 @@ public class KLUG {
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean zppUpdate(ZPP zpp, int index) {
       validateState();
-      return KLUGAdapter.mduEinZppUpdate(_lib, zpp.get(), index);
+      return ULFAdapter.mduEinZppUpdate(_lib, zpp.get(), index);
     }
 
     /**
      * Semantic end of the sound flash update
      * 
-     * Corresponds to ::libklug_mdu_ein_zpp_update_end
+     * Corresponds to ::libulf_mdu_ein_zpp_update_end
      * 
      * @param zpp A valid ZPP instance
      * 
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean zppUpdateEnd(ZPP zpp) {
       validateState();
-      return KLUGAdapter.mduEinZppUpdateEnd(_lib, zpp.get());
+      return ULFAdapter.mduEinZppUpdateEnd(_lib, zpp.get());
     }
 
     /**
      * Command the decoder to exit MDU and reset
      * 
-     * Corresponds to ::libklug_mdu_ein_zpp_exit_reset
+     * Corresponds to ::libulf_mdu_ein_zpp_exit_reset
      * 
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean zppExitReset() {
       validateState();
-      return KLUGAdapter.mduEinZppExitReset(_lib);
+      return ULFAdapter.mduEinZppExitReset(_lib);
     }
 
     /**
      * Initializes the Salsa20 encryption
      * 
-     * Corresponds to ::libklug_mdu_ein_zsu_salsa_20_iv
+     * Corresponds to ::libulf_mdu_ein_zsu_salsa_20_iv
      * 
      * @param fw A valid Firmware instance
      * 
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean zsuSalsa20Iv(Firmware fw) {
       validateState();
-      return KLUGAdapter.mduEinZsuSalsa20Iv(_lib, fw.zsu().get(), fw.index());
+      return ULFAdapter.mduEinZsuSalsa20Iv(_lib, fw.zsu().get(), fw.index());
     }
 
     /**
      * Erases the firmware flash of the decoder
      * 
-     * Corresponds to ::libklug_mdu_ein_zsu_erase
+     * Corresponds to ::libulf_mdu_ein_zsu_erase
      * 
      * @param fw A valid Firmware instance
      * 
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean zsuErase(Firmware fw) {
       validateState();
-      return KLUGAdapter.mduEinZsuErase(_lib, fw.zsu().get(), fw.index());
+      return ULFAdapter.mduEinZsuErase(_lib, fw.zsu().get(), fw.index());
     }
 
     /**
      * Writes firmware flash block to the decoder
      * 
-     * Corresponds to ::libklug_mdu_ein_zsu_update
+     * Corresponds to ::libulf_mdu_ein_zsu_update
      * 
      * @param fw    A valid Firmware instance
      * @param index Flash block index
@@ -622,59 +622,59 @@ public class KLUG {
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean zsuUpdate(Firmware fw, int index) {
       validateState();
-      return KLUGAdapter.mduEinZsuUpdate(_lib, fw.zsu().get(), fw.index(), index);
+      return ULFAdapter.mduEinZsuUpdate(_lib, fw.zsu().get(), fw.index(), index);
     }
 
     /**
      * Starts the firmware flash verification (CRC32)
      * 
-     * Corresponds to ::libklug_mdu_ein_zsu_crc32_start
+     * Corresponds to ::libulf_mdu_ein_zsu_crc32_start
      * 
      * @param fw A valid Firmware instance
      * 
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean zsuCrc32Start(Firmware fw) {
       validateState();
-      return KLUGAdapter.mduEinZsuCrc32Start(_lib, fw.zsu().get(), fw.index());
+      return ULFAdapter.mduEinZsuCrc32Start(_lib, fw.zsu().get(), fw.index());
     }
 
     /**
      * Checks the result of the firmware flash verification
      * 
-     * Corresponds to ::libklug_mdu_ein_zsu_crc32_result
+     * Corresponds to ::libulf_mdu_ein_zsu_crc32_result
      * 
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean zsuCrc32Result() {
       validateState();
-      return KLUGAdapter.mduEinZsuCrc32Result(_lib);
+      return ULFAdapter.mduEinZsuCrc32Result(_lib);
     }
 
     /**
      * Checks the result of the firmware flash verification and commands the 
      * decoder to leave MDU mode
      * 
-     * Corresponds to ::libklug_mdu_ein_resul_zsu_crc32_result_exit
+     * Corresponds to ::libulf_mdu_ein_resul_zsu_crc32_result_exit
      * 
      * @return True, if successful
      * 
      * @throws IllegalStateException  If the object has been invalidated
-     * @throws LibKLUGException       If the operation produced an Error
+     * @throws LibULFException        If the operation produced an Error
      */
     public boolean zsuCrc32ResultExit() {
       validateState();
-      return KLUGAdapter.mduEinZsuCrc32ResultExit(_lib);
+      return ULFAdapter.mduEinZsuCrc32ResultExit(_lib);
     }
   }
 
@@ -684,6 +684,6 @@ public class KLUG {
    * @throws IllegalStateException If the object was invalidated using cleanup
    */
   private void validateState() {
-    if (_lib == 0) throw new IllegalStateException("LibKLUG was closed");
+    if (_lib == 0) throw new IllegalStateException("LibULF was closed");
   }
 }

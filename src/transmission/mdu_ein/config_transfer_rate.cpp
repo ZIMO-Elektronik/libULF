@@ -27,8 +27,8 @@
 
 #include "config_transfer_rate.hpp"
 #include <ulf/mdu_ein.hpp>
-#include "klug/cpp/klug_error.hpp"
 #include "log/logger.hpp"
+#include "ulf/cpp/ulf_error.hpp"
 
 namespace transmission::mdu_ein {
 
@@ -39,31 +39,31 @@ ConfigTransferRate::ConfigTransferRate(
 /**
  * Execute
  *
- * \throw libklug_error   Device unresponsive or other Error
+ * \throw libulf_error   Device unresponsive or other Error
  *
  */
 void ConfigTransferRate::execute() {
   using std::operator""sv;
   try {
     if (!packet())
-      throw libklug::klug_error{libklug::Error::nak,
-                                "Unable to set speed for decoder"};
+      throw libulf::ulf_error{libulf::Error::nak,
+                              "Unable to set speed for decoder"};
     if (!special(false))
-      throw libklug::klug_error{libklug::Error::nak,
-                                "Unable to set speed for device"};
+      throw libulf::ulf_error{libulf::Error::nak,
+                              "Unable to set speed for device"};
     _result = true;
   } catch (std::exception const& e) {
     LOG_ERROR("{}", e.what());
     LOG_WARN("Attempting to set fallback timing");
     if (!special(true))
-      throw libklug::klug_error{libklug::Error::nak,
-                                "Unable to set fallback speed for device"};
+      throw libulf::ulf_error{libulf::Error::nak,
+                              "Unable to set fallback speed for device"};
   }
 }
 
 /// Stub
 std::string ConfigTransferRate::evaluateString() {
-  throw libklug::klug_error{libklug::Error::unknown, "Missing Implementation"};
+  throw libulf::ulf_error{libulf::Error::unknown, "Missing Implementation"};
   std::unreachable();
 }
 
@@ -72,7 +72,7 @@ bool ConfigTransferRate::evaluateBool() { return _result; }
 
 /// Stub
 int ConfigTransferRate::evaluateValue() {
-  throw libklug::klug_error{libklug::Error::unknown, "Missing Implementation"};
+  throw libulf::ulf_error{libulf::Error::unknown, "Missing Implementation"};
   std::unreachable();
 }
 
@@ -81,7 +81,7 @@ int ConfigTransferRate::evaluateValue() {
  *
  * \return true, if successful, false else
  *
- * \throw libklug_error   If format does not match protocol or the device is
+ * \throw libulf_error   If format does not match protocol or the device is
  *                        unresponsive
  */
 bool ConfigTransferRate::packet() {
@@ -100,7 +100,7 @@ bool ConfigTransferRate::packet() {
  *
  * \return true, if successful, false else
  *
- * \throw libklug_error   If format does not match protocol or the device is
+ * \throw libulf_error   If format does not match protocol or the device is
  *                        unresponsive
  */
 bool ConfigTransferRate::special(bool fallback) {

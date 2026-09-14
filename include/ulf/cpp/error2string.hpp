@@ -20,7 +20,7 @@
  *
  * Error 2 string
  *
- * \file    include/klug/cpp/error2string.hpp
+ * \file    include/ulf/cpp/error2string.hpp
  * \author  Jonas Gahlert
  * \date    06.05.2026
  */
@@ -31,7 +31,7 @@
 #include <string_view>
 #include "error.hpp"
 
-namespace libklug {
+namespace libulf {
 
 constexpr std::string_view error2string(Error e) {
   using std::operator""sv;
@@ -67,4 +67,4 @@ constexpr std::string_view error2string(Error e) {
   }
 }
 
-} // namespace libklug
+} // namespace libulf

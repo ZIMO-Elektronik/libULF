@@ -1,6 +1,6 @@
 /**
  * 
- * ZPP
+ * ZSU
  * 
  * 08.09.2026
  * 
@@ -20,25 +20,28 @@
  * along with this program. If not, see <https://gnu.org>.
  */
 
-package at.zimo.klug;
+package at.zimo.ulf;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
- * Represents a .zpp file loaded with the library. This essentially manages 
+ * Represents a .zsu file loaded with the library. This essentially manages 
  * the underlying handle, but needs cleanup to avoid memory leaks.
  * 
  * @see cleanup
  */
-public class ZPP {
+public class ZSU implements Iterable<Firmware> {
   /**
-   * Construct a ZPP from path
+   * Construct a ZSU from path
    * 
    * To use this on android, the file most likely needs to be located within 
    * the App sandbox, else the underlying syscalls may fail
    * 
-   * @param path The path to the .zpp file (must be accessible with full rights)
+   * @param path The path to the .zsu file (must be accessible with full rights)
    */
-  public ZPP(String path) {
-    _zpp = KLUGAdapter.zppRead(path);
+  public ZSU(String path) {
+    _zsu = ULFAdapter.zsuRead(path);
   }
 
   /**
@@ -49,51 +52,37 @@ public class ZPP {
    */
   public void cleanup() {
     validateState();
-    KLUGAdapter.zppRelease(_zpp);
-    _zpp = 0;
+    ULFAdapter.zsuRelease(_zsu);
+    _zsu = 0;
   }
 
   /**
-   * Returns the number of flash blocks within the project
+   * Creates a {@link at.zimo.ulf.FirmwareIterator}.
    * 
-   * @return block count
+   * @return iterator
+   */
+  @Override
+  public Iterator<Firmware> iterator() {
+    return new FirmwareIterator(this);
+  }
+
+  /**
+   * Returns the firmware at index
    * 
+   * @throws NoSuchElementException If the firmware doesn't exist
    * @throws IllegalStateException  If the object has been 
    *                                invalidated
    */
-  public int blocks() {
+  public Firmware getFirmware(int index) {
     validateState();
-    return KLUGAdapter.zppBlocks(_zpp);
+    if (index >= ULFAdapter.zsuGetFirmwareCount(_zsu)) {
+      throw new NoSuchElementException(); 
+    }
+    return new Firmware(this, index);
   }
 
   /**
-   * Returns the author of the project
-   * 
-   * @return author
-   * 
-   * @throws IllegalStateException  If the object has been 
-   *                                invalidated
-   */
-  public String author() {
-    validateState();
-    return KLUGAdapter.zppAuthor(_zpp);
-  }
-
-  /**
-   * Returns the email of the project author
-   * 
-   * @return email
-   * 
-   * @throws IllegalStateException  If the object has been 
-   *                                invalidated
-   */
-  public String email() {
-    validateState();
-    return KLUGAdapter.zppEmail(_zpp);
-  }
-
-  /**
-   * Returns the underlying handle
+   * Get the underlying handle
    * 
    * @return handle
    * 
@@ -102,7 +91,7 @@ public class ZPP {
    */
   long get() {
     validateState();
-    return _zpp;
+    return _zsu;
   }
 
   /**
@@ -112,8 +101,8 @@ public class ZPP {
    *                                invalidated
    */
   private void validateState() {
-    if (_zpp == 0) throw new IllegalStateException("ZPP was closed");
+    if (_zsu == 0) throw new IllegalStateException("ZPP was closed");
   }
 
-  private long _zpp;
+  private long _zsu; 
 }

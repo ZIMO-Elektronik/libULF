@@ -8,7 +8,7 @@
       "name": "Debug",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/build/KLUG",
+      "program": "${workspaceFolder}/build/ULF",
       "args": [],
       "stopAtEntry": true,
       "cwd": "${workspaceFolder}",

@@ -20,13 +20,13 @@
  * along with this program. If not, see <https://gnu.org>.
  */
 
-package at.zimo.klug;
+package at.zimo.ulf;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * An iterator for the Firmware instances a {@link at.zimo.klug.ZSU} file holds
+ * An iterator for the Firmware instances a {@link at.zimo.ulf.ZSU} file holds
  */
 public class FirmwareIterator implements Iterator<Firmware>{
     /**

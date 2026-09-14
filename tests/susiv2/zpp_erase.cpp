@@ -11,9 +11,7 @@ using testing::InSequence;
 using testing::Return;
 
 TEST_F(TestSUSIV2, zpp_erase_payload) {
-  auto const payload{ulf::susiv2::packet2frame<
-    ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
-    zusi::make_zpp_erase_packet())};
+  auto const payload{ulf::susiv2::packet2frame(zusi::make_zpp_erase_packet())};
   auto const expected{helper::range2span(payload)};
 
   {
@@ -23,7 +21,7 @@ TEST_F(TestSUSIV2, zpp_erase_payload) {
   }
 
   bool r{};
-  libklug_susiv2_zpp_erase(libHandle, &r);
+  libulf_susiv2_zpp_erase(libHandle, &r);
 }
 
 TEST_F(TestSUSIV2, zpp_erase_result_success) {
@@ -34,7 +32,7 @@ TEST_F(TestSUSIV2, zpp_erase_result_success) {
     .WillByDefault(helper::susiv2::receive_ack);
 
   bool r{};
-  ASSERT_EQ(libklug_susiv2_zpp_erase(libHandle, &r), LIBKLUG_OK);
+  ASSERT_EQ(libulf_susiv2_zpp_erase(libHandle, &r), LIBULF_OK);
   ASSERT_TRUE(r);
 }
 
@@ -42,26 +40,26 @@ TEST_F(TestSUSIV2, zpp_erase_write_error) {
   assertTransmitErrorCalls<true>();
 
   bool r{};
-  libklug_susiv2_zpp_erase(libHandle, &r);
+  libulf_susiv2_zpp_erase(libHandle, &r);
 }
 
 TEST_F(TestSUSIV2, zpp_erase_write_error_result) {
   throwTransmitException();
 
   bool r{};
-  ASSERT_NE(libklug_susiv2_zpp_erase(libHandle, &r), LIBKLUG_OK);
+  ASSERT_NE(libulf_susiv2_zpp_erase(libHandle, &r), LIBULF_OK);
 }
 
 TEST_F(TestSUSIV2, zpp_erase_receive_error) {
   assertReceiveErrorCalls<true>();
 
   bool r{};
-  libklug_susiv2_zpp_erase(libHandle, &r);
+  libulf_susiv2_zpp_erase(libHandle, &r);
 }
 
 TEST_F(TestSUSIV2, zpp_erase_receive_error_result) {
   throwReceiveException();
 
   bool r{};
-  ASSERT_NE(libklug_susiv2_zpp_erase(libHandle, &r), LIBKLUG_OK);
+  ASSERT_NE(libulf_susiv2_zpp_erase(libHandle, &r), LIBULF_OK);
 }

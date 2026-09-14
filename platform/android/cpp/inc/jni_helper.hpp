@@ -20,17 +20,17 @@
  *
  * JNI Helpers
  *
- * \file    jni_helper.hpp
+ * \file    platform/android/cpp/inc/jni_helper.hpp
  * \author  Jonas Gahlert
  * \date    04.09.2026
  */
 
 #include <jni.h>
-#include <klug/c/libklug.h>
+#include <ulf/c/libulf.h>
 #include <cassert>
 
 /**
- * Throws a LibKLUGException
+ * Throws a LibULFException
  *
  * \warning
  * If for some reason no such class exists, the app will crash
@@ -38,8 +38,8 @@
  * \param env JNI Environment
  * \param err Occurred error
  */
-void throwLibKLUGException(JNIEnv* env, libklug_error err) {
-  jclass exceptionClass = env->FindClass("com/zimo/klug/LibKLUGException");
+void throwLibULFException(JNIEnv* env, libulf_error err) {
+  jclass exceptionClass = env->FindClass("com/zimo/ulf/LibULFException");
 
   if (exceptionClass == nullptr) {
     assert(false);
@@ -83,8 +83,8 @@ jboolean boolFn(JNIEnv* env, F&& f, Args&&... args) {
 
   auto const err{f(std::forward<Args>(args)..., &r)};
 
-  if (err != LIBKLUG_OK) {
-    throwLibKLUGException(env, err);
+  if (err != LIBULF_OK) {
+    throwLibULFException(env, err);
     return JNI_FALSE;
   }
 
@@ -114,11 +114,11 @@ jstring stringFn(JNIEnv* env, F&& f, Args&&... args) {
 
   size_t length = bufferCapacity;
 
-  libklug_error const err =
+  libulf_error const err =
     std::forward<F>(f)(std::forward<Args>(args)..., buffer.data(), &length);
 
-  if (err != LIBKLUG_OK) {
-    throwLibKLUGException(env, err);
+  if (err != LIBULF_OK) {
+    throwLibULFException(env, err);
     return nullptr;
   }
 
@@ -151,8 +151,8 @@ jint valueFn(JNIEnv* env, F&& f, Args&&... args) {
 
   auto const err{f(std::forward<Args>(args)..., &r)};
 
-  if (err != LIBKLUG_OK) {
-    throwLibKLUGException(env, err);
+  if (err != LIBULF_OK) {
+    throwLibULFException(env, err);
     return JNI_FALSE;
   }
 
@@ -164,9 +164,9 @@ jint valueFn(JNIEnv* env, F&& f, Args&&... args) {
  *  --------------------------------------------------
  */
 
-/// Cast to libklug
+/// Cast to libulf
 constexpr auto to_lib(jlong handle) {
-  return reinterpret_cast<libklug_handle>(handle);
+  return reinterpret_cast<libulf_handle>(handle);
 }
 
 /// Cast to zpp
@@ -182,8 +182,8 @@ constexpr auto to_zsu(jlong handle) {
 /// Cast to bool
 constexpr auto to_bool(jint i) { return static_cast<bool>(i); }
 
-/// Cast from libklug
-constexpr jlong to_jlong(libklug_handle handle) {
+/// Cast from libulf
+constexpr jlong to_jlong(libulf_handle handle) {
   return reinterpret_cast<jlong>(handle);
 }
 
@@ -198,7 +198,7 @@ constexpr jlong to_jlong(zsu_handle handle) {
 }
 
 /// Cast error
-constexpr jint to_jint(libklug_error e) { return static_cast<jint>(e); }
+constexpr jint to_jint(libulf_error e) { return static_cast<jint>(e); }
 
 /// Cast bool
 constexpr jint to_jint(bool b) { return static_cast<jint>(b); }

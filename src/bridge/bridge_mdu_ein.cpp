@@ -29,11 +29,11 @@
 #include <ulf/mdu_ein.hpp>
 #include <utility>
 #include "config.hpp"
-#include "klug/cpp/klug_error.hpp"
 #include "transmission/mdu_ein/base.hpp"
 #include "transmission/mdu_ein/config_transfer_rate.hpp"
 #include "transmission/mdu_ein/cv_read.hpp"
 #include "transmission/mdu_ein/ping.hpp"
+#include "ulf/cpp/ulf_error.hpp"
 
 namespace bridge {
 
@@ -50,7 +50,7 @@ MDU_EIN::MDU_EIN(Context& ctx, ZPP& zpp, ZSU& zsu)
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::enterMDU() {
   std::array<uint8_t, 16u> payload{};
@@ -71,7 +71,7 @@ bool MDU_EIN::enterMDU() {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::enterDCCZSU(uint32_t id, uint32_t sn, bool done) {
   std::vector<uint8_t> payload{};
@@ -97,7 +97,7 @@ bool MDU_EIN::enterDCCZSU(uint32_t id, uint32_t sn, bool done) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::enterDCCZPP(uint32_t sn, bool done) {
   std::vector<uint8_t> payload{};
@@ -122,7 +122,7 @@ bool MDU_EIN::enterDCCZPP(uint32_t sn, bool done) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::ping(uint32_t sn, uint32_t id) {
   transmission::mdu_ein::Ping t{
@@ -140,7 +140,7 @@ bool MDU_EIN::ping(uint32_t sn, uint32_t id) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::configTransferRate(mdu::TransferRate transfer_rate) {
   transmission::mdu_ein::ConfigTransferRate t{_ctx.connection, transfer_rate};
@@ -155,7 +155,7 @@ bool MDU_EIN::configTransferRate(mdu::TransferRate transfer_rate) {
  */
 bool MDU_EIN::binaryTreeSearch() {
   using std::operator""sv;
-  throw libklug::klug_error{libklug::Error::unknown, "Missing Implementation"};
+  throw libulf::ulf_error{libulf::Error::unknown, "Missing Implementation"};
   std::unreachable();
 }
 
@@ -166,7 +166,7 @@ bool MDU_EIN::binaryTreeSearch() {
  *
  * \return int  A value >= 0 is the read value, < 0 is an invalid value
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 int MDU_EIN::cvRead(uint16_t cv) {
   transmission::mdu_ein::CvRead t{_ctx.connection, cv};
@@ -182,7 +182,7 @@ int MDU_EIN::cvRead(uint16_t cv) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::cvWrite(uint16_t cv, uint8_t value) {
   transmission::mdu_ein::Base t{
@@ -198,7 +198,7 @@ bool MDU_EIN::cvWrite(uint16_t cv, uint8_t value) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::busy() {
   transmission::mdu_ein::Base t{
@@ -217,7 +217,7 @@ bool MDU_EIN::busy() {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zppValidQuery(std::string_view id, uint32_t size) {
   transmission::mdu_ein::Base t{
@@ -235,7 +235,7 @@ bool MDU_EIN::zppValidQuery(std::string_view id, uint32_t size) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zppValidQuery(zpp::File* file) {
   return zppValidQuery(file->id, file->flash.size());
@@ -248,7 +248,7 @@ bool MDU_EIN::zppValidQuery(zpp::File* file) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zppLcDcQuery(std::span<uint8_t const, 4uz> dev_code) {
   transmission::mdu_ein::Base t{
@@ -266,7 +266,7 @@ bool MDU_EIN::zppLcDcQuery(std::span<uint8_t const, 4uz> dev_code) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zppLcDcQuery(zpp::File* file) {
   return zppLcDcQuery(file->developer_code);
@@ -280,7 +280,7 @@ bool MDU_EIN::zppLcDcQuery(zpp::File* file) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zppErase(uint32_t start_address, uint32_t end_address) {
   transmission::mdu_ein::Base t{
@@ -299,7 +299,7 @@ bool MDU_EIN::zppErase(uint32_t start_address, uint32_t end_address) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zppErase(zpp::File* file) {
   return zppErase(0uz, file->flash.size() - 1u);
@@ -313,7 +313,7 @@ bool MDU_EIN::zppErase(zpp::File* file) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zppUpdate(uint32_t address,
                         std::span<uint8_t const, 256uz> block) {
@@ -333,7 +333,7 @@ bool MDU_EIN::zppUpdate(uint32_t address,
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zppUpdate(zpp::File* file, uint32_t index) {
   auto const addressed_block{_zpp.block(file, index)};
@@ -348,7 +348,7 @@ bool MDU_EIN::zppUpdate(zpp::File* file, uint32_t index) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zppUpdateEnd(uint32_t start_address, uint32_t end_address) {
   transmission::mdu_ein::Base t{
@@ -367,7 +367,7 @@ bool MDU_EIN::zppUpdateEnd(uint32_t start_address, uint32_t end_address) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zppUpdateEnd(zpp::File* file) {
   return zppUpdateEnd(0uz, file->flash.size());
@@ -378,7 +378,7 @@ bool MDU_EIN::zppUpdateEnd(zpp::File* file) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zppExitReset() {
   transmission::mdu_ein::Base t{
@@ -396,7 +396,7 @@ bool MDU_EIN::zppExitReset() {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zsuSalsa20IV(std::span<uint8_t const, 8uz> iv) {
   transmission::mdu_ein::Base t{
@@ -416,7 +416,7 @@ bool MDU_EIN::zsuSalsa20IV(std::span<uint8_t const, 8uz> iv) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zsuSalsa20IV(zsu::Firmware const& firmware) {
   if (!firmware.iv) return false;
@@ -431,7 +431,7 @@ bool MDU_EIN::zsuSalsa20IV(zsu::Firmware const& firmware) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zsuErase(uint32_t start_address, uint32_t end_address) {
   transmission::mdu_ein::Base t{
@@ -450,7 +450,7 @@ bool MDU_EIN::zsuErase(uint32_t start_address, uint32_t end_address) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zsuErase(zsu::Firmware const& firmware) {
   return zsuErase(0uz, firmware.bin.size() - 1u);
@@ -464,7 +464,7 @@ bool MDU_EIN::zsuErase(zsu::Firmware const& firmware) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zsuUpdate(uint32_t address,
                         std::span<uint8_t const, 64uz> block) {
@@ -484,7 +484,7 @@ bool MDU_EIN::zsuUpdate(uint32_t address,
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zsuUpdate(zsu::Firmware const& firmware, uint32_t index) {
   auto const addressed_block{_zsu.block(firmware, index)};
@@ -500,7 +500,7 @@ bool MDU_EIN::zsuUpdate(zsu::Firmware const& firmware, uint32_t index) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zsuCRC32Start(uint32_t start_address,
                             uint32_t end_address,
@@ -521,7 +521,7 @@ bool MDU_EIN::zsuCRC32Start(uint32_t start_address,
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zsuCRC32Start(zsu::Firmware const& firmware) {
   return zsuCRC32Start(
@@ -533,7 +533,7 @@ bool MDU_EIN::zsuCRC32Start(zsu::Firmware const& firmware) {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zsuCRC32Result() {
   transmission::mdu_ein::Base t{
@@ -549,7 +549,7 @@ bool MDU_EIN::zsuCRC32Result() {
  *
  * \return bool true, if successful, false else
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zsuCRC32ResultExit() {
   transmission::mdu_ein::Base t{

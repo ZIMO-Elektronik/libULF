@@ -63,7 +63,7 @@ private:
 
 } // namespace internal::log
 
-#define LIBKLUG_ASSERT(expr)                                                   \
+#define LIBULF_ASSERT(expr)                                                    \
   if (static_cast<bool>(expr)) [[likely]]                                      \
     void(0);                                                                   \
   else internal::log::Asserter(__FILE__, __LINE__, #expr)

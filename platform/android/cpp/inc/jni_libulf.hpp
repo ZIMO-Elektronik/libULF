@@ -18,7 +18,7 @@
  *
  *
  *
- * JNI LibKLUG interface
+ * JNI LibULF interface
  *
  * This is the native end of the JNI binding. Essentially, this wraps the C API
  * behind "Methods", which are linked from Java at runtime. This also means,
@@ -28,7 +28,7 @@
  * \note
  * Unsure, if this is needed, but its nicer to read at least
  *
- * \file    src/libklug/bridge_jni.hpp
+ * \file    platform/android/cpp/inc/jni_libulf.hpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */

@@ -18,15 +18,15 @@
  *
  *
  *
- * libKLUG API
+ * libULF API
  *
- * \file    include/klug/c/libklug.h
+ * \file    include/ulf/c/libulf.h
  * \author  Jonas Gahlert
  * \date    05.05.2026
  */
 
-#ifndef LIBKLUG_H
-#define LIBKLUG_H
+#ifndef LIBULF_H
+#define LIBULF_H
 
 #ifdef __cplusplus
 #  include <cstdbool>
@@ -42,7 +42,7 @@ extern "C" {
 #include "error.h"
 
 // Opaque poninters
-typedef struct libklug_instance* libklug_handle;
+typedef struct libulf_instance* libulf_handle;
 typedef struct zpp_instance* zpp_handle;
 typedef struct zsu_instance* zsu_handle;
 
@@ -54,32 +54,32 @@ typedef struct zsu_instance* zsu_handle;
 // --- Lifetime --- //
 
 /**
- * Create a libklug object
+ * Create a libulf object
  *
  * \details
- * Allocated libklug object is made available using an opaque pointer
+ * Allocated libulf object is made available using an opaque pointer
  *
  * \warning
- * A created libklug object MUST be destroyed using `libklug_destroy` to avoid a
+ * A created libulf object MUST be destroyed using `libulf_destroy` to avoid a
  * memory leak. The user is responsible for keeping the handle alive until then.
  *
- * \return libklug_handle
+ * \return libulf_handle
  */
-libklug_handle libklug_create();
+libulf_handle libulf_create();
 
 /**
- * Destroy a libklug object
+ * Destroy a libulf object
  *
  * \details
- * Deallocates a previously created libklug object using the given handle.
+ * Deallocates a previously created libulf object using the given handle.
  *
  * \warning
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param handle libklug handle
+ * \param handle libulf handle
  */
-void libklug_destroy(libklug_handle handle);
+void libulf_destroy(libulf_handle handle);
 
 // --- Connection Specifics --- //
 
@@ -93,11 +93,11 @@ void libklug_destroy(libklug_handle handle);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param handle libklug handle
+ * \param handle libulf handle
  *
- * \return libklug_error LIBKLUG_OK on succes, LIBKLUG_ERR_ else
+ * \return libulf_error LIBULF_OK on succes, LIBULF_ERR_ else
  */
-libklug_error libklug_init(libklug_handle handle);
+libulf_error libulf_init(libulf_handle handle);
 
 /**
  * Open device
@@ -114,13 +114,13 @@ libklug_error libklug_init(libklug_handle handle);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param handle  libklug handle
+ * \param handle  libulf handle
  * \param vid     Device VID
  * \param pid     Device PID
  *
- * \return libklug_error LIBKLUG_OK on succes, LIBKLUG_ERR_ else
+ * \return libulf_error LIBULF_OK on succes, LIBULF_ERR_ else
  */
-libklug_error libklug_open(libklug_handle handle, uint16_t vid, uint16_t pid);
+libulf_error libulf_open(libulf_handle handle, uint16_t vid, uint16_t pid);
 
 /**
  * Open device by file descriptor
@@ -132,12 +132,12 @@ libklug_error libklug_open(libklug_handle handle, uint16_t vid, uint16_t pid);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param handle  libklug handle
+ * \param handle  libulf handle
  * \param Fd      File descriptor
  *
- * \return libklug_error LIBKLUG_OK on succes, LIBKLUG_ERR_ else
+ * \return libulf_error LIBULF_OK on succes, LIBULF_ERR_ else
  */
-libklug_error libklug_openFd(libklug_handle handle, int Fd);
+libulf_error libulf_openFd(libulf_handle handle, int Fd);
 
 /**
  * Close device
@@ -149,11 +149,11 @@ libklug_error libklug_openFd(libklug_handle handle, int Fd);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param handle  libklug handle
+ * \param handle  libulf handle
  *
- * \return libklug_error LIBKLUG_OK on succes, LIBKLUG_ERR_ else
+ * \return libulf_error LIBULF_OK on succes, LIBULF_ERR_ else
  */
-libklug_error libklug_close(libklug_handle handle);
+libulf_error libulf_close(libulf_handle handle);
 
 /**
  * Returns the last error string
@@ -164,7 +164,7 @@ libklug_error libklug_close(libklug_handle handle);
  * \param handle
  * \return char const*
  */
-char const* libklug_last_error_string();
+char const* libulf_last_error_string();
 
 /** ---------------------------------------------------
  *  Bridge COM
@@ -181,14 +181,14 @@ char const* libklug_last_error_string();
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] handle  libklug handle
+ * \param [inout] handle  libulf handle
  * \param [out]   buf     The buffer to copy the result string to
  * \param [inout] len     The size of the buffer. On success, `len` will contain
  *                        the actual byte count copied
  *
- * \return libklug_error LIBKLUG_OK on succes, LIBKLUG_ERR_ else
+ * \return libulf_error LIBULF_OK on succes, LIBULF_ERR_ else
  */
-libklug_error libklug_com_ping(libklug_handle hlib, char* buf, size_t* len);
+libulf_error libulf_com_ping(libulf_handle hlib, char* buf, size_t* len);
 
 /**
  * Reset device
@@ -200,12 +200,12 @@ libklug_error libklug_com_ping(libklug_handle hlib, char* buf, size_t* len);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] handle  libklug handle
+ * \param [inout] handle  libulf handle
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error LIBKLUG_OK on succes, LIBKLUG_ERR_ else
+ * \return libulf_error LIBULF_OK on succes, LIBULF_ERR_ else
  */
-libklug_error libklug_com_reset(libklug_handle hlib, bool* success);
+libulf_error libulf_com_reset(libulf_handle hlib, bool* success);
 
 /**
  * Enter SUSIV2 Mode
@@ -217,12 +217,12 @@ libklug_error libklug_com_reset(libklug_handle hlib, bool* success);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] handle  libklug handle
+ * \param [inout] handle  libulf handle
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error LIBKLUG_OK on succes, LIBKLUG_ERR_ else
+ * \return libulf_error LIBULF_OK on succes, LIBULF_ERR_ else
  */
-libklug_error libklug_com_susiv2(libklug_handle hlib, bool* success);
+libulf_error libulf_com_susiv2(libulf_handle hlib, bool* success);
 
 /**
  * Enter MDU_EIN Mode
@@ -234,12 +234,12 @@ libklug_error libklug_com_susiv2(libklug_handle hlib, bool* success);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] handle  libklug handle
+ * \param [inout] handle  libulf handle
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error LIBKLUG_OK on succes, LIBKLUG_ERR_ else
+ * \return libulf_error LIBULF_OK on succes, LIBULF_ERR_ else
  */
-libklug_error libklug_com_mdu_ein(libklug_handle hlib, bool* success);
+libulf_error libulf_com_mdu_ein(libulf_handle hlib, bool* success);
 
 /** ---------------------------------------------------
  *  Bridge SUSIV2
@@ -257,14 +257,14 @@ libklug_error libklug_com_mdu_ein(libklug_handle hlib, bool* success);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] handle  libklug handle
+ * \param [inout] handle  libulf handle
  * \param [in]    cv      Cv address (zero-based, meaning Cv - 1)
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error LIBKLUG_OK on succes, LIBKLUG_ERR_ else
+ * \return libulf_error LIBULF_OK on succes, LIBULF_ERR_ else
  */
-libklug_error
-libklug_susiv2_cv_read(libklug_handle handle, uint16_t cv, int* value);
+libulf_error
+libulf_susiv2_cv_read(libulf_handle handle, uint16_t cv, int* value);
 
 /**
  * CvWrite
@@ -280,17 +280,17 @@ libklug_susiv2_cv_read(libklug_handle handle, uint16_t cv, int* value);
  * \warning
  * Not implemented Yet
  *
- * \param [inout] handle  libklug handle
+ * \param [inout] handle  libulf handle
  * \param [in]    cv      Cv address (zero based, meaning Cv - 1)
  * \param [in]    value   Cv value
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error LIBKLUG_OK on succes, LIBKLUG_ERR_ else
+ * \return libulf_error LIBULF_OK on succes, LIBULF_ERR_ else
  */
-libklug_error libklug_susiv2_cv_write(libklug_handle hlib,
-                                      uint16_t cv,
-                                      uint8_t value,
-                                      bool* success);
+libulf_error libulf_susiv2_cv_write(libulf_handle hlib,
+                                    uint16_t cv,
+                                    uint8_t value,
+                                    bool* success);
 
 /**
  * ZPP erase (erase sound flash)
@@ -303,12 +303,12 @@ libklug_error libklug_susiv2_cv_write(libklug_handle hlib,
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib    libklug handle
+ * \param [inout] hlib    libulf handle
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_susiv2_zpp_erase(libklug_handle hlib, bool* success);
+libulf_error libulf_susiv2_zpp_erase(libulf_handle hlib, bool* success);
 
 /**
  * ZPP write (blockwise sound flash write)
@@ -321,17 +321,17 @@ libklug_error libklug_susiv2_zpp_erase(libklug_handle hlib, bool* success);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib    libklug handle
+ * \param [inout] hlib    libulf handle
  * \param [in]    hzpp    zpp handle
  * \param [in]    index   Block index
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_susiv2_zpp_write(libklug_handle hlib,
-                                       zpp_handle hzpp,
-                                       uint32_t index,
-                                       bool* success);
+libulf_error libulf_susiv2_zpp_write(libulf_handle hlib,
+                                     zpp_handle hzpp,
+                                     uint32_t index,
+                                     bool* success);
 
 /**
  * Request features (actually, this just sets the max transfer speed possible)
@@ -344,12 +344,12 @@ libklug_error libklug_susiv2_zpp_write(libklug_handle hlib,
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib    libklug handle
+ * \param [inout] hlib    libulf handle
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_susiv2_features(libklug_handle hlib, bool* success);
+libulf_error libulf_susiv2_features(libulf_handle hlib, bool* success);
 
 /**
  * Exit protocol (plus options)
@@ -362,17 +362,17 @@ libklug_error libklug_susiv2_features(libklug_handle hlib, bool* success);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib      libklug_handle
+ * \param [inout] hlib      libulf_handle
  * \param [in]    reboot    Reboot decoder
  * \param [in]    cv8_reset Perform CV8 reset on decoder
  * \param [out]   success   true, if successful, false else
  *
- * \return libklug_error LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_susiv2_exit(libklug_handle hlib,
-                                  bool reboot,
-                                  bool cv8_reset,
-                                  bool* success);
+libulf_error libulf_susiv2_exit(libulf_handle hlib,
+                                bool reboot,
+                                bool cv8_reset,
+                                bool* success);
 
 /**
  * ZPP LC DC Query (Checks if the load- / developer- code is valid)
@@ -385,15 +385,15 @@ libklug_error libklug_susiv2_exit(libklug_handle hlib,
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib    libklug handle
+ * \param [inout] hlib    libulf handle
  * \param [in]    hzpp    zpp handle
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_susiv2_zpp_lc_dc_query(libklug_handle hlib,
-                                             zpp_handle hzpp,
-                                             bool* success);
+libulf_error libulf_susiv2_zpp_lc_dc_query(libulf_handle hlib,
+                                           zpp_handle hzpp,
+                                           bool* success);
 
 /** ---------------------------------------------------
  *  Bridge MDU_EIN
@@ -411,12 +411,12 @@ libklug_error libklug_susiv2_zpp_lc_dc_query(libklug_handle hlib,
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib    libklug_handle
+ * \param [inout] hlib    libulf_handle
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_mdu_ein_enter_mdu(libklug_handle hlib, bool* success);
+libulf_error libulf_mdu_ein_enter_mdu(libulf_handle hlib, bool* success);
 
 /**
  * Enter Bootloader (via OpsMode)
@@ -429,17 +429,17 @@ libklug_error libklug_mdu_ein_enter_mdu(libklug_handle hlib, bool* success);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib    libklug handle
+ * \param [inout] hlib    libulf handle
  * \param [in]    id      Decoder ID
  * \param [in]    sn      Decoder Serial Number
  * \param [in]    done    True, if this was the last `id-sn` to enter, else
  *                        false
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_mdu_ein_enter_dcc_zsu(
-  libklug_handle hlib, uint32_t id, uint32_t sn, bool done, bool* success);
+libulf_error libulf_mdu_ein_enter_dcc_zsu(
+  libulf_handle hlib, uint32_t id, uint32_t sn, bool done, bool* success);
 
 /**
  * Enter SoundLoad mode (via OpsMode)
@@ -452,17 +452,17 @@ libklug_error libklug_mdu_ein_enter_dcc_zsu(
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib    libklug handle
+ * \param [inout] hlib    libulf handle
  * \param [in]    sn      Decoder Serial Number
  * \param [in]    done    True, if this was the last `sn` to enter, else false
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_mdu_ein_enter_dcc_zpp(libklug_handle hlib,
-                                            uint32_t sn,
-                                            bool done,
-                                            bool* success);
+libulf_error libulf_mdu_ein_enter_dcc_zpp(libulf_handle hlib,
+                                          uint32_t sn,
+                                          bool done,
+                                          bool* success);
 
 /**
  * Ping decoder
@@ -475,17 +475,17 @@ libklug_error libklug_mdu_ein_enter_dcc_zpp(libklug_handle hlib,
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib    libklug handle
+ * \param [inout] hlib    libulf handle
  * \param [in]    sn      Decoder Serial Number
  * \param [in]    id      Decoder ID
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_mdu_ein_ping(libklug_handle hlib,
-                                   uint32_t sn,
-                                   uint32_t id,
-                                   bool* success);
+libulf_error libulf_mdu_ein_ping(libulf_handle hlib,
+                                 uint32_t sn,
+                                 uint32_t id,
+                                 bool* success);
 
 /**
  * Ping any decoder
@@ -498,12 +498,12 @@ libklug_error libklug_mdu_ein_ping(libklug_handle hlib,
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib    libklug_handle
+ * \param [inout] hlib    libulf_handle
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_mdu_ein_ping_all(libklug_handle hlib, bool* success);
+libulf_error libulf_mdu_ein_ping_all(libulf_handle hlib, bool* success);
 
 /**
  * Configure transfer rate
@@ -519,15 +519,15 @@ libklug_error libklug_mdu_ein_ping_all(libklug_handle hlib, bool* success);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib            libklug_handle
+ * \param [inout] hlib            libulf_handle
  * \param [in]    transfer_rate   Transfer Rate to configure.
  * \param [out]   success         true, if successful, false else
  *
- * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_mdu_ein_config_transfer_rate(libklug_handle hlib,
-                                                   uint8_t transfer_rate,
-                                                   bool* success);
+libulf_error libulf_mdu_ein_config_transfer_rate(libulf_handle hlib,
+                                                 uint8_t transfer_rate,
+                                                 bool* success);
 
 /**
  * CV read
@@ -539,14 +539,14 @@ libklug_error libklug_mdu_ein_config_transfer_rate(libklug_handle hlib,
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib  libklug handle
+ * \param [inout] hlib  libulf handle
  * \param [in]    cv    CV address to read
  * \param [out]   value Read CV value
  *
- * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error
-libklug_mdu_ein_cv_read(libklug_handle hlib, uint16_t cv, int* value);
+libulf_error
+libulf_mdu_ein_cv_read(libulf_handle hlib, uint16_t cv, int* value);
 
 /**
  * CV write
@@ -558,17 +558,17 @@ libklug_mdu_ein_cv_read(libklug_handle hlib, uint16_t cv, int* value);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib    libklug handle
+ * \param [inout] hlib    libulf handle
  * \param [in]    cv      CV address to write
  * \param [in]    value   CV value to write
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_mdu_ein_cv_write(libklug_handle hlib,
-                                       uint16_t cv,
-                                       uint8_t value,
-                                       bool* success);
+libulf_error libulf_mdu_ein_cv_write(libulf_handle hlib,
+                                     uint16_t cv,
+                                     uint8_t value,
+                                     bool* success);
 
 /**
  * Busy query
@@ -580,12 +580,12 @@ libklug_error libklug_mdu_ein_cv_write(libklug_handle hlib,
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib    libklug handle
+ * \param [inout] hlib    libulf handle
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_mdu_ein_busy(libklug_handle hlib, bool* success);
+libulf_error libulf_mdu_ein_busy(libulf_handle hlib, bool* success);
 
 /**
  * ZPP valid query
@@ -597,15 +597,15 @@ libklug_error libklug_mdu_ein_busy(libklug_handle hlib, bool* success);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib    libklug handle
+ * \param [inout] hlib    libulf handle
  * \param [in]    hzpp    zpp handle
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_mdu_ein_zpp_valid_query(libklug_handle hlib,
-                                              zpp_handle hzpp,
-                                              bool* success);
+libulf_error libulf_mdu_ein_zpp_valid_query(libulf_handle hlib,
+                                            zpp_handle hzpp,
+                                            bool* success);
 
 /**
  * ZPP LC DC Query
@@ -617,15 +617,15 @@ libklug_error libklug_mdu_ein_zpp_valid_query(libklug_handle hlib,
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib    libklug handle
+ * \param [inout] hlib    libulf handle
  * \param [in]    hzpp    zpp handle
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_mdu_ein_zpp_lc_dc_query(libklug_handle hlib,
-                                              zpp_handle hzpp,
-                                              bool* success);
+libulf_error libulf_mdu_ein_zpp_lc_dc_query(libulf_handle hlib,
+                                            zpp_handle hzpp,
+                                            bool* success);
 
 /**
  * ZPP Erase (erases decoder sound flash)
@@ -637,14 +637,14 @@ libklug_error libklug_mdu_ein_zpp_lc_dc_query(libklug_handle hlib,
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib    libklug handle
+ * \param [inout] hlib    libulf handle
  * \param [in]    hzpp    zpp handle
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error
-libklug_mdu_ein_zpp_erase(libklug_handle hlib, zpp_handle hzpp, bool* success);
+libulf_error
+libulf_mdu_ein_zpp_erase(libulf_handle hlib, zpp_handle hzpp, bool* success);
 
 /**
  * ZPP Update
@@ -656,17 +656,17 @@ libklug_mdu_ein_zpp_erase(libklug_handle hlib, zpp_handle hzpp, bool* success);
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib    libklug handle
+ * \param [inout] hlib    libulf handle
  * \param [in]    hzpp    zpp handle
  * \param [in]    index   Flash block index
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_mdu_ein_zpp_update(libklug_handle hlib,
-                                         zpp_handle hzpp,
-                                         uint32_t index,
-                                         bool* success);
+libulf_error libulf_mdu_ein_zpp_update(libulf_handle hlib,
+                                       zpp_handle hzpp,
+                                       uint32_t index,
+                                       bool* success);
 
 /**
  * ZPP Update end
@@ -678,15 +678,15 @@ libklug_error libklug_mdu_ein_zpp_update(libklug_handle hlib,
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib    libklug handle
+ * \param [inout] hlib    libulf handle
  * \param [in]    hzpp    zpp handle
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_mdu_ein_zpp_update_end(libklug_handle hlib,
-                                             zpp_handle hzpp,
-                                             bool* success);
+libulf_error libulf_mdu_ein_zpp_update_end(libulf_handle hlib,
+                                           zpp_handle hzpp,
+                                           bool* success);
 
 /**
  * ZPP Exit and Reset
@@ -698,13 +698,12 @@ libklug_error libklug_mdu_ein_zpp_update_end(libklug_handle hlib,
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib    libklug handle
+ * \param [inout] hlib    libulf handle
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_mdu_ein_zpp_exit_reset(libklug_handle hlib,
-                                             bool* success);
+libulf_error libulf_mdu_ein_zpp_exit_reset(libulf_handle hlib, bool* success);
 
 /**
  * ZSU Salsa20 IV
@@ -716,17 +715,17 @@ libklug_error libklug_mdu_ein_zpp_exit_reset(libklug_handle hlib,
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib            libklug handle
+ * \param [inout] hlib            libulf handle
  * \param [in]    hzsu            zsu handle
  * \param [in]    firmware_index  Firmware index
  * \param [out]   success         true, if successful, false else
  *
- * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_mdu_ein_zsu_salsa20_iv(libklug_handle hlib,
-                                             zsu_handle hzsu,
-                                             size_t firmware_index,
-                                             bool* success);
+libulf_error libulf_mdu_ein_zsu_salsa20_iv(libulf_handle hlib,
+                                           zsu_handle hzsu,
+                                           size_t firmware_index,
+                                           bool* success);
 
 /**
  * ZSU Erase (Erase firmware flash)
@@ -738,17 +737,17 @@ libklug_error libklug_mdu_ein_zsu_salsa20_iv(libklug_handle hlib,
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib            libklug handle
+ * \param [inout] hlib            libulf handle
  * \param [in]    hzsu            zsu handle
  * \param [in]    firmware_index  Firmware index
  * \param [out]   success         true, if successful, false else
  *
- * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_mdu_ein_zsu_erase(libklug_handle hlib,
-                                        zsu_handle hzsu,
-                                        size_t firmware_index,
-                                        bool* success);
+libulf_error libulf_mdu_ein_zsu_erase(libulf_handle hlib,
+                                      zsu_handle hzsu,
+                                      size_t firmware_index,
+                                      bool* success);
 
 /**
  * ZSU Update
@@ -760,19 +759,19 @@ libklug_error libklug_mdu_ein_zsu_erase(libklug_handle hlib,
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib            libklug handle
+ * \param [inout] hlib            libulf handle
  * \param [in]    hzsu            zsu handle
  * \param [in]    firmware_index  Firmware index
  * \param [in]    index           Firmware block index
  * \param [out]   success         true, if successful, false else
  *
- * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_mdu_ein_zsu_update(libklug_handle hlib,
-                                         zsu_handle hzsu,
-                                         size_t firmware_index,
-                                         uint32_t index,
-                                         bool* success);
+libulf_error libulf_mdu_ein_zsu_update(libulf_handle hlib,
+                                       zsu_handle hzsu,
+                                       size_t firmware_index,
+                                       uint32_t index,
+                                       bool* success);
 
 /**
  * ZSU CRC32 Start
@@ -784,17 +783,17 @@ libklug_error libklug_mdu_ein_zsu_update(libklug_handle hlib,
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib            libklug handle
+ * \param [inout] hlib            libulf handle
  * \param [in]    hzsu            zsu handle
  * \param [in]    firmware_index  Firmware index
  * \param [out]   success         true, if successful, false else
  *
- * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_mdu_ein_zsu_crc32_start(libklug_handle hlib,
-                                              zsu_handle hzsu,
-                                              size_t firmware_index,
-                                              bool* success);
+libulf_error libulf_mdu_ein_zsu_crc32_start(libulf_handle hlib,
+                                            zsu_handle hzsu,
+                                            size_t firmware_index,
+                                            bool* success);
 
 /**
  * ZSU CRC32 Result
@@ -806,13 +805,12 @@ libklug_error libklug_mdu_ein_zsu_crc32_start(libklug_handle hlib,
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib    libklug handle
+ * \param [inout] hlib    libulf handle
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_mdu_ein_zsu_crc32_result(libklug_handle hlib,
-                                               bool* success);
+libulf_error libulf_mdu_ein_zsu_crc32_result(libulf_handle hlib, bool* success);
 
 /**
  * ZSU CRC32 Result and Exit
@@ -824,13 +822,13 @@ libklug_error libklug_mdu_ein_zsu_crc32_result(libklug_handle hlib,
  * It is illegal to pass NULL. Passing an invalid handle results in UB and
  * should be avoided
  *
- * \param [inout] hlib    libklug handle
+ * \param [inout] hlib    libulf handle
  * \param [out]   success true, if successful, false else
  *
- * \return libklug_error  LIBKLUG_OK on success, LIBKLUG_ERR_ else
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
  */
-libklug_error libklug_mdu_ein_zsu_crc32_result_exit(libklug_handle hlib,
-                                                    bool* success);
+libulf_error libulf_mdu_ein_zsu_crc32_result_exit(libulf_handle hlib,
+                                                  bool* success);
 
 /** ---------------------------------------------------
  *  Bridge ZPP
@@ -841,21 +839,21 @@ libklug_error libklug_mdu_ein_zsu_crc32_result_exit(libklug_handle hlib,
  * Read a ZPP file
  *
  * \warning
- * Any file read, must later be released by the user \see libklug_zpp_release
+ * Any file read, must later be released by the user \see libulf_zpp_release
  *
  * \param [in]  c       ZPP path
  * \param [in]  length  ZPP path length
  *
  * \return zpp_handle Either an handle, or NULL if the file could not be read
  */
-zpp_handle libklug_zpp_read(char const* c, size_t length);
+zpp_handle libulf_zpp_read(char const* c, size_t length);
 
 /**
  * Release ZPP file
  *
  * \param [in] hzpp  zpp handle
  */
-void libklug_zpp_release(zpp_handle hzpp);
+void libulf_zpp_release(zpp_handle hzpp);
 
 /**
  * Get flash block count
@@ -864,7 +862,7 @@ void libklug_zpp_release(zpp_handle hzpp);
  *
  * \return unsigned int Flash block count
  */
-unsigned int libklug_zpp_blocks(zpp_handle const hzpp);
+unsigned int libulf_zpp_blocks(zpp_handle const hzpp);
 
 /**
  * Get ZPP author
@@ -873,7 +871,7 @@ unsigned int libklug_zpp_blocks(zpp_handle const hzpp);
  *
  * \return char const*  Author string (valid until ZPP is released)
  */
-char const* libklug_zpp_author(zpp_handle const hzpp);
+char const* libulf_zpp_author(zpp_handle const hzpp);
 
 /**
  * Get ZPP email
@@ -882,7 +880,7 @@ char const* libklug_zpp_author(zpp_handle const hzpp);
  *
  * \return char const*  Email string (valid until ZPP is released)
  */
-char const* libklug_zpp_email(zpp_handle const hzpp);
+char const* libulf_zpp_email(zpp_handle const hzpp);
 
 /** ---------------------------------------------------
  *  Bridge ZSU
@@ -893,21 +891,21 @@ char const* libklug_zpp_email(zpp_handle const hzpp);
  * Read a ZSU file
  *
  * \warning
- * Any file read must later be relesed by the user \see libklug_zsu_release
+ * Any file read must later be relesed by the user \see libulf_zsu_release
  *
  * \param [in]  c       ZSU file path
  * \param [in]  length  ZSU file path length
  *
  * \return zsu_handle Either a valid handle or NULL if the file cannot be read
  */
-zsu_handle libklug_zsu_read(char const* c, size_t length);
+zsu_handle libulf_zsu_read(char const* c, size_t length);
 
 /**
  * Release a ZSU file
  *
  * \param [in] hzsu zsu handle
  */
-void libklug_zsu_release(zsu_handle hzsu);
+void libulf_zsu_release(zsu_handle hzsu);
 
 /**
  * Get number of firmwares contained in the file
@@ -916,7 +914,7 @@ void libklug_zsu_release(zsu_handle hzsu);
  *
  * \return uint32_t Firmware count
  */
-uint32_t libklug_zsu_get_firmware_count(zsu_handle const hzsu);
+uint32_t libulf_zsu_get_firmware_count(zsu_handle const hzsu);
 
 // Ops on firmware
 
@@ -931,8 +929,8 @@ uint32_t libklug_zsu_get_firmware_count(zsu_handle const hzsu);
  *
  * \return uint32_t Firmware ID
  */
-uint32_t libklug_zsu_get_firmware_id(zsu_handle const hzsu,
-                                     size_t const firmware_index);
+uint32_t libulf_zsu_get_firmware_id(zsu_handle const hzsu,
+                                    size_t const firmware_index);
 
 /**
  * Get Name of firmware
@@ -945,8 +943,8 @@ uint32_t libklug_zsu_get_firmware_id(zsu_handle const hzsu,
  *
  * \return char const*  Firmware name (Valid until ZSU is released)
  */
-char const* libklug_zsu_get_firmware_name(zsu_handle const hzsu,
-                                          size_t const firmware_index);
+char const* libulf_zsu_get_firmware_name(zsu_handle const hzsu,
+                                         size_t const firmware_index);
 
 /**
  * Get major version of firmware
@@ -956,8 +954,8 @@ char const* libklug_zsu_get_firmware_name(zsu_handle const hzsu,
  *
  * \return char const*  Firmware major version (Valid until ZSU is released)
  */
-char const* libklug_zsu_get_firmware_major_version(zsu_handle const hzsu,
-                                                   size_t const firmware_index);
+char const* libulf_zsu_get_firmware_major_version(zsu_handle const hzsu,
+                                                  size_t const firmware_index);
 
 /**
  * Get minor version of firmware
@@ -967,8 +965,8 @@ char const* libklug_zsu_get_firmware_major_version(zsu_handle const hzsu,
  *
  * \return char const*  Firmware minor version (Valid until ZSU is released)
  */
-char const* libklug_zsu_get_firmware_minor_version(zsu_handle const hzsu,
-                                                   size_t const firmware_index);
+char const* libulf_zsu_get_firmware_minor_version(zsu_handle const hzsu,
+                                                  size_t const firmware_index);
 
 /**
  * Get Firmware type
@@ -978,8 +976,8 @@ char const* libklug_zsu_get_firmware_minor_version(zsu_handle const hzsu,
  *
  * \return int  Firmware type
  */
-int libklug_zsu_get_firmware_type(zsu_handle const hzsu,
-                                  size_t const firmware_index);
+int libulf_zsu_get_firmware_type(zsu_handle const hzsu,
+                                 size_t const firmware_index);
 
 /**
  * Get Firmware Block count
@@ -989,8 +987,8 @@ int libklug_zsu_get_firmware_type(zsu_handle const hzsu,
  *
  * \return uint32_t Block count
  */
-uint32_t libklug_zsu_get_firmware_block_count(zsu_handle const hzsu,
-                                              size_t const firmware_index);
+uint32_t libulf_zsu_get_firmware_block_count(zsu_handle const hzsu,
+                                             size_t const firmware_index);
 
 /**
  * Get raw Firmware data
@@ -1000,8 +998,8 @@ uint32_t libklug_zsu_get_firmware_block_count(zsu_handle const hzsu,
  *
  * \return uint8_t const* Data (valid until ZSU is released)
  */
-uint8_t const* libklug_zsu_get_firmware_data(zsu_handle const hzsu,
-                                             size_t const firmware_index);
+uint8_t const* libulf_zsu_get_firmware_data(zsu_handle const hzsu,
+                                            size_t const firmware_index);
 
 /**
  * Get raw Firmware data size
@@ -1011,8 +1009,8 @@ uint8_t const* libklug_zsu_get_firmware_data(zsu_handle const hzsu,
  *
  * \return size_t Data size
  */
-size_t libklug_zsu_get_firmware_data_size(zsu_handle const hzsu,
-                                          size_t const firmware_index);
+size_t libulf_zsu_get_firmware_data_size(zsu_handle const hzsu,
+                                         size_t const firmware_index);
 
 #ifdef __cplusplus
 }

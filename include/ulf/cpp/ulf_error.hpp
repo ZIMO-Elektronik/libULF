@@ -18,9 +18,9 @@
  *
  *
  *
- * KLUG Exception
+ * ULF Exception
  *
- * \file    include/klug/cpp/klug_error.hpp
+ * \file    include/ulf/cpp/ulf_error.hpp
  * \author  Jonas Gahlert
  * \date    04.09.2026
  */
@@ -29,9 +29,9 @@
 
 #include <stdexcept>
 #include "error.hpp"
-#include "klug/c/error.h"
+#include "ulf/c/error.h"
 
-namespace libklug {
+namespace libulf {
 
 /**
  * Generic Exception
@@ -40,14 +40,14 @@ namespace libklug {
  * Can either be converted to `res::Error` or `result`
  *
  */
-struct klug_error : public std::runtime_error {
-  klug_error(Error const& code, char const* what_arg)
+struct ulf_error : public std::runtime_error {
+  ulf_error(Error const& code, char const* what_arg)
     : _code{code}, runtime_error{what_arg} {}
-  klug_error(libklug_error const& code, char const* what_arg)
+  ulf_error(libulf_error const& code, char const* what_arg)
     : _code{static_cast<Error>(code)}, runtime_error{what_arg} {}
-  klug_error(klug_error const& other) = default;
+  ulf_error(ulf_error const& other) = default;
 
-  klug_error& operator=(klug_error const&) = default;
+  ulf_error& operator=(ulf_error const&) = default;
 
   explicit operator Error() const { return _code; }
 
@@ -55,4 +55,4 @@ private:
   Error _code;
 };
 
-} // namespace libklug
+} // namespace libulf

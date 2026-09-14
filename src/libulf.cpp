@@ -18,23 +18,23 @@
  *
  *
  *
- * LibKLUG C interface
+ * LibULF C interface
  *
- * \file    src/libklug/libklug.cpp
+ * \file    src/libulf/libulf.cpp
  * \author  Jonas Gahlert
  * \date    04.05.2026
  */
 
-#include "klug/c/libklug.h"
 #include <cassert>
 #include <functional>
 #include <thread>
 #include "bridge/bridge.hpp"
 #include "bridge/bridge_zpp.hpp"
 #include "bridge/bridge_zsu.hpp"
-#include "klug/cpp/klug_error.hpp"
+#include "ulf/c/libulf.h"
+#include "ulf/cpp/ulf_error.hpp"
 
-bridge::Bridge* to_bridge(libklug_handle handle) {
+bridge::Bridge* to_bridge(libulf_handle handle) {
   return reinterpret_cast<bridge::Bridge*>(handle);
 }
 
@@ -51,33 +51,33 @@ thread_local char const* last_what = nullptr;
 /// Template helper to cover `bool` and `int` results
 template<typename F, typename O>
 requires std::same_as<O, bool> || std::same_as<O, int>
-libklug_error execute_impl(F&& operation, O* out) {
+libulf_error execute_impl(F&& operation, O* out) {
   auto const res{std::invoke(operation)};
   *out = static_cast<O>(res);
-  return LIBKLUG_OK;
+  return LIBULF_OK;
 }
 
 /// Template helper to cover `string` result
 template<typename F>
-libklug_error execute_impl(F&& operation, char* d_out, size_t* l_out) {
+libulf_error execute_impl(F&& operation, char* d_out, size_t* l_out) {
   std::string const res{std::invoke(operation)};
   std::copy_n(res.begin(), std::min(*l_out, res.size()), d_out);
   *l_out = std::min(*l_out, res.size());
-  return LIBKLUG_OK;
+  return LIBULF_OK;
 }
 
 /// Template helper to dry code
 template<typename F, typename... Args>
-libklug_error execute(F&& operation, Args&&... args) {
+libulf_error execute(F&& operation, Args&&... args) {
   try {
     return execute_impl(std::forward<F>(operation),
                         std::forward<Args>(args)...);
-  } catch (libklug::klug_error const& e) {
+  } catch (libulf::ulf_error const& e) {
     last_what = e.what();
-    return static_cast<libklug_error>(static_cast<libklug::Error>(e));
+    return static_cast<libulf_error>(static_cast<libulf::Error>(e));
   } catch (...) {
     last_what = "BUG! Sonething bad has happened and no one knows what!";
-    return LIBKLUG_ERR_UNKNOWN;
+    return LIBULF_ERR_UNKNOWN;
   }
 }
 
@@ -86,84 +86,84 @@ libklug_error execute(F&& operation, Args&&... args) {
  *  ---------------------------------------------------
  */
 
-libklug_handle libklug_create(void) {
-  return reinterpret_cast<libklug_instance*>(new bridge::Bridge());
+libulf_handle libulf_create(void) {
+  return reinterpret_cast<libulf_instance*>(new bridge::Bridge());
 }
 
-void libklug_destroy(libklug_handle handle) { delete to_bridge(handle); }
+void libulf_destroy(libulf_handle handle) { delete to_bridge(handle); }
 
-libklug_error libklug_init(libklug_handle handle) {
+libulf_error libulf_init(libulf_handle handle) {
   try {
     to_bridge(handle)->init();
-    return LIBKLUG_OK;
-  } catch (libklug::klug_error const& e) {
+    return LIBULF_OK;
+  } catch (libulf::ulf_error const& e) {
     last_what = e.what();
-    return static_cast<libklug_error>(static_cast<libklug::Error>(e));
+    return static_cast<libulf_error>(static_cast<libulf::Error>(e));
   } catch (...) {
     last_what = "BUG! Sonething bad has happened and no one knows what!";
-    return LIBKLUG_ERR_UNKNOWN;
+    return LIBULF_ERR_UNKNOWN;
   }
 }
 
-libklug_error libklug_open(libklug_handle handle, uint16_t vid, uint16_t pid) {
+libulf_error libulf_open(libulf_handle handle, uint16_t vid, uint16_t pid) {
   try {
     to_bridge(handle)->open(vid, pid);
-    return LIBKLUG_OK;
-  } catch (libklug::klug_error const& e) {
+    return LIBULF_OK;
+  } catch (libulf::ulf_error const& e) {
     last_what = e.what();
-    return static_cast<libklug_error>(static_cast<libklug::Error>(e));
+    return static_cast<libulf_error>(static_cast<libulf::Error>(e));
   } catch (...) {
     last_what = "BUG! Sonething bad has happened and no one knows what!";
-    return LIBKLUG_ERR_UNKNOWN;
+    return LIBULF_ERR_UNKNOWN;
   }
 }
 
-libklug_error libklug_openFd(libklug_handle handle, int Fd) {
+libulf_error libulf_openFd(libulf_handle handle, int Fd) {
   try {
     to_bridge(handle)->openFd(Fd);
-    return LIBKLUG_OK;
-  } catch (libklug::klug_error const& e) {
+    return LIBULF_OK;
+  } catch (libulf::ulf_error const& e) {
     last_what = e.what();
-    return static_cast<libklug_error>(static_cast<libklug::Error>(e));
+    return static_cast<libulf_error>(static_cast<libulf::Error>(e));
   } catch (...) {
     last_what = "BUG! Sonething bad has happened and no one knows what!";
-    return LIBKLUG_ERR_UNKNOWN;
+    return LIBULF_ERR_UNKNOWN;
   }
 }
 
-libklug_error libklug_close(libklug_handle handle) {
+libulf_error libulf_close(libulf_handle handle) {
   try {
     to_bridge(handle)->close();
-    return LIBKLUG_OK;
-  } catch (libklug::klug_error const& e) {
+    return LIBULF_OK;
+  } catch (libulf::ulf_error const& e) {
     last_what = e.what();
-    return static_cast<libklug_error>(static_cast<libklug::Error>(e));
+    return static_cast<libulf_error>(static_cast<libulf::Error>(e));
   } catch (...) {
     last_what = "BUG! Sonething bad has happened and no one knows what!";
-    return LIBKLUG_ERR_UNKNOWN;
+    return LIBULF_ERR_UNKNOWN;
   }
 }
 
-char const* libklug_last_error_string() { return last_what; }
+char const* libulf_last_error_string() { return last_what; }
 
 /** ---------------------------------------------------
  *  Bridge COM
  *  ---------------------------------------------------
  */
 
-libklug_error libklug_com_ping(libklug_handle hlib, char* buf, size_t* len) {
+libulf_error libulf_com_ping(libulf_handle hlib, char* buf, size_t* len) {
   return execute([&]() { return to_bridge(hlib)->com().ping(); }, buf, len);
 }
 
-libklug_error libklug_com_reset(libklug_handle hlib, bool* success) {
+libulf_error libulf_com_reset(libulf_handle hlib, bool* success) {
   return execute([&]() { return to_bridge(hlib)->com().reset(); }, success);
 }
 
-libklug_error libklug_com_susiv2(libklug_handle hlib, bool* success) {
+libulf_error libulf_com_susiv2(libulf_handle hlib, bool* success) {
   return execute([&]() { return to_bridge(hlib)->com().susiv2(); }, success);
 }
 
-libklug_error libklug_com_mdu_ein(libklug_handle hlib, bool* success) {
+libulf_error libulf_com_mdu_ein(libulf_handle hlib, bool* success) {
   return execute([&]() { return to_bridge(hlib)->com().mdu_ein(); }, success);
 }
 
@@ -172,42 +172,42 @@ libklug_error libklug_com_mdu_ein(libklug_handle hlib, bool* success) {
  *  ---------------------------------------------------
  */
 
-libklug_error
-libklug_susiv2_cv_read(libklug_handle hlib, uint16_t cv, int* value) {
+libulf_error
+libulf_susiv2_cv_read(libulf_handle hlib, uint16_t cv, int* value) {
   return execute([&]() { return to_bridge(hlib)->susiv2().cvRead(cv); }, value);
 }
 
-libklug_error libklug_susiv2_cv_write(libklug_handle hlib,
-                                      uint16_t cv,
-                                      uint8_t value,
-                                      bool* success) {
+libulf_error libulf_susiv2_cv_write(libulf_handle hlib,
+                                    uint16_t cv,
+                                    uint8_t value,
+                                    bool* success) {
   return execute([&]() { return to_bridge(hlib)->susiv2().cvWrite(cv, value); },
                  success);
 }
 
-libklug_error libklug_susiv2_zpp_erase(libklug_handle hlib, bool* success) {
+libulf_error libulf_susiv2_zpp_erase(libulf_handle hlib, bool* success) {
   return execute([&]() { return to_bridge(hlib)->susiv2().zppErase(); },
                  success);
 }
 
-libklug_error libklug_susiv2_zpp_write(libklug_handle hlib,
-                                       zpp_handle hzpp,
-                                       uint32_t index,
-                                       bool* success) {
+libulf_error libulf_susiv2_zpp_write(libulf_handle hlib,
+                                     zpp_handle hzpp,
+                                     uint32_t index,
+                                     bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->susiv2().zppWrite(to_zpp(hzpp), index); },
     success);
 }
 
-libklug_error libklug_susiv2_features(libklug_handle hlib, bool* success) {
+libulf_error libulf_susiv2_features(libulf_handle hlib, bool* success) {
   return execute([&]() { return to_bridge(hlib)->susiv2().features(); },
                  success);
 }
 
-libklug_error libklug_susiv2_exit(libklug_handle hlib,
-                                  bool reboot,
-                                  bool cv8_reset,
-                                  bool* success) {
+libulf_error libulf_susiv2_exit(libulf_handle hlib,
+                                bool reboot,
+                                bool cv8_reset,
+                                bool* success) {
   return execute(
     [&]() {
       return to_bridge(hlib)->susiv2().exit(reboot == 0 ? false : true,
@@ -216,9 +216,9 @@ libklug_error libklug_susiv2_exit(libklug_handle hlib,
     success);
 }
 
-libklug_error libklug_susiv2_zpp_lc_dc_query(libklug_handle hlib,
-                                             zpp_handle hzpp,
-                                             bool* success) {
+libulf_error libulf_susiv2_zpp_lc_dc_query(libulf_handle hlib,
+                                           zpp_handle hzpp,
+                                           bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->susiv2().zppLcDcQuery(to_zpp(hzpp)); },
     success);
@@ -229,42 +229,42 @@ libklug_error libklug_susiv2_zpp_lc_dc_query(libklug_handle hlib,
  *  ---------------------------------------------------
  */
 
-libklug_error libklug_mdu_ein_enter_mdu(libklug_handle hlib, bool* success) {
+libulf_error libulf_mdu_ein_enter_mdu(libulf_handle hlib, bool* success) {
   return execute([&]() { return to_bridge(hlib)->mdu_ein().enterMDU(); },
                  success);
 }
 
-libklug_error libklug_mdu_ein_enter_dcc_zsu(
-  libklug_handle hlib, uint32_t id, uint32_t sn, bool done, bool* success) {
+libulf_error libulf_mdu_ein_enter_dcc_zsu(
+  libulf_handle hlib, uint32_t id, uint32_t sn, bool done, bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->mdu_ein().enterDCCZSU(id, sn, done > 0); },
     success);
 }
 
-libklug_error libklug_mdu_ein_enter_dcc_zpp(libklug_handle hlib,
-                                            uint32_t sn,
-                                            bool done,
-                                            bool* success) {
+libulf_error libulf_mdu_ein_enter_dcc_zpp(libulf_handle hlib,
+                                          uint32_t sn,
+                                          bool done,
+                                          bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->mdu_ein().enterDCCZPP(sn, done > 0); },
     success);
 }
 
-libklug_error libklug_mdu_ein_ping(libklug_handle hlib,
-                                   uint32_t sn,
-                                   uint32_t id,
-                                   bool* success) {
+libulf_error libulf_mdu_ein_ping(libulf_handle hlib,
+                                 uint32_t sn,
+                                 uint32_t id,
+                                 bool* success) {
   return execute([&]() { return to_bridge(hlib)->mdu_ein().ping(sn, id); },
                  success);
 }
 
-libklug_error libklug_mdu_ein_ping_all(libklug_handle hlib, bool* success) {
+libulf_error libulf_mdu_ein_ping_all(libulf_handle hlib, bool* success) {
   return execute([&]() { return to_bridge(hlib)->mdu_ein().ping(); }, success);
 }
 
-libklug_error libklug_mdu_ein_config_transfer_rate(libklug_handle hlib,
-                                                   uint8_t transfer_rate,
-                                                   bool* success) {
+libulf_error libulf_mdu_ein_config_transfer_rate(libulf_handle hlib,
+                                                 uint8_t transfer_rate,
+                                                 bool* success) {
   assert(transfer_rate >= 0u && transfer_rate <= 4u);
   return execute(
     [&]() {
@@ -274,74 +274,73 @@ libklug_error libklug_mdu_ein_config_transfer_rate(libklug_handle hlib,
     success);
 }
 
-libklug_error
-libklug_mdu_ein_cv_read(libklug_handle hlib, uint16_t cv, int* value) {
+libulf_error
+libulf_mdu_ein_cv_read(libulf_handle hlib, uint16_t cv, int* value) {
   return execute([&]() { return to_bridge(hlib)->mdu_ein().cvRead(cv); },
                  value);
 }
 
-libklug_error libklug_mdu_ein_cv_write(libklug_handle hlib,
-                                       uint16_t cv,
-                                       uint8_t value,
-                                       bool* success) {
+libulf_error libulf_mdu_ein_cv_write(libulf_handle hlib,
+                                     uint16_t cv,
+                                     uint8_t value,
+                                     bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->mdu_ein().cvWrite(cv, value); }, success);
 }
 
-libklug_error libklug_mdu_ein_busy(libklug_handle hlib, bool* success) {
+libulf_error libulf_mdu_ein_busy(libulf_handle hlib, bool* success) {
   return execute([&]() { return to_bridge(hlib)->mdu_ein().busy(); }, success);
 }
 
-libklug_error libklug_mdu_ein_zpp_valid_query(libklug_handle hlib,
-                                              zpp_handle hzpp,
-                                              bool* success) {
+libulf_error libulf_mdu_ein_zpp_valid_query(libulf_handle hlib,
+                                            zpp_handle hzpp,
+                                            bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->mdu_ein().zppValidQuery(to_zpp(hzpp)); },
     success);
 }
 
-libklug_error libklug_mdu_ein_zpp_lc_dc_query(libklug_handle hlib,
-                                              zpp_handle hzpp,
-                                              bool* success) {
+libulf_error libulf_mdu_ein_zpp_lc_dc_query(libulf_handle hlib,
+                                            zpp_handle hzpp,
+                                            bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->mdu_ein().zppLcDcQuery(to_zpp(hzpp)); },
     success);
 }
 
-libklug_error
-libklug_mdu_ein_zpp_erase(libklug_handle hlib, zpp_handle hzpp, bool* success) {
+libulf_error
+libulf_mdu_ein_zpp_erase(libulf_handle hlib, zpp_handle hzpp, bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->mdu_ein().zppErase(to_zpp(hzpp)); },
     success);
 }
 
-libklug_error libklug_mdu_ein_zpp_update(libklug_handle hlib,
-                                         zpp_handle hzpp,
-                                         uint32_t index,
-                                         bool* success) {
+libulf_error libulf_mdu_ein_zpp_update(libulf_handle hlib,
+                                       zpp_handle hzpp,
+                                       uint32_t index,
+                                       bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->mdu_ein().zppUpdate(to_zpp(hzpp), index); },
     success);
 }
 
-libklug_error libklug_mdu_ein_zpp_update_end(libklug_handle hlib,
-                                             zpp_handle hzpp,
-                                             bool* success) {
+libulf_error libulf_mdu_ein_zpp_update_end(libulf_handle hlib,
+                                           zpp_handle hzpp,
+                                           bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->mdu_ein().zppUpdateEnd(to_zpp(hzpp)); },
     success);
 }
 
-libklug_error libklug_mdu_ein_zpp_exit_reset(libklug_handle hlib,
-                                             bool* success) {
+libulf_error libulf_mdu_ein_zpp_exit_reset(libulf_handle hlib, bool* success) {
   return execute([&]() { return to_bridge(hlib)->mdu_ein().zppExitReset(); },
                  success);
 }
 
-libklug_error libklug_mdu_ein_zsu_salsa20_iv(libklug_handle hlib,
-                                             zsu_handle hzsu,
-                                             size_t firmware_index,
-                                             bool* success) {
+libulf_error libulf_mdu_ein_zsu_salsa20_iv(libulf_handle hlib,
+                                           zsu_handle hzsu,
+                                           size_t firmware_index,
+                                           bool* success) {
   return execute(
     [&]() {
       return to_bridge(hlib)->mdu_ein().zsuSalsa20IV(
@@ -350,10 +349,10 @@ libklug_error libklug_mdu_ein_zsu_salsa20_iv(libklug_handle hlib,
     success);
 }
 
-libklug_error libklug_mdu_ein_zsu_erase(libklug_handle hlib,
-                                        zsu_handle hzsu,
-                                        size_t firmware_index,
-                                        bool* success) {
+libulf_error libulf_mdu_ein_zsu_erase(libulf_handle hlib,
+                                      zsu_handle hzsu,
+                                      size_t firmware_index,
+                                      bool* success) {
   return execute(
     [&]() {
       return to_bridge(hlib)->mdu_ein().zsuErase(
@@ -362,11 +361,11 @@ libklug_error libklug_mdu_ein_zsu_erase(libklug_handle hlib,
     success);
 }
 
-libklug_error libklug_mdu_ein_zsu_update(libklug_handle hlib,
-                                         zsu_handle hzsu,
-                                         size_t firmware_index,
-                                         uint32_t index,
-                                         bool* success) {
+libulf_error libulf_mdu_ein_zsu_update(libulf_handle hlib,
+                                       zsu_handle hzsu,
+                                       size_t firmware_index,
+                                       uint32_t index,
+                                       bool* success) {
   return execute(
     [&]() {
       return to_bridge(hlib)->mdu_ein().zsuUpdate(
@@ -375,10 +374,10 @@ libklug_error libklug_mdu_ein_zsu_update(libklug_handle hlib,
     success);
 }
 
-libklug_error libklug_mdu_ein_zsu_crc32_start(libklug_handle hlib,
-                                              zsu_handle hzsu,
-                                              size_t firmware_index,
-                                              bool* success) {
+libulf_error libulf_mdu_ein_zsu_crc32_start(libulf_handle hlib,
+                                            zsu_handle hzsu,
+                                            size_t firmware_index,
+                                            bool* success) {
   return execute(
     [&]() {
       return to_bridge(hlib)->mdu_ein().zsuCRC32Start(
@@ -387,14 +386,14 @@ libklug_error libklug_mdu_ein_zsu_crc32_start(libklug_handle hlib,
     success);
 }
 
-libklug_error libklug_mdu_ein_zsu_crc32_result(libklug_handle hlib,
-                                               bool* success) {
+libulf_error libulf_mdu_ein_zsu_crc32_result(libulf_handle hlib,
+                                             bool* success) {
   return execute([&]() { return to_bridge(hlib)->mdu_ein().zsuCRC32Result(); },
                  success);
 }
 
-libklug_error libklug_mdu_ein_zsu_crc32_result_exit(libklug_handle hlib,
-                                                    bool* success) {
+libulf_error libulf_mdu_ein_zsu_crc32_result_exit(libulf_handle hlib,
+                                                  bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->mdu_ein().zsuCRC32ResultExit(); }, success);
 }
@@ -406,7 +405,7 @@ libklug_error libklug_mdu_ein_zsu_crc32_result_exit(libklug_handle hlib,
 
 /// \todo maybe, it is unnecessary to let this run over bridge since ZPP could
 /// be a static class
-zpp_handle libklug_zpp_read(char const* c, size_t length) {
+zpp_handle libulf_zpp_read(char const* c, size_t length) {
   std::string_view s(c, length);
   return reinterpret_cast<zpp_handle>(
     bridge::ZPP::read(std::filesystem::path{s}));
@@ -414,21 +413,21 @@ zpp_handle libklug_zpp_read(char const* c, size_t length) {
 
 /// \todo maybe, it is unnecessary to let this run over bridge since ZPP could
 /// be a static class
-void libklug_zpp_release(zpp_handle zpp) {
+void libulf_zpp_release(zpp_handle zpp) {
   return bridge::ZPP::release(reinterpret_cast<zpp::File*>(zpp));
 }
 
 /// \todo maybe, it is unnecessary to let this run over bridge since ZPP could
 /// be a static class
-unsigned int libklug_zpp_blocks(zpp_handle zpp) {
+unsigned int libulf_zpp_blocks(zpp_handle zpp) {
   return bridge::ZPP::blocks(reinterpret_cast<zpp::File*>(zpp));
 }
 
-char const* libklug_zpp_author(zpp_handle zpp) {
+char const* libulf_zpp_author(zpp_handle zpp) {
   return bridge::ZPP::author(reinterpret_cast<zpp::File*>(zpp)).data();
 }
 
-char const* libklug_zpp_email(zpp_handle zpp) {
+char const* libulf_zpp_email(zpp_handle zpp) {
   return bridge::ZPP::email(reinterpret_cast<zpp::File*>(zpp)).data();
 }
 
@@ -437,76 +436,74 @@ char const* libklug_zpp_email(zpp_handle zpp) {
  *  ---------------------------------------------------
  */
 
-zsu_handle libklug_zsu_read(char const* c, size_t length) {
+zsu_handle libulf_zsu_read(char const* c, size_t length) {
   std::string_view s{c, length};
   return reinterpret_cast<zsu_handle>(
     bridge::ZSU::read(std::filesystem::path{s}));
 }
 
-void libklug_zsu_release(zsu_handle zsu) {
+void libulf_zsu_release(zsu_handle zsu) {
   assert(zsu);
   return bridge::ZSU::release(reinterpret_cast<zsu::File*>(zsu));
 }
 
-uint32_t libklug_zsu_get_firmware_count(zsu_handle const zsu) {
+uint32_t libulf_zsu_get_firmware_count(zsu_handle const zsu) {
   assert(zsu);
   return reinterpret_cast<zsu::File*>(zsu)->firmwares.size();
 }
 
-uint32_t libklug_zsu_get_firmware_id(zsu_handle const zsu,
-                                     size_t const firmware_index) {
+uint32_t libulf_zsu_get_firmware_id(zsu_handle const zsu,
+                                    size_t const firmware_index) {
   assert(zsu);
   return reinterpret_cast<zsu::File*>(zsu)->firmwares.at(firmware_index).id;
 }
 
-char const* libklug_zsu_get_firmware_name(zsu_handle const zsu,
-                                          size_t const firmware_index) {
+char const* libulf_zsu_get_firmware_name(zsu_handle const zsu,
+                                         size_t const firmware_index) {
   assert(zsu);
   return reinterpret_cast<zsu::File*>(zsu)
     ->firmwares.at(firmware_index)
     .name.data();
 }
 
-char const*
-libklug_zsu_get_firmware_major_version(zsu_handle const zsu,
-                                       size_t const firmware_index) {
+char const* libulf_zsu_get_firmware_major_version(zsu_handle const zsu,
+                                                  size_t const firmware_index) {
   assert(zsu);
   return reinterpret_cast<zsu::File*>(zsu)
     ->firmwares.at(firmware_index)
     .major_version.data();
 }
 
-char const*
-libklug_zsu_get_firmware_minor_version(zsu_handle const zsu,
-                                       size_t const firmware_index) {
+char const* libulf_zsu_get_firmware_minor_version(zsu_handle const zsu,
+                                                  size_t const firmware_index) {
   assert(zsu);
   return reinterpret_cast<zsu::File*>(zsu)
     ->firmwares.at(firmware_index)
     .minor_version.data();
 }
 
-int libklug_zsu_get_firmware_type(zsu_handle const zsu,
-                                  size_t const firmware_index) {
+int libulf_zsu_get_firmware_type(zsu_handle const zsu,
+                                 size_t const firmware_index) {
   assert(zsu);
   return reinterpret_cast<zsu::File*>(zsu)->firmwares.at(firmware_index).type;
 }
 
-uint32_t libklug_zsu_get_firmware_block_count(zsu_handle const zsu,
-                                              size_t const firmware_index) {
+uint32_t libulf_zsu_get_firmware_block_count(zsu_handle const zsu,
+                                             size_t const firmware_index) {
   assert(zsu);
   return bridge::ZSU::blocks(
     reinterpret_cast<zsu::File*>(zsu)->firmwares.at(firmware_index));
 }
-uint8_t const* libklug_zsu_get_firmware_data(zsu_handle const zsu,
-                                             size_t const firmware_index) {
+uint8_t const* libulf_zsu_get_firmware_data(zsu_handle const zsu,
+                                            size_t const firmware_index) {
   assert(zsu);
   return reinterpret_cast<zsu::File*>(zsu)
     ->firmwares.at(firmware_index)
     .bin.data();
 }
 
-size_t libklug_zsu_get_firmware_data_size(zsu_handle const zsu,
-                                          size_t const firmware_index) {
+size_t libulf_zsu_get_firmware_data_size(zsu_handle const zsu,
+                                         size_t const firmware_index) {
   assert(zsu);
   return reinterpret_cast<zsu::File*>(zsu)
     ->firmwares.at(firmware_index)

@@ -54,7 +54,7 @@ struct IConnection {
    * \param r       Range
    * \param timeout Timeout
    *
-   * \throws klug_error   First error occurred
+   * \throws ulf_error   First error occurred
    */
   template<std::ranges::input_range R>
   requires std::constructible_from<std::span<uint8_t const>, R>
@@ -73,7 +73,7 @@ struct IConnection {
    * \param terminator  Terminator
    * \param timeout     Timeout
    *
-   * \throws klug_error   First error occurred
+   * \throws ulf_error   First error occurred
    */
   template<std::ranges::output_range<uint8_t> R, typename T>
   requires requires(R r, uint32_t s) {
@@ -96,7 +96,7 @@ struct IConnection {
    * \param r       Range
    * \param timeout Timeout
    *
-   * \throws klug_error   First error occurred
+   * \throws ulf_error   First error occurred
    */
   template<std::ranges::output_range<uint8_t> R>
   requires requires(R r, uint32_t s) {

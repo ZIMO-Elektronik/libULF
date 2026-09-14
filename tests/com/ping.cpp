@@ -23,7 +23,7 @@ TEST_F(TestCOM, ping_payload) {
   std::string r{};
   r.reserve(128uz);
   size_t size{r.capacity()};
-  libklug_com_ping(libHandle, r.data(), &size);
+  libulf_com_ping(libHandle, r.data(), &size);
 }
 
 TEST_F(TestCOM, ping_result) {
@@ -44,7 +44,7 @@ TEST_F(TestCOM, ping_result) {
   std::string r{};
   r.resize(128uz);
   size_t size{r.size()};
-  ASSERT_EQ(libklug_com_ping(libHandle, r.data(), &size), LIBKLUG_OK);
+  ASSERT_EQ(libulf_com_ping(libHandle, r.data(), &size), LIBULF_OK);
   r.resize(size);
   ASSERT_EQ(r, expected);
 }
@@ -55,7 +55,7 @@ TEST_F(TestCOM, ping_transmit_error) {
   std::string r{};
   r.reserve(128uz);
   size_t size{r.capacity()};
-  libklug_com_ping(libHandle, r.data(), &size);
+  libulf_com_ping(libHandle, r.data(), &size);
 }
 
 TEST_F(TestCOM, ping_transmit_error_result) {
@@ -64,7 +64,7 @@ TEST_F(TestCOM, ping_transmit_error_result) {
   std::string r{};
   r.reserve(128uz);
   size_t size{r.capacity()};
-  ASSERT_NE(libklug_com_ping(libHandle, r.data(), &size), LIBKLUG_OK);
+  ASSERT_NE(libulf_com_ping(libHandle, r.data(), &size), LIBULF_OK);
 }
 
 TEST_F(TestCOM, ping_receive_error) {
@@ -73,7 +73,7 @@ TEST_F(TestCOM, ping_receive_error) {
   std::string r{};
   r.reserve(128uz);
   size_t size{r.capacity()};
-  libklug_com_ping(libHandle, r.data(), &size);
+  libulf_com_ping(libHandle, r.data(), &size);
 }
 
 TEST_F(TestCOM, ping_receive_error_result) {
@@ -82,5 +82,5 @@ TEST_F(TestCOM, ping_receive_error_result) {
   std::string r{};
   r.reserve(128uz);
   size_t size{r.capacity()};
-  ASSERT_NE(libklug_com_ping(libHandle, r.data(), &size), LIBKLUG_OK);
+  ASSERT_NE(libulf_com_ping(libHandle, r.data(), &size), LIBULF_OK);
 }

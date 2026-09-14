@@ -45,7 +45,7 @@ COM::COM(Context& ctx) : _ctx{ctx} { LOG_INFO("COM bridge created"); }
  *
  * \retval std::string  Response
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 std::string COM::ping() {
   transmission::com::Base t{
@@ -59,7 +59,7 @@ std::string COM::ping() {
  *
  * \return bool Response
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool COM::reset() {
   transmission::com::Base t{
@@ -73,7 +73,7 @@ bool COM::reset() {
  *
  * \return bool Response
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool COM::susiv2() {
   transmission::com::Base t{
@@ -87,7 +87,7 @@ bool COM::susiv2() {
  *
  * \return bool Response
  *
- * \throws klug_error   First error occurred
+ * \throws ulf_error   First error occurred
  */
 bool COM::mdu_ein() {
   transmission::com::Base t{

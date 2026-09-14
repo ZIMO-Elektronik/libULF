@@ -28,7 +28,7 @@
 #include "base.hpp"
 #include <ulf/susiv2.hpp>
 #include <utility>
-#include "klug/cpp/klug_error.hpp"
+#include "ulf/cpp/ulf_error.hpp"
 
 namespace transmission::susiv2 {
 
@@ -59,7 +59,7 @@ Base::Base(std::shared_ptr<internal::IConnection> conn,
 /**
  * Evaluate a bool
  *
- * \throw libklug_error   If format does not match protocol or the device is
+ * \throw libulf_error   If format does not match protocol or the device is
  *                        unresponsive
  *
  * \return Evaluated bool
@@ -67,7 +67,7 @@ Base::Base(std::shared_ptr<internal::IConnection> conn,
 bool Base::evaluateBool() {
   using std::operator""sv;
   if (!valid()) {
-    throw libklug::klug_error{libklug::Error::format, "Format Mismatch"};
+    throw libulf::ulf_error{libulf::Error::format, "Format Mismatch"};
     std::unreachable();
   }
   return _response.front() == ulf::susiv2::ack;
