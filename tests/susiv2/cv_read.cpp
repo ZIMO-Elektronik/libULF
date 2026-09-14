@@ -14,9 +14,8 @@ constexpr uint16_t cv_index{7u};
 constexpr uint8_t cv_value{145u};
 
 TEST_F(TestSUSIV2, cv_read_payload) {
-  auto const payload{ulf::susiv2::packet2frame<
-    ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
-    zusi::make_cv_read_packet(0, cv_index))};
+  auto const payload{
+    ulf::susiv2::packet2frame(zusi::make_cv_read_packet(0, cv_index))};
   auto const expected{helper::range2span(payload)};
 
   {
@@ -25,8 +24,8 @@ TEST_F(TestSUSIV2, cv_read_payload) {
     EXPECT_CALL(conn, _read_all(_, _, _, _)).Times(1);
   }
 
-  uint8_t r{};
-  libklug_susiv2_cv_read(libHandle, cv_index, &r);
+  int r{};
+  libulf_susiv2_cv_read(libHandle, cv_index, &r);
 }
 
 TEST_F(TestSUSIV2, cv_read_result_success) {
@@ -42,35 +41,35 @@ TEST_F(TestSUSIV2, cv_read_result_success) {
         return 0;
       });
 
-  uint8_t r{};
-  ASSERT_EQ(libklug_susiv2_cv_read(libHandle, cv_index, &r), libklug_error::ok);
+  int r{};
+  ASSERT_EQ(libulf_susiv2_cv_read(libHandle, cv_index, &r), LIBULF_OK);
   ASSERT_EQ(r, cv_value);
 }
 
 TEST_F(TestSUSIV2, cv_read_write_error) {
   assertTransmitErrorCalls<true>();
 
-  uint8_t r{};
-  libklug_susiv2_cv_read(libHandle, cv_index, &r);
+  int r{};
+  libulf_susiv2_cv_read(libHandle, cv_index, &r);
 }
 
 TEST_F(TestSUSIV2, cv_read_write_error_result) {
   throwTransmitException();
 
-  uint8_t r{};
-  ASSERT_NE(libklug_susiv2_cv_read(libHandle, cv_index, &r), libklug_error::ok);
+  int r{};
+  ASSERT_NE(libulf_susiv2_cv_read(libHandle, cv_index, &r), LIBULF_OK);
 }
 
 TEST_F(TestSUSIV2, cv_read_receive_error) {
   assertReceiveErrorCalls<true>();
 
-  uint8_t r{};
-  libklug_susiv2_cv_read(libHandle, cv_index, &r);
+  int r{};
+  libulf_susiv2_cv_read(libHandle, cv_index, &r);
 }
 
 TEST_F(TestSUSIV2, cv_read_receive_error_result) {
   throwReceiveException();
 
-  uint8_t r{};
-  ASSERT_NE(libklug_susiv2_cv_read(libHandle, cv_index, &r), libklug_error::ok);
+  int r{};
+  ASSERT_NE(libulf_susiv2_cv_read(libHandle, cv_index, &r), LIBULF_OK);
 }

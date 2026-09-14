@@ -2,7 +2,7 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <libklug/internal/connection/i_connection.hpp>
+#include <connection/i_connection.hpp>
 
 struct MockConnection : public internal::IConnection {
   MOCK_METHOD(void, init, (), (override));

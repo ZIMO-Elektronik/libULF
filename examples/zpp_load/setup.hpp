@@ -1,11 +1,11 @@
 #pragma once
 
-#include <libklug/libklug.h>
+#include <ulf/c/libulf.h>
 
 namespace setup {
 
-libklug_handle connect();
+libulf_handle connect();
 
-void disconnect(libklug_handle handle);
+void disconnect(libulf_handle handle);
 
 } // namespace setup

@@ -13,9 +13,7 @@ using testing::Return;
 TEST_F(TestSUSIV2, exit_payload) {
   uint8_t const option{0xFFu};
 
-  auto const payload{ulf::susiv2::packet2frame<
-    ztl::inplace_vector<uint8_t, ZUSI_MAX_PACKET_SIZE + 5uz>>(
-    zusi::make_exit_packet(option))};
+  auto const payload{ulf::susiv2::packet2frame(zusi::make_exit_packet(option))};
   auto const expected{helper::range2span(payload)};
 
   {
@@ -24,8 +22,8 @@ TEST_F(TestSUSIV2, exit_payload) {
     EXPECT_CALL(conn, _read_all(_, _, _, _)).Times(1);
   }
 
-  int r{};
-  libklug_susiv2_exit(libHandle, LIBKLUG_TRUE, LIBKLUG_TRUE, &r);
+  bool r{};
+  libulf_susiv2_exit(libHandle, true, true, &r);
 }
 
 TEST_F(TestSUSIV2, exit_result_success) {
@@ -35,38 +33,35 @@ TEST_F(TestSUSIV2, exit_result_success) {
   ON_CALL(conn, _read_all(_, Ge(expected.size()), _, _))
     .WillByDefault(helper::susiv2::receive_ack);
 
-  int r{};
-  ASSERT_EQ(libklug_susiv2_exit(libHandle, LIBKLUG_TRUE, LIBKLUG_TRUE, &r),
-            libklug_error::ok);
+  bool r{};
+  ASSERT_EQ(libulf_susiv2_exit(libHandle, true, true, &r), LIBULF_OK);
   ASSERT_TRUE(r);
 }
 
 TEST_F(TestSUSIV2, exit_write_error) {
   assertTransmitErrorCalls<true>();
 
-  int r{};
-  libklug_susiv2_exit(libHandle, LIBKLUG_TRUE, LIBKLUG_TRUE, &r);
+  bool r{};
+  libulf_susiv2_exit(libHandle, true, true, &r);
 }
 
 TEST_F(TestSUSIV2, exit_write_error_result) {
   throwTransmitException();
 
-  int r{};
-  ASSERT_NE(libklug_susiv2_exit(libHandle, LIBKLUG_TRUE, LIBKLUG_TRUE, &r),
-            libklug_error::ok);
+  bool r{};
+  ASSERT_NE(libulf_susiv2_exit(libHandle, true, true, &r), LIBULF_OK);
 }
 
 TEST_F(TestSUSIV2, exit_receive_error) {
   assertReceiveErrorCalls<true>();
 
-  int r{};
-  libklug_susiv2_exit(libHandle, LIBKLUG_TRUE, LIBKLUG_TRUE, &r);
+  bool r{};
+  libulf_susiv2_exit(libHandle, true, true, &r);
 }
 
 TEST_F(TestSUSIV2, exit_receive_error_result) {
   throwReceiveException();
 
-  int r{};
-  ASSERT_NE(libklug_susiv2_exit(libHandle, LIBKLUG_TRUE, LIBKLUG_TRUE, &r),
-            libklug_error::ok);
+  bool r{};
+  ASSERT_NE(libulf_susiv2_exit(libHandle, true, true, &r), LIBULF_OK);
 }

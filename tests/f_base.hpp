@@ -2,10 +2,10 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <libklug/libklug.h>
-#include <libklug/internal/bridge/bridge.hpp>
-#include <libklug/internal/exception/e_generic.hpp>
+#include <ulf/c/libulf.h>
+#include <bridge/bridge.hpp>
 #include <memory>
+#include <ulf/cpp/ulf_error.hpp>
 #include "mock_connection.hpp"
 
 using testing::_;
@@ -22,11 +22,11 @@ struct TestBase : public testing::Test {
   std::shared_ptr<NiceMock<MockConnection>> p_conn;
   NiceMock<MockConnection>& conn;
   bridge::Bridge lib;
-  libklug_handle libHandle{reinterpret_cast<libklug_handle>(&lib)};
+  libulf_handle libHandle{reinterpret_cast<libulf_handle>(&lib)};
 
   template<bool read_all = false>
   void assertTransmitErrorCalls() {
-    throwTransmitException(err::Error::usb);
+    throwTransmitException(libulf::Error::usb);
     EXPECT_CALL(conn, _write(_, _)).Times(1);
     if constexpr (read_all) EXPECT_CALL(conn, _read_all(_, _, _, _)).Times(0);
     else EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(0);
@@ -34,7 +34,7 @@ struct TestBase : public testing::Test {
 
   template<bool read_all = false>
   void assertReceiveErrorCalls() {
-    throwReceiveException(err::Error::usb);
+    throwReceiveException(libulf::Error::usb);
     {
       InSequence i;
       EXPECT_CALL(conn, _write(_, _)).Times(1);
@@ -43,20 +43,18 @@ struct TestBase : public testing::Test {
     }
   }
 
-  void throwTransmitException(err::Error error = err::Error::usb) {
-    using std::operator""sv;
+  void throwTransmitException(libulf::Error error = libulf::Error::usb) {
     ON_CALL(conn, _write(_, _))
-      .WillByDefault(Throw(
-        except::generic_error{error, "A very important error message"sv}));
+      .WillByDefault(
+        Throw(libulf::ulf_error{error, "A very important error message"}));
   }
 
-  void throwReceiveException(err::Error error = err::Error::usb) {
-    using std::operator""sv;
+  void throwReceiveException(libulf::Error error = libulf::Error::usb) {
     ON_CALL(conn, _read_all(_, _, _, _))
-      .WillByDefault(Throw(
-        except::generic_error{error, "A very important error message"sv}));
+      .WillByDefault(
+        Throw(libulf::ulf_error{error, "A very important error message"}));
     ON_CALL(conn, _read_until(_, _, _, _, _))
-      .WillByDefault(Throw(
-        except::generic_error{error, "A very important error message"sv}));
+      .WillByDefault(
+        Throw(libulf::ulf_error{error, "A very important error message"}));
   }
 };

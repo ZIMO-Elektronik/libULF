@@ -1,4 +1,4 @@
-#include <libklug/libklug.h>
+#include <ulf/c/libulf.h>
 #include <chrono>
 #include <codecvt>
 #include <cstdlib>
@@ -8,6 +8,7 @@
 #include <string_view>
 #include <thread>
 #include "paths.hpp"
+#include "progress_bar.hpp"
 #include "setup.hpp"
 
 using namespace std::chrono_literals;
@@ -15,51 +16,52 @@ using namespace std::chrono_literals;
 constexpr unsigned int max_retries{5uz};
 
 int main() {
+  std::cout << "1. Create Resources and initialize device" << std::endl;
   auto lib{setup::connect()};
   if (!lib) return -1;
 
-  auto zsu{libklug_zsu_read(paths::zsu_path.data(), paths::zsu_path.size())};
+  auto zsu{libulf_zsu_read(paths::zsu_path.data(), paths::zsu_path.size())};
   if (!zsu) return -1;
 
   size_t fwIndex{};
-  size_t const maxFwIndex{libklug_zsu_get_firmware_count(zsu) - 1uz};
+  size_t const maxFwIndex{libulf_zsu_get_firmware_count(zsu) - 1uz};
 
-  int result{}; // Result container (implicit bool)
+  bool result{}; // Result container (implicit bool)
 
   gsl::final_action a([&]() {
-    if (libklug_com_reset(lib, &result) != libklug_error::ok || !result) {
+    if (libulf_com_reset(lib, &result) != LIBULF_OK || !result) {
       std::cout << "Unable to RESET device" << std::endl;
     }
-    libklug_zsu_release(zsu);
+    libulf_zsu_release(zsu);
     setup::disconnect(lib);
   });
 
-  std::cout << "Enter MDU_EIN" << std::endl;
-  if (libklug_com_mdu_ein(lib, &result) != libklug_error::ok || !result) {
+  std::cout << "2. Change Mode to MDU_EIN" << std::endl;
+  if (libulf_com_mdu_ein(lib, &result) != LIBULF_OK || !result) {
     std::cout << "Unable to enter MDU_EIN" << std::endl;
     return -1;
   };
 
-  std::cout << "Entering Bootloader" << std::endl;
-  if (libklug_mdu_ein_enter_mdu(lib, &result) != libklug_error::ok || !result) {
+  std::cout << "3. Reset decoders to bootloader" << std::endl;
+  if (libulf_mdu_ein_enter_mdu(lib, &result) != LIBULF_OK || !result) {
     std::cout << "Unable to enter Decoder BL" << std::endl;
     return -1;
   }
 
-  std::cout << "Set transfer rate to slow" << std::endl;
-  if (libklug_mdu_ein_config_transfer_rate(lib, 3, &result) !=
-        libklug_error::ok ||
+  std::cout << "4. Configure transfer rate (maximum for update is `SLOW`)"
+            << std::endl;
+  if (libulf_mdu_ein_config_transfer_rate(lib, 3, &result) != LIBULF_OK ||
       !result) {
     std::cout << "Unable to set Transfer Rate" << std::endl;
     return -1;
   }
 
-  std::cout << "Searching decoder" << std::endl;
+  std::cout << "5. Search for decoders";
   bool found{};
   do { // Caution, this assumes at least one firmware in file
-    if (libklug_mdu_ein_ping(
-          lib, 0uz, libklug_zsu_get_firmware_id(zsu, fwIndex), &result) !=
-        libklug_error::ok) {
+    if (libulf_mdu_ein_ping(
+          lib, 0uz, libulf_zsu_get_firmware_id(zsu, fwIndex), &result) !=
+        LIBULF_OK) {
       std::cout << "Error during pinging" << std::endl;
       return -1;
     }
@@ -71,82 +73,61 @@ int main() {
 
   } while (fwIndex++ < maxFwIndex);
   if (found)
-    std::cout << "Found decoder " << libklug_zsu_get_firmware_name(zsu, fwIndex)
-              << " with ID " << std::hex
-              << libklug_zsu_get_firmware_id(zsu, fwIndex) << std::dec
-              << std::endl;
+    std::cout << " - Found decoder "
+              << libulf_zsu_get_firmware_name(zsu, fwIndex) << " with ID "
+              << std::hex << libulf_zsu_get_firmware_id(zsu, fwIndex)
+              << std::dec << std::endl;
   else {
     std::cout << "Unable to find decoder " << std::endl;
     return -1;
   }
 
-  std::cout << "Initialize Salsa20" << std::endl;
-  if (libklug_mdu_ein_zsu_salsa20_iv(lib, zsu, fwIndex, &result) || !result) {
+  std::cout << "6. Initialize encryption / decryption" << std::endl;
+  if (libulf_mdu_ein_zsu_salsa20_iv(lib, zsu, fwIndex, &result) || !result) {
     std::cout << "Unable to init Salsa20" << std::endl;
     return -1;
   }
 
-  std::cout << "Erasing Flash" << std::endl;
-  if (libklug_mdu_ein_zsu_erase(lib, zsu, fwIndex, &result) !=
-        libklug_error::ok ||
+  std::cout << "8. Erase decoder flash" << std::endl;
+  if (libulf_mdu_ein_zsu_erase(lib, zsu, fwIndex, &result) != LIBULF_OK ||
       !result) {
     std::cout << "Unable to erase flash" << std::endl;
     return -1;
   }
 
   for (int i{0}; i < 10; i++) { // Loop for 10s
-    libklug_mdu_ein_busy(lib, &result);
+    libulf_mdu_ein_busy(lib, &result);
     std::this_thread::sleep_for(1000ms);
   }
-  std::cout << "Flash erased" << std::endl;
 
-  std::cout << "Progress" << std::endl;
-  long const blocks{libklug_zsu_get_firmware_block_count(zsu, fwIndex)};
-  double progress{0.0};
-  unsigned int retry{0uz};
-  for (long i{0}; i < blocks; i++) {
-    int barWidth = 70;
-    std::cout << "[";
-    int pos = static_cast<int>(barWidth * progress);
-    for (int j{0}; j < barWidth; j++) {
-      if (j < pos) std::cout << "=";
-      else if (j == pos) std::cout << ">";
-      else std::cout << " ";
-    }
-
-    if (libklug_mdu_ein_zsu_update(lib, zsu, fwIndex, i, &result) !=
-          libklug_error::ok ||
-        !result) {
-      if (retry >= max_retries) {
-        std::cout << "Error at block " << i << std::endl;
+  std::cout << "9. Write update to decoder" << std::endl;
+  long const blocks{libulf_zsu_get_firmware_block_count(zsu, fwIndex)};
+  {
+    ProgressBar<70uz> bar{};
+    for (long i{0}; i < blocks; i++) {
+      if (libulf_mdu_ein_zsu_update(lib, zsu, fwIndex, i, &result) !=
+            LIBULF_OK ||
+          !result)
         return -1;
-      }
-      retry++;
-      i--;
-    } else retry = 0;
-
-    progress = static_cast<double>(i + 1) / static_cast<double>(blocks);
-    std::cout << "] Progress " << static_cast<int>(progress * 100) << "%";
-    std::cout << "\r";
-    std::cout.flush();
+      bar(static_cast<double>(i + 1) / static_cast<double>(blocks));
+    }
   }
-  std::cout << std::endl;
 
-  if (libklug_mdu_ein_zsu_crc32_start(lib, zsu, fwIndex, &result) !=
-        libklug_error::ok ||
+  std::cout << "10. Start CRC32 verification" << std::endl;
+  if (libulf_mdu_ein_zsu_crc32_start(lib, zsu, fwIndex, &result) != LIBULF_OK ||
       !result) {
     std::cout << "Unable to init CRC32 verification" << std::endl;
     return -1;
   }
-  std::cout << "CRC32 check started" << std::endl;
 
-  if (libklug_mdu_ein_zsu_crc32_result_exit(lib, &result) !=
-        libklug_error::ok ||
+  std::cout << "11. Check CRC32 verification result and reset decoders"
+            << std::endl;
+  if (libulf_mdu_ein_zsu_crc32_result_exit(lib, &result) != LIBULF_OK ||
       !result) {
     std::cout << "Bad CRC32" << std::endl;
     return -1;
   }
-  std::cout << "CRC32 check successful" << std::endl;
 
+  std::cout << "12. Release created resources and reset device" << std::endl;
   return 0;
 }

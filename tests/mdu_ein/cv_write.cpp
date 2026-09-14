@@ -28,46 +28,46 @@ TEST_F(TestMDU_EIN, cv_write_payload) {
     EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
   }
 
-  int r{};
-  libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value, &r);
+  bool r{};
+  libulf_mdu_ein_cv_write(libHandle, cv_address, cv_value, &r);
 }
 
 TEST_F(TestMDU_EIN, cv_write_result_success) {
   ON_CALL(conn, _read_until(_, _, _, _, _))
     .WillByDefault(helper::mdu::receive_ack);
 
-  int r{};
-  ASSERT_EQ(libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value, &r),
-            libklug_error::ok);
+  bool r{};
+  ASSERT_EQ(libulf_mdu_ein_cv_write(libHandle, cv_address, cv_value, &r),
+            LIBULF_OK);
   ASSERT_TRUE(r);
 }
 
 TEST_F(TestMDU_EIN, cv_write_write_error) {
   assertTransmitErrorCalls();
 
-  int r{};
-  libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value, &r);
+  bool r{};
+  libulf_mdu_ein_cv_write(libHandle, cv_address, cv_value, &r);
 }
 
 TEST_F(TestMDU_EIN, cv_write_write_error_result) {
   throwTransmitException();
 
-  int r{};
-  ASSERT_NE(libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value, &r),
-            libklug_error::ok);
+  bool r{};
+  ASSERT_NE(libulf_mdu_ein_cv_write(libHandle, cv_address, cv_value, &r),
+            LIBULF_OK);
 }
 
 TEST_F(TestMDU_EIN, cv_write_receive_error) {
   assertReceiveErrorCalls();
 
-  int r{};
-  libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value, &r);
+  bool r{};
+  libulf_mdu_ein_cv_write(libHandle, cv_address, cv_value, &r);
 }
 
 TEST_F(TestMDU_EIN, cv_write_receive_error_result) {
   throwReceiveException();
 
-  int r{};
-  ASSERT_NE(libklug_mdu_ein_cv_write(libHandle, cv_address, cv_value, &r),
-            libklug_error::ok);
+  bool r{};
+  ASSERT_NE(libulf_mdu_ein_cv_write(libHandle, cv_address, cv_value, &r),
+            LIBULF_OK);
 }

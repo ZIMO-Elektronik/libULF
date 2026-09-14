@@ -1,0 +1,102 @@
+/**
+ * Copyright (C) 2026 [ZIMO Elektronik]
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <https://gnu.org>.
+ *
+ *
+ *
+ *
+ *
+ * Library config template
+ *
+ * \file    template/config.hpp.in
+ * \author  Jonas Gahlert
+ * \date    04.09.2026
+ */
+
+#pragma once
+
+#include <cstdint>
+#include "log/level.hpp"
+
+namespace internal::config {
+
+namespace log {
+
+constexpr bool log_to_stdout{@LOG_TO_STDOUT_VALUE@};
+constexpr bool log_to_stderr{@LOG_TO_STDERR_VALUE@};
+
+constexpr auto default_log_level{::internal::log::Level::Warning};
+
+} // namespace log
+
+namespace timeout {
+
+constexpr uint32_t transmit{100uz};
+
+namespace com {
+
+constexpr uint32_t ping{1'000uz};
+constexpr uint32_t reset{4'000uz};
+constexpr uint32_t mdu_ein{4'000uz};
+constexpr uint32_t susiv2{4'000uz};
+
+} // namespace com
+
+namespace mdu_ein {
+
+constexpr uint32_t enter_mdu{2'000uz};
+constexpr uint32_t enter_dcc_zsu{2'000uz};
+constexpr uint32_t enter_dcc_zpp{2'000uz};
+
+constexpr uint32_t ping{2'000uz};
+constexpr uint32_t config_transfer_rate{2'000uz};
+constexpr uint32_t binary_tree_search{2'000uz};
+constexpr uint32_t cv_read{2'000uz};
+constexpr uint32_t cv_write{2'000uz};
+constexpr uint32_t busy{2'000uz};
+
+constexpr uint32_t zpp_valid_query{2'000uz};
+constexpr uint32_t zpp_lc_dc_query{2'000uz};
+constexpr uint32_t zpp_erase{2'000uz};
+constexpr uint32_t zpp_update{2'000uz};
+constexpr uint32_t zpp_update_end{2'000uz};
+constexpr uint32_t zpp_exit{2'000uz};
+constexpr uint32_t zpp_exit_reset{2'000uz};
+
+constexpr uint32_t zsu_salsa_20_iv{2'000uz};
+constexpr uint32_t zsu_erase{2'000uz};
+constexpr uint32_t zsu_update{2'000uz};
+constexpr uint32_t zsu_crc32_start{2'000uz};
+constexpr uint32_t zsu_crc32_result{2'000uz};
+constexpr uint32_t zsu_crc32_result_exit{2'000uz};
+
+} // namespace mdu_ein
+
+namespace susiv2 {
+
+constexpr uint32_t cv_read{2'000uz};
+constexpr uint32_t cv_write{2'000uz};
+constexpr uint32_t features{2'000uz};
+constexpr uint32_t exit{2'000uz};
+
+constexpr uint32_t zpp_erase{200'000uz};
+constexpr uint32_t zpp_write{2'000uz};
+constexpr uint32_t zpp_lc_dc_query{2'000uz};
+
+} // namespace susiv2
+
+} // namespace timeout
+
+} // namespace internal::config

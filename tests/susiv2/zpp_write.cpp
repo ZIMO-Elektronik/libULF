@@ -15,17 +15,16 @@ TEST_F(TestSUSIV2, zpp_update_payload) {
     InSequence i;
     EXPECT_CALL(
       conn,
-      _write(RM(ulf::susiv2::packet2frame<std::vector<uint8_t>>(
-               zusi::make_zpp_write_packet(
-                 255uz,
-                 0uz,
-                 std::span<uint8_t const, 256uz>{zpp.flash.data(), 256uz}))),
+      _write(RM(ulf::susiv2::packet2frame(zusi::make_zpp_write_packet(
+               255uz,
+               0uz,
+               std::span<uint8_t const, 256uz>{zpp.flash.data(), 256uz}))),
              _));
     EXPECT_CALL(conn, _read_all(_, _, _, _));
   }
 
-  int r{};
-  libklug_susiv2_zpp_write(libHandle, zppHandle, 0uz, &r);
+  bool r{};
+  libulf_susiv2_zpp_write(libHandle, zppHandle, 0uz, &r);
 }
 
 TEST_F(TestSUSIV2, zpp_write_result_success) {
@@ -35,38 +34,35 @@ TEST_F(TestSUSIV2, zpp_write_result_success) {
   ON_CALL(conn, _read_all(_, Ge(expected.size()), _, _))
     .WillByDefault(helper::susiv2::receive_ack);
 
-  int r{};
-  ASSERT_EQ(libklug_susiv2_zpp_write(libHandle, zppHandle, 0uz, &r),
-            libklug_error::ok);
+  bool r{};
+  ASSERT_EQ(libulf_susiv2_zpp_write(libHandle, zppHandle, 0uz, &r), LIBULF_OK);
   ASSERT_TRUE(r);
 }
 
 TEST_F(TestSUSIV2, zpp_write_write_error) {
   assertTransmitErrorCalls<true>();
 
-  int r{};
-  libklug_susiv2_zpp_write(libHandle, zppHandle, 0uz, &r);
+  bool r{};
+  libulf_susiv2_zpp_write(libHandle, zppHandle, 0uz, &r);
 }
 
 TEST_F(TestSUSIV2, zpp_write_write_error_result) {
   throwTransmitException();
 
-  int r{};
-  ASSERT_NE(libklug_susiv2_zpp_write(libHandle, zppHandle, 0uz, &r),
-            libklug_error::ok);
+  bool r{};
+  ASSERT_NE(libulf_susiv2_zpp_write(libHandle, zppHandle, 0uz, &r), LIBULF_OK);
 }
 
 TEST_F(TestSUSIV2, zpp_write_receive_error) {
   assertReceiveErrorCalls<true>();
 
-  int r{};
-  libklug_susiv2_zpp_write(libHandle, zppHandle, 0uz, &r);
+  bool r{};
+  libulf_susiv2_zpp_write(libHandle, zppHandle, 0uz, &r);
 }
 
 TEST_F(TestSUSIV2, zpp_write_receive_error_result) {
   throwReceiveException();
 
-  int r{};
-  ASSERT_NE(libklug_susiv2_zpp_write(libHandle, zppHandle, 0uz, &r),
-            libklug_error::ok);
+  bool r{};
+  ASSERT_NE(libulf_susiv2_zpp_write(libHandle, zppHandle, 0uz, &r), LIBULF_OK);
 }

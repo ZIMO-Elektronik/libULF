@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 include(FetchContent)
@@ -13,44 +13,44 @@ FetchContent_MakeAvailable(CMakeModules)
 version_from_git()
 
 project(
-  libKLUG
+  libULF
   VERSION ${VERSION_FROM_GIT}
   LANGUAGES CXX C ASM)
 
-set(TARGET KLUG)
+set(TARGET ULF)
 
-option(LIBKLUG_ENABLE_STDOUT_LOGGING "Enable logging to stdout" ON)
-option(LIBKLUG_ENABLE_STDERR_LOGGING "Enable logging to stderr" ON)
+option(LIBULF_ENABLE_STDOUT_LOGGING "Enable logging to stdout" OFF)
+option(LIBULF_ENABLE_STDERR_LOGGING "Enable logging to stderr" ON)
 
 if(WIN32)
   # On windows, we should use Libserialport (because windows is a nice os)
-  option(LIBKLUG_BACKEND_LIBUSB "Libusb as backend" OFF)
-  option(LIBKLUG_BACKEND_LIBSERIALPORT "Libserialport as backend" ON)
+  option(LIBULF_BACKEND_LIBUSB "Libusb as backend" OFF)
+  option(LIBULF_BACKEND_LIBSERIALPORT "Libserialport as backend" ON)
 elseif(ANDROID)
   # On android, we shoud use Libusb, since we cant open a Fd with Libserialport
-  option(LIBKLUG_BACKEND_LIBUSB "Libusb as backend" ON)
-  option(LIBKLUG_BACKEND_LIBSERIALPORT "Libserialport as backend" OFF)
+  option(LIBULF_BACKEND_LIBUSB "Libusb as backend" ON)
+  option(LIBULF_BACKEND_LIBSERIALPORT "Libserialport as backend" OFF)
 else()
   # Default (for now)
-  option(LIBKLUG_BACKEND_LIBUSB "Libusb as backend" OFF)
-  option(LIBKLUG_BACKEND_LIBSERIALPORT "Libserialport as backend" ON)
+  option(LIBULF_BACKEND_LIBUSB "Libusb as backend" OFF)
+  option(LIBULF_BACKEND_LIBSERIALPORT "Libserialport as backend" ON)
 endif()
 
-if((LIBKLUG_BACKEND_LIBUSB AND LIBKLUG_BACKEND_LIBSERIALPORT)
-   OR (NOT LIBKLUG_BACKEND_LIBUSB AND NOT LIBKLUG_BACKEND_LIBSERIALPORT))
+if((LIBULF_BACKEND_LIBUSB AND LIBULF_BACKEND_LIBSERIALPORT)
+   OR (NOT LIBULF_BACKEND_LIBUSB AND NOT LIBULF_BACKEND_LIBSERIALPORT))
   message(
     FATAL_ERROR
       "Exactly ONE backend must be selected (Either LIBUSB or LIBSERIALPORT)")
 endif()
 
-if(LIBKLUG_BACKEND_LIBUSB AND WIN32)
+if(LIBULF_BACKEND_LIBUSB AND WIN32)
   message(
     WARNING
       "Libusb will work on windows ONLY if the WinUSB driver is used (not by default)"
   )
 endif()
 
-if(LIBKLUG_BACKEND_LIBSERIALPORT AND ANDROID)
+if(LIBULF_BACKEND_LIBSERIALPORT AND ANDROID)
   message(
     WARNING
       "Libserialport may not work on Android, since there is no way to pass a file descriptor"
@@ -59,51 +59,39 @@ endif()
 
 add_library(
   ${TARGET} SHARED
-  src/libklug/internal/transmission/transmission_base.cpp
-  src/libklug/internal/transmission/com/base.cpp
-  src/libklug/internal/transmission/mdu_ein/base.cpp
-  src/libklug/internal/transmission/mdu_ein/cv_read.cpp
-  src/libklug/internal/transmission/mdu_ein/config_transfer_rate.cpp
-  src/libklug/internal/transmission/mdu_ein/ping.cpp
-  src/libklug/internal/transmission/susiv2/base.cpp
-  src/libklug/internal/transmission/susiv2/cv_read.cpp
-  src/libklug/internal/bridge/bridge.cpp
-  src/libklug/internal/bridge/bridge_com.cpp
-  src/libklug/internal/bridge/bridge_context.cpp
-  src/libklug/internal/bridge/bridge_susiv2.cpp
-  src/libklug/internal/bridge/bridge_mdu_ein.cpp
-  src/libklug/internal/bridge/bridge_zpp.cpp
-  src/libklug/internal/bridge/bridge_zsu.cpp
-  src/libklug/libklug.cpp)
+  src/transmission/transmission_base.cpp
+  src/transmission/com/base.cpp
+  src/transmission/mdu_ein/base.cpp
+  src/transmission/mdu_ein/cv_read.cpp
+  src/transmission/mdu_ein/config_transfer_rate.cpp
+  src/transmission/mdu_ein/ping.cpp
+  src/transmission/susiv2/base.cpp
+  src/transmission/susiv2/cv_read.cpp
+  src/bridge/bridge.cpp
+  src/bridge/bridge_com.cpp
+  src/bridge/bridge_context.cpp
+  src/bridge/bridge_susiv2.cpp
+  src/bridge/bridge_mdu_ein.cpp
+  src/bridge/bridge_zpp.cpp
+  src/bridge/bridge_zsu.cpp
+  src/libulf.cpp)
 
-if(ANDROID)
-  # Add JNI bindings to compile
-  target_sources(
-    ${TARGET}
-    PUBLIC src/libklug/libklug_jni.cpp
-           src/libklug/internal/platform/android/jni_functor.cpp
-           src/libklug/internal/platform/android/jni_dispatch.cpp
-           src/libklug/internal/platform/android/jni_context.cpp)
-endif()
-
-if(LIBKLUG_BACKEND_LIBUSB)
-  target_sources(${TARGET}
-                 PRIVATE src/libklug/internal/connection/libusb_connection.cpp)
+if(LIBULF_BACKEND_LIBUSB)
+  target_sources(${TARGET} PRIVATE src/connection/libusb_connection.cpp)
   target_compile_definitions(${TARGET} PRIVATE USE_LIBUSB)
-elseif(LIBKLUG_BACKEND_LIBSERIALPORT)
-  target_sources(
-    ${TARGET}
-    PRIVATE src/libklug/internal/connection/libserialport_connection.cpp)
+elseif(LIBULF_BACKEND_LIBSERIALPORT)
+  target_sources(${TARGET} PRIVATE src/connection/libserialport_connection.cpp)
   target_compile_definitions(${TARGET} PRIVATE USE_LIBSERIALPORT)
 endif()
 
 target_compile_features(${TARGET} PUBLIC cxx_std_23)
-target_include_directories(${TARGET} PUBLIC inc/)
+target_include_directories(${TARGET} PUBLIC include/)
+target_include_directories(${TARGET} PRIVATE src)
 
 target_compile_definitions(${TARGET} PRIVATE JNI_CLASS_PATH=${JNI_CLASS_PATH}
                                              JNI_RESULT_PATH=${JNI_RESULT_PATH})
 
-if(NOT TARGET usb-1.0 AND LIBKLUG_BACKEND_LIBUSB)
+if(NOT TARGET usb-1.0 AND LIBULF_BACKEND_LIBUSB)
   cpmaddpackage(
     NAME
     usb-1.0
@@ -114,7 +102,7 @@ if(NOT TARGET usb-1.0 AND LIBKLUG_BACKEND_LIBUSB)
     OPTIONS
     BUILD_SHARED_LIBS
     ON)
-elseif(NOT TARGET libserialport AND LIBKLUG_BACKEND_LIBSERIALPORT)
+elseif(NOT TARGET libserialport AND LIBULF_BACKEND_LIBSERIALPORT)
   add_subdirectory(serialport-cmake)
 endif()
 
@@ -127,7 +115,7 @@ if(NOT TARGET ULF::MDU_EIN)
 endif()
 
 if(NOT TARGET ULF::SUSIV2)
-  cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2#packet2frame")
+  cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2@0.3.5")
 endif()
 
 if(NOT TARGET ZPP::ZPP)
@@ -150,10 +138,10 @@ function(to_cpp_bool cmake_value output_var)
   endif()
 endfunction()
 
-to_cpp_bool(${LIBKLUG_ENABLE_STDOUT_LOGGING} LOG_TO_STDOUT_VALUE)
-to_cpp_bool(${LIBKLUG_ENABLE_STDERR_LOGGING} LOG_TO_STDERR_VALUE)
+to_cpp_bool(${LIBULF_ENABLE_STDOUT_LOGGING} LOG_TO_STDOUT_VALUE)
+to_cpp_bool(${LIBULF_ENABLE_STDERR_LOGGING} LOG_TO_STDERR_VALUE)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.hpp.in
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/template/config.hpp.in
                ${CMAKE_CURRENT_BINARY_DIR}/generated/config.hpp @ONLY)
 
 target_include_directories(${TARGET}
@@ -167,8 +155,8 @@ target_link_libraries(
   ULF::SUSIV2
   ZPP::ZPP
   ZSU::ZSU
-  "$<$<BOOL:${LIBKLUG_BACKEND_LIBSERIALPORT}>:libserialport>"
-  "$<$<BOOL:${LIBKLUG_BACKEND_LIBUSB}>:usb-1.0>")
+  "$<$<BOOL:${LIBULF_BACKEND_LIBSERIALPORT}>:libserialport>"
+  "$<$<BOOL:${LIBULF_BACKEND_LIBUSB}>:usb-1.0>")
 
 if(PROJECT_IS_TOP_LEVEL)
   include(CTest)
@@ -180,30 +168,22 @@ if(PROJECT_IS_TOP_LEVEL)
     "https://github.com/ZIMO-Elektronik/.github/raw/master/data/.clang-format"
     ${CMAKE_CURRENT_LIST_DIR}/.clang-format)
   file(GLOB_RECURSE SRC include/*.*pp src/*.*pp tests/*.*pp)
-  add_clang_format_target(KLUGFormat OPTIONS -i FILES ${SRC})
+  add_clang_format_target(ULFFormat OPTIONS -i FILES ${SRC})
   add_include_what_you_must_target(
-    KLUGIncludeWhatYouMust
-    TARGET
-    KLUG
-    EXCLUDE_HEADERS
-    inc//libklug/internal/connection/libusb_connection.hpp
-    inc//libklug/internal/connection/libserialport_connection.hpp
-    inc//libklug/libklug_jni.hpp
-    inc//libklug/internal/platform/android/jni_context.hpp
-    inc//libklug/internal/platform/android/jni_defines.hpp
-    inc//libklug/internal/platform/android/jni_dispatch.hpp
-    inc//libklug/internal/platform/android/jni_functor.hpp)
-  target_include_directories(KLUGIncludeWhatYouMust
-                             PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/generated/)
+    ULFIncludeWhatYouMust TARGET ULF EXCLUDE_HEADERS
+    src/connection/libusb_connection.hpp
+    src/connection/libserialport_connection.hpp)
+  target_include_directories(
+    ULFIncludeWhatYouMust PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/generated/ src/)
 endif()
 
-set(INSTALL_TARGETS KLUG)
+set(INSTALL_TARGETS ULF)
 
-if(LIBKLUG_BACKEND_LIBSERIALPORT)
+if(LIBULF_BACKEND_LIBSERIALPORT)
   list(APPEND INSTALL_TARGETS libserialport)
 endif()
 
-if(LIBKLUG_BACKEND_LIBUSB)
+if(LIBULF_BACKEND_LIBUSB)
   list(APPEND INSTALL_TARGETS usb-1.0)
 endif()
 

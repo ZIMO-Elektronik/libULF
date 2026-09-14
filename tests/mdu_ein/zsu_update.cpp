@@ -5,7 +5,7 @@
 #include "helper.hpp"
 
 TEST_F(TestMDU_EIN, zsu_update_payload) {
-  auto const blocks{libklug_zsu_get_firmware_block_count(zsuHandle, fwIndex)};
+  auto const blocks{libulf_zsu_get_firmware_block_count(zsuHandle, fwIndex)};
 
   for (unsigned int idx{0uz}; idx < blocks; idx++) {
     {
@@ -22,8 +22,8 @@ TEST_F(TestMDU_EIN, zsu_update_payload) {
       EXPECT_CALL(conn, _read_until(_, _, _, _, _)).Times(1);
     }
 
-    int r{};
-    libklug_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, idx, &r);
+    bool r{};
+    libulf_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, idx, &r);
   }
 }
 
@@ -31,9 +31,9 @@ TEST_F(TestMDU_EIN, zsu_update_result_success) {
   ON_CALL(conn, _read_until(_, _, _, _, _))
     .WillByDefault(helper::mdu::receive_ack);
 
-  int r{};
-  ASSERT_EQ(libklug_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, 0uz, &r),
-            libklug_error::ok);
+  bool r{};
+  ASSERT_EQ(libulf_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, 0uz, &r),
+            LIBULF_OK);
   ASSERT_TRUE(r);
 }
 
@@ -41,38 +41,38 @@ TEST_F(TestMDU_EIN, zsu_update_result_no_success) {
   ON_CALL(conn, _read_until(_, _, _, _, _))
     .WillByDefault(helper::mdu::receive_nak);
 
-  int r{};
-  ASSERT_EQ(libklug_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, 0uz, &r),
-            libklug_error::ok);
+  bool r{};
+  ASSERT_EQ(libulf_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, 0uz, &r),
+            LIBULF_OK);
   ASSERT_FALSE(r);
 }
 
 TEST_F(TestMDU_EIN, zsu_update_write_error) {
   assertTransmitErrorCalls();
 
-  int r{};
-  libklug_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, 0uz, &r);
+  bool r{};
+  libulf_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, 0uz, &r);
 }
 
 TEST_F(TestMDU_EIN, zsu_update_write_error_result) {
   throwTransmitException();
 
-  int r{};
-  ASSERT_NE(libklug_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, 0uz, &r),
-            libklug_error::ok);
+  bool r{};
+  ASSERT_NE(libulf_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, 0uz, &r),
+            LIBULF_OK);
 }
 
 TEST_F(TestMDU_EIN, zsu_update_receive_error) {
   assertReceiveErrorCalls();
 
-  int r{};
-  libklug_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, 0uz, &r);
+  bool r{};
+  libulf_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, 0uz, &r);
 }
 
 TEST_F(TestMDU_EIN, zsu_update_receive_error_result) {
   throwReceiveException();
 
-  int r{};
-  ASSERT_NE(libklug_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, 0uz, &r),
-            libklug_error::ok);
+  bool r{};
+  ASSERT_NE(libulf_mdu_ein_zsu_update(libHandle, zsuHandle, fwIndex, 0uz, &r),
+            LIBULF_OK);
 }

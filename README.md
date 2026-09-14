@@ -1,12 +1,10 @@
-# libklug
+# libulf
 
-C / C++ library to communicate with ZIMO KLUG
+C / C++ library to communicate with ZIMO ULF
 
 Based on [Libusb](https://libusb.info/) or [Libserialport](https://sigrok.org/wiki/Libserialport):
 
 - Should cover Windows, Linux, Android & MacOS seamlessly
-- For use in Java we should add JNI bindings
-- And for React Native even bundle it in a node.js-module
 
 ## Third-Party Licenses
 
@@ -36,7 +34,7 @@ TBD.
 
 ### Linux
 
-Since we rely on libusb as USB backend, the raw traffic of the device needs to be accessible, else we cant open it. To ensure this, we need to add the user to the `plugdev` group.
+If you rely on libusb as USB backend, the raw traffic of the device needs to be accessible, else we can't open it. To ensure this, the user needs to be in the `plugdev` group.
 
 ```sh
 useradd -a -G plugdev $USER
@@ -53,36 +51,20 @@ sudo udevadm control --reload-rules
 sudo udevadm trigger
 ```
 
-### Android
+### Android / JAVA
 
-> [!NOTE]
-> After the API change, the JNI is hopelessly broken and in need of fixing
+This library can be used on android. For more info, please read the [Documentation](platform/android/README.md)
 
-The Native side of the JNI bridge is provided by the library. However, a matching java / kotlin class (e.g. NativeLib and NativeResult) need to be provided by the user. Additionally, some options need to be set for the cmake build.
+## Typical processes
 
-It is recommended to set these in gradle, so that they are simply added during the app build process.
+1. Create libulf `libulf_create`
+2. Initialize libulf `libulf_init`
+3. Open USB device `libulf_open` or `libulf_openFd`
+4. ***Process(-es)***
+5. Close USB device `libulf_close`
+6. Destroy libulf `libulf_destroy`
 
-```gradle
-android{
-    ... // Your options
-    externalNativeBuild {
-        cmake {
-            path = file("/home/jonas/Development/libklug/CMakeLists.txt")
-            version = "3.28.3"
-        }
-    }
-    defaultConfig {
-        externalNativeBuild {
-            cmake {
-              val jni_class_path = "Java_${namespace.replace("_", "_1").replace(".", "_")}_<NativeLib>_"
-              val jni_result_path = "${namespace.replace(".", "/")}/<NativeResult>"
-              arguments.add("-DJNI_CLASS_PATH=${jni_class_path}")
-              arguments.add("-DJNI_RESULT_PATH=\"$jni_result_path\"")
-            }
-        }
-    }
-    ... // More options
-}
-```
+The procedure for the protocol / action still apply. More information can be found in the corresponding repositories
 
-This will configure the JNI code to connect to a `NativeLib` class for functionality and a `NativeResult` class for result values. The names can be (almost) freely selected, however as of now, they cannot contain special characters (notably `_`).
+- [MDU](https://github.com/ZIMO-Elektronik/MDU) -> Typical process for update and soundload via track. (MDU_EIN)
+- [ZUSI](https://github.com/ZIMO-Elektronik/ZUSI) -> Typical process for soundload via the ZUSI protocol. (SUSIV2)
