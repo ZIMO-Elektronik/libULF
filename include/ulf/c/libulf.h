@@ -29,7 +29,6 @@
 #define LIBULF_H
 
 #ifdef __cplusplus
-#  include <cstdbool>
 #  include <cstddef>
 #  include <cstdint>
 extern "C" {

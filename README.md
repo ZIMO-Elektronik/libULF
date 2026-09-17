@@ -1,4 +1,4 @@
-# libulf
+# libULF
 
 C / C++ library to communicate with ZIMO ULF
 
