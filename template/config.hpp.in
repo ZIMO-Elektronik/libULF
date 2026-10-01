@@ -34,8 +34,8 @@ namespace internal::config {
 
 namespace log {
 
-constexpr bool log_to_stdout { @LOG_TO_STDOUT_VALUE @ }
-constexpr bool log_to_stderr { @LOG_TO_STDERR_VALUE @ }
+constexpr bool log_to_stdout {@LOG_TO_STDOUT_VALUE@};
+constexpr bool log_to_stderr {@LOG_TO_STDERR_VALUE@};
 
 constexpr auto default_log_level{::internal::log::Level::Warning};
 
