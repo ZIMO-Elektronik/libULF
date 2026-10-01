@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2026 [ZIMO Elektronik]
+ * Copyright (C) 2026 ZIMO Elektronik
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -25,13 +25,13 @@
  * \date    04.05.2026
  */
 
+#include "ulf/c/libulf.h"
 #include <cassert>
 #include <functional>
 #include <thread>
 #include "bridge/bridge.hpp"
 #include "bridge/bridge_zpp.hpp"
 #include "bridge/bridge_zsu.hpp"
-#include "ulf/c/libulf.h"
 #include "ulf/cpp/ulf_error.hpp"
 
 bridge::Bridge* to_bridge(libulf_handle handle) {

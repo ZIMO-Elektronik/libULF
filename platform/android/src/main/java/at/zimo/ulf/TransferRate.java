@@ -4,7 +4,7 @@
  * 
  * 08.09.2026
  * 
- * Copyright (C) 2026 [ZIMO Elektronik]
+ * Copyright (C) 2026 ZIMO Elektronik
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
