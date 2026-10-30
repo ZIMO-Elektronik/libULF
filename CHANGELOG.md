@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.2.1
+
+- Build: Switch from inaccessible cpm dependencies to public equivalent
+
 ## 0.2.0
 
 - Add: JNI Java binding plus wrapper

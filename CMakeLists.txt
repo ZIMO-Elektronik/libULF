@@ -26,14 +26,10 @@ if(WIN32)
   # On windows, we should use Libserialport (because windows is a nice os)
   option(LIBULF_BACKEND_LIBUSB "Libusb as backend" OFF)
   option(LIBULF_BACKEND_LIBSERIALPORT "Libserialport as backend" ON)
-elseif(ANDROID)
-  # On android, we shoud use Libusb, since we cant open a Fd with Libserialport
-  option(LIBULF_BACKEND_LIBUSB "Libusb as backend" ON)
-  option(LIBULF_BACKEND_LIBSERIALPORT "Libserialport as backend" OFF)
 else()
   # Default (for now)
-  option(LIBULF_BACKEND_LIBUSB "Libusb as backend" OFF)
-  option(LIBULF_BACKEND_LIBSERIALPORT "Libserialport as backend" ON)
+  option(LIBULF_BACKEND_LIBUSB "Libusb as backend" ON)
+  option(LIBULF_BACKEND_LIBSERIALPORT "Libserialport as backend" OFF)
 endif()
 
 if((LIBULF_BACKEND_LIBUSB AND LIBULF_BACKEND_LIBSERIALPORT)
@@ -92,16 +88,10 @@ target_compile_definitions(${TARGET} PRIVATE JNI_CLASS_PATH=${JNI_CLASS_PATH}
                                              JNI_RESULT_PATH=${JNI_RESULT_PATH})
 
 if(NOT TARGET usb-1.0 AND LIBULF_BACKEND_LIBUSB)
-  cpmaddpackage(
-    NAME
-    usb-1.0
-    GITHUB_REPOSITORY
-    libusb/libusb-cmake
-    GIT_TAG
-    v1.0.29-0
-    OPTIONS
-    BUILD_SHARED_LIBS
-    ON)
+  # cpmaddpackage( NAME usb-1.0 GITHUB_REPOSITORY libusb/libusb-cmake GIT_TAG
+  # v1.0.29-0 OPTIONS BUILD_SHARED_LIBS ON)
+  cpmaddpackage(URI "gh:libusb/libusb-cmake#v1.0.29-0" OPTIONS
+                "BUILD_SHARED_LIBS ON")
 elseif(NOT TARGET libserialport AND LIBULF_BACKEND_LIBSERIALPORT)
   add_subdirectory(serialport-cmake)
 endif()
@@ -147,10 +137,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/template/config.hpp.in
 target_include_directories(${TARGET}
                            PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/generated)
 
-find_library(log-lib log)
 target_link_libraries(
   ${TARGET}
-  $<$<BOOL:${log-lib}>:${log-lib}>
   ULF::MDU_EIN
   ULF::SUSIV2
   ZPP::ZPP
