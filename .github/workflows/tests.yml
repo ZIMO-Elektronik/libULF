@@ -10,6 +10,7 @@ jobs:
   tests:
     uses: ZIMO-Elektronik/.github-workflows/.github/workflows/x86_64-linux-gnu-gcc.yml@v0.3.3
     with:
+      pre-build: sudo apt update -y && sudo apt install -y libudev-dev
       args: -DCMAKE_BUILD_TYPE=Debug
       target: Tests
       post-build: ctest --test-dir build --schedule-random --timeout 86400
@@ -17,5 +18,6 @@ jobs:
   include-what-you-must:
     uses: ZIMO-Elektronik/.github-workflows/.github/workflows/x86_64-linux-gnu-gcc.yml@v0.3.3
     with:
+      pre-build: sudo apt update -y && sudo apt install -y libudev-dev
       args: -DCMAKE_BUILD_TYPE=Debug
       target: ULFIncludeWhatYouMust
