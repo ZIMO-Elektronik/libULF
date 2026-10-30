@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 0.3.0
+
+- ***Breaking*** Changee: Default backend (excluding Windows) to libusb
+
+## 0.2.1
+
+- Build: Switch from inaccessible cpm dependencies to public equivalent
+
 ## 0.2.0
 
 - Add: JNI Java binding plus wrapper
