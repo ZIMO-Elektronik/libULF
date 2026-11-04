@@ -17,7 +17,7 @@ project(
   VERSION ${VERSION_FROM_GIT}
   LANGUAGES CXX C ASM)
 
-set(TARGET ${CMAKE_PROJECT_NAME})
+set(TARGET ULF)
 
 option(LIBULF_ENABLE_STDOUT_LOGGING "Enable logging to stdout" OFF)
 option(LIBULF_ENABLE_STDERR_LOGGING "Enable logging to stderr" ON)
