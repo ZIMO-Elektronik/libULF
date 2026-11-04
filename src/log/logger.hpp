@@ -55,15 +55,15 @@ namespace internal::log {
 using Functor = std::function<void(Level, std::string const&)>;
 
 struct Logger {
-  constexpr static Logger& get() {
-    static Logger instance;
+  static Logger& get() {
+    static Logger instance{};
     return instance;
   }
 
-  constexpr void setFunctor(Functor functor) { _functor = std::move(functor); }
-  constexpr void setLevel(Level level) { _level = std::move(level); }
+  void setFunctor(Functor functor) { _functor = std::move(functor); }
+  void setLevel(Level level) { _level = std::move(level); }
 
-  constexpr void log(Level level, std::string const& message) {
+  void log(Level level, std::string const& message) {
     if (level < _level) return;
     if constexpr (config::log::log_to_stdout)
       if (level < Level::Warning) OUT("[", levelToString(level), "]", message);
@@ -75,7 +75,7 @@ struct Logger {
   }
 
 private:
-  constexpr Logger() = default;
+  Logger() = default;
 
   Functor _functor{nullptr};
 
