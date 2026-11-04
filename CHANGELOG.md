@@ -1,8 +1,13 @@
 # CHANGELOG
 
+## 0.3.1
+
+- ***Breaking*** Change: Rename cmake project to `ULF`
+- Fix: Constexpr usage causing problems when compiling for Apple
+
 ## 0.3.0
 
-- ***Breaking*** Changee: Default backend (excluding Windows) to libusb
+- ***Breaking*** Change: Default backend (excluding Windows) to libusb
 
 ## 0.2.1
 

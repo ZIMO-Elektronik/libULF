@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 include(FetchContent)
@@ -13,11 +13,11 @@ FetchContent_MakeAvailable(CMakeModules)
 version_from_git()
 
 project(
-  libULF
+  ULF
   VERSION ${VERSION_FROM_GIT}
   LANGUAGES CXX C ASM)
 
-set(TARGET ULF)
+set(TARGET ${CMAKE_PROJECT_NAME})
 
 option(LIBULF_ENABLE_STDOUT_LOGGING "Enable logging to stdout" OFF)
 option(LIBULF_ENABLE_STDERR_LOGGING "Enable logging to stderr" ON)
@@ -88,8 +88,6 @@ target_compile_definitions(${TARGET} PRIVATE JNI_CLASS_PATH=${JNI_CLASS_PATH}
                                              JNI_RESULT_PATH=${JNI_RESULT_PATH})
 
 if(NOT TARGET usb-1.0 AND LIBULF_BACKEND_LIBUSB)
-  # cpmaddpackage( NAME usb-1.0 GITHUB_REPOSITORY libusb/libusb-cmake GIT_TAG
-  # v1.0.29-0 OPTIONS BUILD_SHARED_LIBS ON)
   cpmaddpackage(URI "gh:libusb/libusb-cmake#v1.0.29-0" OPTIONS
                 "BUILD_SHARED_LIBS ON")
 elseif(NOT TARGET libserialport AND LIBULF_BACKEND_LIBSERIALPORT)
@@ -180,4 +178,4 @@ install(
   LIBRARY DESTINATION lib # .so-Files
   RUNTIME DESTINATION bin # .dll-Files (to avoid linking issues)
   ARCHIVE DESTINATION lib # [.a/.lib]-Files
-)
+  FRAMEWORK DESTINATION .)

@@ -49,28 +49,21 @@
             }
         },
         {
-            "name": "debug_amd64",
+            "name": "debug",
             "displayName": "Debug AMD64",
             "description": "Debug build for AMD64 architecture",
             "inherits": "debug_base"
         },
         {
-            "name": "release_amd64",
+            "name": "release",
             "displayName": "Release AMD64",
             "description": "Release build for AMD64 architecture",
             "inherits": "release_base"
         },
         {
-            "name": "debug_amd64_windows",
-            "displayName": "Debug AMD64 Windows",
-            "description": "Cross-Compiled Debug build for Windows on AMD64 architecture",
-            "toolchainFile": "${sourceDir}/cmake/clang-windows-toolchain.cmake",
-            "inherits": "debug_base"
-        },
-        {
-            "name": "release_amd64_windows",
-            "displayName": "Release AMD64 Windows",
-            "description": "Cross-Compiled Release build for Windows on AMD64 architecture",
+            "name": "cross-release-mingw64-windows",
+            "displayName": "Cross-release MinGW64 Windows",
+            "description": "Cross-compile a release for AMD64 Windows using MinGW64",
             "toolchainFile": "${sourceDir}/cmake/clang-windows-toolchain.cmake",
             "inherits": "release_base"
         }
@@ -80,7 +73,7 @@
             "name": "test",
             "displayName": "libULF Tests",
             "description": "Run Tests with GTest",
-            "configurePreset": "debug_amd64",
+            "configurePreset": "debug",
             "output": {
                 "shortProgress": true,
                 "outputOnFailure": true,
