@@ -26,9 +26,10 @@ if(WIN32)
   # On windows, we should use Libserialport (because windows is a nice os)
   set(BACKEND_LIBUSB_DEFAULT OFF)
   set(BACKEND_LIBSERIALPORT_DEFAULT ON)
-if(UNIX) 
+elseif(UNIX)
   if(APPLE)
-    # Libusb will only work without ANY driver attached to the device, which is unlikely
+    # Libusb will only work without ANY driver attached to the device, which is
+    # unlikely
     set(BACKEND_LIBUSB_DEFAULT OFF)
     set(BACKEND_LIBSERIALPORT_DEFAULT ON)
   endif()
@@ -39,7 +40,8 @@ else()
 endif()
 
 option(LIBULF_BACKEND_LIBUSB "Libusb as backend" ${BACKEND_LIBUSB_DEFAULT})
-option(LIBULF_BACKEND_LIBSERIALPORT "Libserialport as backend" ${BACKEND_LIBSERIALPORT_DEFAULT})
+option(LIBULF_BACKEND_LIBSERIALPORT "Libserialport as backend"
+       ${BACKEND_LIBSERIALPORT_DEFAULT})
 
 if((LIBULF_BACKEND_LIBUSB AND LIBULF_BACKEND_LIBSERIALPORT)
    OR (NOT LIBULF_BACKEND_LIBUSB AND NOT LIBULF_BACKEND_LIBSERIALPORT))
@@ -57,8 +59,7 @@ endif()
 
 if(LIBULF_BACKEND_LIBUSB AND APPLE)
   message(
-    WARNING "Libusb will work on OSX ONLY if the device has NO driver attached"
-  )
+    WARNING "Libusb will work on OSX ONLY if the device has NO driver attached")
 endif()
 
 if(LIBULF_BACKEND_LIBSERIALPORT AND ANDROID)
