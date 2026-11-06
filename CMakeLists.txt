@@ -22,15 +22,25 @@ set(TARGET ULF)
 option(LIBULF_ENABLE_STDOUT_LOGGING "Enable logging to stdout" OFF)
 option(LIBULF_ENABLE_STDERR_LOGGING "Enable logging to stderr" ON)
 
-if(WIN32)
-  # On windows, we should use Libserialport (because windows is a nice os)
-  option(LIBULF_BACKEND_LIBUSB "Libusb as backend" OFF)
-  option(LIBULF_BACKEND_LIBSERIALPORT "Libserialport as backend" ON)
+if(WIN32 OR APPLE)
+  # On windows, libusb only works with the winusb driver (not the case for ulf
+  # devices).
+  #
+  # On apple, libusb only works with no driver attached (unlikely)
+  set(BACKEND_LIBUSB_DEFAULT OFF)
+  set(BACKEND_LIBSERIALPORT_DEFAULT ON)
+elseif(APPLE)
+  set(BACKEND_LIBUSB_DEFAULT OFF)
+  set(BACKEND_LIBSERIALPORT_DEFAULT ON)
 else()
   # Default (for now)
-  option(LIBULF_BACKEND_LIBUSB "Libusb as backend" ON)
-  option(LIBULF_BACKEND_LIBSERIALPORT "Libserialport as backend" OFF)
+  set(BACKEND_LIBUSB_DEFAULT ON)
+  set(BACKEND_LIBSERIALPORT_DEFAULT OFF)
 endif()
+
+option(LIBULF_BACKEND_LIBUSB "Libusb as backend" ${BACKEND_LIBUSB_DEFAULT})
+option(LIBULF_BACKEND_LIBSERIALPORT "Libserialport as backend"
+       ${BACKEND_LIBSERIALPORT_DEFAULT})
 
 if((LIBULF_BACKEND_LIBUSB AND LIBULF_BACKEND_LIBSERIALPORT)
    OR (NOT LIBULF_BACKEND_LIBUSB AND NOT LIBULF_BACKEND_LIBSERIALPORT))
@@ -44,6 +54,11 @@ if(LIBULF_BACKEND_LIBUSB AND WIN32)
     WARNING
       "Libusb will work on windows ONLY if the WinUSB driver is used (not by default)"
   )
+endif()
+
+if(LIBULF_BACKEND_LIBUSB AND APPLE)
+  message(
+    WARNING "Libusb will work on OSX ONLY if the device has NO driver attached")
 endif()
 
 if(LIBULF_BACKEND_LIBSERIALPORT AND ANDROID)
@@ -90,7 +105,7 @@ target_compile_definitions(${TARGET} PRIVATE JNI_CLASS_PATH=${JNI_CLASS_PATH}
 if(NOT TARGET usb-1.0 AND LIBULF_BACKEND_LIBUSB)
   cpmaddpackage(URI "gh:libusb/libusb-cmake#v1.0.29-0" OPTIONS
                 "BUILD_SHARED_LIBS ON")
-elseif(NOT TARGET libserialport AND LIBULF_BACKEND_LIBSERIALPORT)
+elseif(NOT TARGET serialport AND LIBULF_BACKEND_LIBSERIALPORT)
   add_subdirectory(serialport-cmake)
 endif()
 
@@ -141,7 +156,7 @@ target_link_libraries(
   ULF::SUSIV2
   ZPP::ZPP
   ZSU::ZSU
-  "$<$<BOOL:${LIBULF_BACKEND_LIBSERIALPORT}>:libserialport>"
+  "$<$<BOOL:${LIBULF_BACKEND_LIBSERIALPORT}>:serialport>"
   "$<$<BOOL:${LIBULF_BACKEND_LIBUSB}>:usb-1.0>")
 
 if(PROJECT_IS_TOP_LEVEL)
@@ -166,7 +181,7 @@ endif()
 set(INSTALL_TARGETS ULF)
 
 if(LIBULF_BACKEND_LIBSERIALPORT)
-  list(APPEND INSTALL_TARGETS libserialport)
+  list(APPEND INSTALL_TARGETS serialport)
 endif()
 
 if(LIBULF_BACKEND_LIBUSB)

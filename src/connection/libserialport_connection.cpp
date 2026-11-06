@@ -54,7 +54,6 @@ void LibserialportConnection::init() {}
  */
 void LibserialportConnection::open(uint16_t vid, uint16_t pid) {
   using std::operator""sv;
-  LOG_INFO("Attempt to open device with [{:04x}:{:04x}]", pid, vid);
   sp_port** port_list;
   sp_port* found_port = nullptr;
 
@@ -70,8 +69,7 @@ void LibserialportConnection::open(uint16_t vid, uint16_t pid) {
       sp_get_port_usb_vid_pid(port_list[i], &vid_, &pid_);
       if (vid_ == vid && pid_ == pid) {
         sp_copy_port(port_list[i], &found_port);
-        LOG_INFO("Found ZIMO_Interface on port {}",
-                 sp_get_port_name(found_port));
+        ;
         break;
       }
     }
@@ -91,8 +89,6 @@ void LibserialportConnection::open(uint16_t vid, uint16_t pid) {
     };
     std::unreachable();
   }
-
-  LOG_INFO("Device on port {} now open", sp_get_port_name(found_port));
 }
 
 /**
@@ -138,8 +134,6 @@ void LibserialportConnection::config() {
       std::unreachable();
     }
   }
-
-  LOG_INFO("Configured device on port {}", sp_get_port_name(_port));
 }
 
 /**
@@ -176,15 +170,12 @@ void LibserialportConnection::_write(std::span<uint8_t const> payload,
   using std::operator""sv;
   assert(_port);
 
-  LOG_TRACE(
-    "Attempting to transmit. Timeout: {}, Payload {:x}", timeout, payload);
   auto r{sp_blocking_write(_port, payload.data(), payload.size(), timeout)};
   if (r < 0) {
     throw libulf::ulf_error{libulf::map(sp_last_error_code()),
                             "Transmit error"};
     std::unreachable();
   }
-  LOG_TRACE("Successfully transmitted {} bytes", std::to_underlying(r));
 }
 
 /**
@@ -204,9 +195,6 @@ void LibserialportConnection::_read_until(uint8_t* buffer,
                                           uint8_t terminator,
                                           uint32_t timeout) {
   assert(_port);
-  LOG_TRACE("Attempting to receive data untit terminator [{:02x}]. Timeout: {}",
-            terminator,
-            timeout);
 
   int _received{0};
 
@@ -220,10 +208,6 @@ void LibserialportConnection::_read_until(uint8_t* buffer,
 
     if (buffer[_received++] == terminator) break;
   }
-
-  LOG_TRACE("Successfully received {} bytes. Payload {:x}",
-            _received,
-            std::span<uint8_t const>(buffer, _received));
   *received = _received;
 }
 
@@ -242,15 +226,11 @@ void LibserialportConnection::_read_all(uint8_t* buffer,
                                         int* received,
                                         uint32_t timeout) {
   assert(_port);
-  LOG_TRACE("Attempting to receive. Timeout: {}", timeout);
   auto r{sp_blocking_read_next(_port, buffer, length, timeout)};
   if (r < 0) {
     throw libulf::ulf_error{libulf::map(sp_last_error_code()), "Receive Error"};
     std::unreachable();
   }
-  LOG_TRACE("Successfully received {} bytes. Payload {:x}",
-            std::to_underlying(r),
-            std::span<uint8_t const>(buffer, r));
   *received = r;
 }
 

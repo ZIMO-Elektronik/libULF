@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.3.2
+
+- ***Breaking*** Change: Default backend for OSX to libserialport
+- Fix: CMake wrapper for libserialport correctly links agains OSX frameworks
+
 ## 0.3.1
 
 - ***Breaking*** Change: Rename cmake project to `ULF`
