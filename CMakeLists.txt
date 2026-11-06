@@ -22,17 +22,16 @@ set(TARGET ULF)
 option(LIBULF_ENABLE_STDOUT_LOGGING "Enable logging to stdout" OFF)
 option(LIBULF_ENABLE_STDERR_LOGGING "Enable logging to stderr" ON)
 
-if(WIN32)
-  # On windows, we should use Libserialport (because windows is a nice os)
+if(WIN32 OR APPLE)
+  # On windows, libusb only works with the winusb driver (not the case for ulf
+  # devices).
+  #
+  # On apple, libusb only works with no driver attached (unlikely)
   set(BACKEND_LIBUSB_DEFAULT OFF)
   set(BACKEND_LIBSERIALPORT_DEFAULT ON)
-elseif(UNIX)
-  if(APPLE)
-    # Libusb will only work without ANY driver attached to the device, which is
-    # unlikely
-    set(BACKEND_LIBUSB_DEFAULT OFF)
-    set(BACKEND_LIBSERIALPORT_DEFAULT ON)
-  endif()
+elseif(APPLE)
+  set(BACKEND_LIBUSB_DEFAULT OFF)
+  set(BACKEND_LIBSERIALPORT_DEFAULT ON)
 else()
   # Default (for now)
   set(BACKEND_LIBUSB_DEFAULT ON)
