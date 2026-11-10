@@ -14,6 +14,9 @@ struct MockConnection : public internal::IConnection {
 
   MOCK_METHOD(void, flush, (), (override));
 
+  MOCK_METHOD(void, setRTS, (bool), (override));
+  MOCK_METHOD(void, setDTR, (bool), (override));
+
   MOCK_METHOD(void, _write, (std::span<uint8_t const>, uint32_t), (override));
   MOCK_METHOD(void,
               _read_until,

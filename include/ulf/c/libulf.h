@@ -155,6 +155,26 @@ libulf_error libulf_openFd(libulf_handle handle, int Fd);
 libulf_error libulf_close(libulf_handle handle);
 
 /**
+ * Set RTS line state
+ *
+ * \param handle libulf handle
+ * \param enable if `true` enable, otherwise disable
+ *
+ * \return libulf_error LIBULF_OK on success, LIBULF_ERR_ else
+ */
+libulf_error libulf_set_rts(libulf_handle handle, bool enable);
+
+/**
+ * Set DTR line state
+ *
+ * \param handle libulf handle
+ * \param enable if `true` enable, otherwise disable
+ *
+ * \return libulf_error LIBULF_OK on success, LIBULF_ERR_ else
+ */
+libulf_error libulf_set_dtr(libulf_handle handle, bool enable);
+
+/**
  * Returns the last error string
  *
  * \warning
@@ -239,6 +259,23 @@ libulf_error libulf_com_susiv2(libulf_handle hlib, bool* success);
  * \return libulf_error LIBULF_OK on succes, LIBULF_ERR_ else
  */
 libulf_error libulf_com_mdu_ein(libulf_handle hlib, bool* success);
+
+/**
+ * Enter DECUP_EIN Mode
+ *
+ * \details
+ * Performs an [ULF_COM](https://github.com/ZIMO-Elektronik/ULF_COM) DECUP_EIN.
+ *
+ * \warning
+ * It is illegal to pass NULL. Passing an invalid handle results in UB and
+ * should be avoided
+ *
+ * \param [inout] handle  libulf handle
+ * \param [out]   success true, if successful, false else
+ *
+ * \return libulf_error LIBULF_OK on succes, LIBULF_ERR_ else
+ */
+libulf_error libulf_com_decup_ein(libulf_handle hlib, bool* success);
 
 /** ---------------------------------------------------
  *  Bridge SUSIV2
@@ -830,6 +867,225 @@ libulf_error libulf_mdu_ein_zsu_crc32_result_exit(libulf_handle hlib,
                                                   bool* success);
 
 /** ---------------------------------------------------
+ *  Bridge DECUP_EIN
+ *  ---------------------------------------------------
+ */
+
+/**
+ * ZSU entry
+ *
+ * \details
+ * Uses [DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
+ *
+ * \warning
+ * It is illegal to pass NULL. Passing an invalid handle results in UB and
+ * should be avoided
+ *
+ * \param [inout] hlib    libulf handle
+ * \param [out]   success true, if successful, false else
+ *
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
+ */
+libulf_error libulf_decup_ein_enter_zsu(libulf_handle hlib, bool* success);
+
+/**
+ * ZPP entry
+ *
+ * \details
+ * Uses [DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
+ *
+ * \warning
+ * It is illegal to pass NULL. Passing an invalid handle results in UB and
+ * should be avoided
+ *
+ * \param [inout] hlib    libulf handle
+ * \param [out]   success true, if successful, false else
+ *
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
+ */
+libulf_error libulf_decup_ein_enter_zpp(libulf_handle hlib, bool* success);
+
+/**
+ * Transmits a decoder id (zsu)
+ *
+ * \details
+ * Uses [DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
+ *
+ * \warning
+ * It is illegal to pass NULL. Passing an invalid handle results in UB and
+ * should be avoided
+ *
+ * \param [inout] hlib    libulf handle
+ * \param [in]    id      decoder id
+ * \param [out]   success true, if successful, false else
+ *
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
+ */
+libulf_error
+libulf_decup_ein_zsu_decoder_id(libulf_handle hlib, uint8_t id, bool* success);
+
+/**
+ * Transmits the update page count (zsu)
+ *
+ * \details
+ * Uses [DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
+ *
+ * The correct page counted is directly calculated from the given firmware.
+ *
+ * \warning
+ * It is illegal to pass NULL. Passing an invalid handle results in UB and
+ * should be avoided
+ *
+ * \param [inout] hlib            libulf handle
+ * \param [in]    hzsu            zsu handle
+ * \param [in]    firmware_index  firmware index
+ * \param [out]   success         true, if successful, false else
+ *
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
+ */
+libulf_error libulf_decup_ein_zsu_page_count(libulf_handle hlib,
+                                             zsu_handle hzsu,
+                                             size_t firmware_index,
+                                             bool* success);
+
+/**
+ * Transmits the security bytes (zsu)
+ *
+ * \details
+ * Uses [DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
+ *
+ * \warning
+ * It is illegal to pass NULL. Passing an invalid handle results in UB and
+ * should be avoided
+ *
+ * \param [inout] hlib    libulf handle
+ * \param [out]   success true, if successful, false else
+ *
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
+ */
+libulf_error libulf_decup_ein_zsu_security_bytes(libulf_handle hlib,
+                                                 bool* success);
+
+/**
+ * Transmits a single update block selected by its index.
+ *
+ * \details
+ * Uses [DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
+ *
+ * \warning
+ * It is illegal to pass NULL. Passing an invalid handle results in UB and
+ * should be avoided
+ *
+ * \param [inout] hlib    libulf handle
+ * \param [out]   success true, if successful, false else
+ *
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
+ */
+libulf_error libulf_decup_ein_zsu_blocks(libulf_handle hlib,
+                                         zsu_handle hzsu,
+                                         size_t firmware_index,
+                                         uint32_t index,
+                                         bool* success);
+
+/**
+ * Reads a single cv from a decoder
+ *
+ * \details
+ * Uses [DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
+ *
+ * \warning
+ * It is illegal to pass NULL. Passing an invalid handle results in UB and
+ * should be avoided
+ *
+ * \param [inout] hlib    libulf handle
+ * \param [in]    cv      cv address
+ * \param [out]   value   value, if no error occurred
+ *
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
+ */
+libulf_error
+libulf_decup_ein_cv_read(libulf_handle hlib, uint16_t cv, int* value);
+
+/**
+ * Writes a single cv to a decoder
+ *
+ * \details
+ * Uses [DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
+ *
+ * \warning
+ * It is illegal to pass NULL. Passing an invalid handle results in UB and
+ * should be avoided
+ *
+ * \param [inout] hlib    libulf handle
+ * \param [in]    cv      cv address
+ * \param [in]    value   cv value
+ * \param [out]   success true, if successful, false else
+ *
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
+ */
+libulf_error libulf_decup_ein_cv_write(libulf_handle hlib,
+                                       uint16_t cv,
+                                       uint8_t value,
+                                       bool* success);
+
+/**
+ * Reads the id of a decoder
+ *
+ * \details
+ * Uses [DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
+ *
+ * \warning
+ * It is illegal to pass NULL. Passing an invalid handle results in UB and
+ * should be avoided
+ *
+ * \param [inout] hlib    libulf handle
+ * \param [out]   id      value, if no error occurred
+ *
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
+ */
+libulf_error libulf_decup_ein_zpp_decoder_id(libulf_handle hlib, int* id);
+
+/**
+ * Erases the sound flash of a decoder
+ *
+ * \details
+ * Uses [DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
+ *
+ * \warning
+ * It is illegal to pass NULL. Passing an invalid handle results in UB and
+ * should be avoided
+ *
+ * \param [inout] hlib    libulf handle
+ * \param [out]   success true, if successful, false else
+ *
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
+ */
+libulf_error libulf_decup_ein_zpp_erase_flash(libulf_handle hlib,
+                                              bool* success);
+
+/**
+ * Writes a data block to the sound flash of a decoder
+ *
+ * \details
+ * Uses [DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
+ *
+ * \warning
+ * It is illegal to pass NULL. Passing an invalid handle results in UB and
+ * should be avoided
+ *
+ * \param [inout] hlib    libulf handle
+ * \param [in]    hzpp    zpp handle
+ * \param [in]    index   flash block index
+ * \param [out]   success true, if successful, false else
+ *
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
+ */
+libulf_error libulf_decup_ein_zpp_write_flash(libulf_handle hlib,
+                                              zpp_handle hzpp,
+                                              size_t index,
+                                              bool* success);
+
+/** ---------------------------------------------------
  *  Bridge ZPP
  *  ---------------------------------------------------
  */
@@ -861,7 +1117,36 @@ void libulf_zpp_release(zpp_handle hzpp);
  *
  * \return unsigned int Flash block count
  */
-unsigned int libulf_zpp_blocks(zpp_handle const hzpp);
+unsigned int libulf_zpp_block_count(zpp_handle const hzpp);
+
+/**
+ * Get CV count in project
+ *
+ * \param [in] hzpp   zpp handle
+ *
+ * \return unsigned int CV count
+ */
+unsigned int libulf_zpp_cv_count(zpp_handle const hzpp);
+
+/**
+ * Get CV address at list index
+ *
+ * \param [in] hzpp      zpp handle
+ * \param [in] index     CV list index
+ *
+ * \return CV address
+ */
+uint16_t libulf_zpp_cv_address(zpp_handle const hzpp, unsigned int index);
+
+/**
+ * Get CV value at list index
+ *
+ * \param [in] hzpp     zpp handle
+ * \param [in] index    CV list index
+ *
+ * \return CV value
+ */
+uint8_t libulf_zpp_cv_value(zpp_handle const hzpp, unsigned int index);
 
 /**
  * Get ZPP author

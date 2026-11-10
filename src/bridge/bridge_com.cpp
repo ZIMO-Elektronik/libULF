@@ -83,6 +83,20 @@ bool COM::susiv2() {
 }
 
 /**
+ * DECUP_EIN
+ *
+ * \return bool Response
+ *
+ * \throws ulf_error   First error occurred
+ */
+bool COM::decup_ein() {
+  transmission::com::Base t{
+    _ctx.connection, "DECUP_EIN\r", internal::config::timeout::com::decup_ein};
+  t.execute();
+  return t.evaluateBool();
+}
+
+/**
  * MDU_EIN
  *
  * \return bool Response

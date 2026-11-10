@@ -9,4 +9,6 @@ sanitize(address,undefined)
 target_common_warnings(ZsuUpdate PRIVATE)
 target_common_errors(ZsuUpdate PRIVATE)
 
+target_include_directories(ZsuUpdate PRIVATE ../../helper/)
+
 target_link_libraries(ZsuUpdate PRIVATE ULF)

@@ -144,6 +144,32 @@ libulf_error libulf_close(libulf_handle handle) {
   }
 }
 
+libulf_error libulf_set_rts(libulf_handle handle, bool enable) {
+  try {
+    to_bridge(handle)->setRTS(enable);
+    return LIBULF_OK;
+  } catch (libulf::ulf_error const& e) {
+    last_what = e.what();
+    return static_cast<libulf_error>(static_cast<libulf::Error>(e));
+  } catch (...) {
+    last_what = "BUG! Sonething bad has happened and no one knows what!";
+    return LIBULF_ERR_UNKNOWN;
+  }
+}
+
+libulf_error libulf_set_dtr(libulf_handle handle, bool enable) {
+  try {
+    to_bridge(handle)->setDTR(enable);
+    return LIBULF_OK;
+  } catch (libulf::ulf_error const& e) {
+    last_what = e.what();
+    return static_cast<libulf_error>(static_cast<libulf::Error>(e));
+  } catch (...) {
+    last_what = "BUG! Sonething bad has happened and no one knows what!";
+    return LIBULF_ERR_UNKNOWN;
+  }
+}
+
 char const* libulf_last_error_string() { return last_what; }
 
 /** ---------------------------------------------------
@@ -165,6 +191,10 @@ libulf_error libulf_com_susiv2(libulf_handle hlib, bool* success) {
 
 libulf_error libulf_com_mdu_ein(libulf_handle hlib, bool* success) {
   return execute([&]() { return to_bridge(hlib)->com().mdu_ein(); }, success);
+}
+
+libulf_error libulf_com_decup_ein(libulf_handle hlib, bool* success) {
+  return execute([&]() { return to_bridge(hlib)->com().decup_ein(); }, success);
 }
 
 /** ---------------------------------------------------
@@ -399,28 +429,122 @@ libulf_error libulf_mdu_ein_zsu_crc32_result_exit(libulf_handle hlib,
 }
 
 /** ---------------------------------------------------
+ *  Bridge DECUP_EIN
+ *  ---------------------------------------------------
+ */
+
+libulf_error libulf_decup_ein_enter_zsu(libulf_handle hlib, bool* success) {
+  return execute([&]() { return to_bridge(hlib)->decup_ein().enterZSU(); },
+                 success);
+}
+
+libulf_error libulf_decup_ein_enter_zpp(libulf_handle hlib, bool* success) {
+  return execute([&]() { return to_bridge(hlib)->decup_ein().enterZPP(); },
+                 success);
+}
+
+libulf_error
+libulf_decup_ein_zsu_decoder_id(libulf_handle hlib, uint8_t id, bool* success) {
+  return execute(
+    [&]() { return to_bridge(hlib)->decup_ein().zsuDecoderId(id); }, success);
+}
+
+libulf_error libulf_decup_ein_zsu_page_count(libulf_handle hlib,
+                                             zsu_handle hzsu,
+                                             size_t firmware_index,
+                                             bool* success) {
+  return execute(
+    [&]() {
+      return to_bridge(hlib)->decup_ein().zsuPageCount(
+        to_zsu(hzsu)->firmwares.at(firmware_index));
+    },
+    success);
+}
+
+libulf_error libulf_decup_ein_zsu_security_bytes(libulf_handle hlib,
+                                                 bool* success) {
+  return execute(
+    [&]() { return to_bridge(hlib)->decup_ein().zsuSecurityBytes(); }, success);
+}
+
+libulf_error libulf_decup_ein_zsu_blocks(libulf_handle hlib,
+                                         zsu_handle hzsu,
+                                         size_t firmware_index,
+                                         uint32_t index,
+                                         bool* success) {
+  return execute(
+    [&]() {
+      return to_bridge(hlib)->decup_ein().zsuBlocks(
+        to_zsu(hzsu)->firmwares.at(firmware_index), index);
+    },
+    success);
+}
+
+libulf_error
+libulf_decup_ein_cv_read(libulf_handle hlib, uint16_t cv, int* value) {
+  return execute([&]() { return to_bridge(hlib)->decup_ein().cvRead(cv); },
+                 value);
+}
+
+libulf_error libulf_decup_ein_cv_write(libulf_handle hlib,
+                                       uint16_t cv,
+                                       uint8_t value,
+                                       bool* success) {
+  return execute(
+    [&]() { return to_bridge(hlib)->decup_ein().cvWrite(cv, value); }, success);
+}
+
+libulf_error libulf_decup_ein_zpp_decoder_id(libulf_handle hlib, int* id) {
+  return execute([&]() { return to_bridge(hlib)->decup_ein().decoderId(); },
+                 id);
+}
+
+libulf_error libulf_decup_ein_zpp_erase_flash(libulf_handle hlib,
+                                              bool* success) {
+  return execute([&]() { return to_bridge(hlib)->decup_ein().zppFlashErase(); },
+                 success);
+}
+
+libulf_error libulf_decup_ein_zpp_write_flash(libulf_handle hlib,
+                                              zpp_handle hzpp,
+                                              size_t index,
+                                              bool* success) {
+  return execute(
+    [&]() {
+      return to_bridge(hlib)->decup_ein().zppWrite(to_zpp(hzpp), index);
+    },
+    success);
+}
+
+/** ---------------------------------------------------
  *  Bridge ZPP
  *  ---------------------------------------------------
  */
 
-/// \todo maybe, it is unnecessary to let this run over bridge since ZPP could
-/// be a static class
 zpp_handle libulf_zpp_read(char const* c, size_t length) {
   std::string_view s(c, length);
   return reinterpret_cast<zpp_handle>(
     bridge::ZPP::read(std::filesystem::path{s}));
 }
 
-/// \todo maybe, it is unnecessary to let this run over bridge since ZPP could
-/// be a static class
 void libulf_zpp_release(zpp_handle zpp) {
   return bridge::ZPP::release(reinterpret_cast<zpp::File*>(zpp));
 }
 
-/// \todo maybe, it is unnecessary to let this run over bridge since ZPP could
-/// be a static class
-unsigned int libulf_zpp_blocks(zpp_handle zpp) {
+unsigned int libulf_zpp_block_count(zpp_handle zpp) {
   return bridge::ZPP::blocks(reinterpret_cast<zpp::File*>(zpp));
+}
+
+unsigned int libulf_zpp_cv_count(zpp_handle const hzpp) {
+  return to_zpp(hzpp)->cvs.size();
+}
+
+uint16_t libulf_zpp_cv_address(zpp_handle const hzpp, unsigned int index) {
+  return to_zpp(hzpp)->cvs.at(index).first;
+}
+
+uint8_t libulf_zpp_cv_value(zpp_handle const hzpp, unsigned int index) {
+  return to_zpp(hzpp)->cvs.at(index).second;
 }
 
 char const* libulf_zpp_author(zpp_handle zpp) {
@@ -491,7 +615,7 @@ int libulf_zsu_get_firmware_type(zsu_handle const zsu,
 uint32_t libulf_zsu_get_firmware_block_count(zsu_handle const zsu,
                                              size_t const firmware_index) {
   assert(zsu);
-  return bridge::ZSU::blocks(
+  return bridge::ZSU::blockCount(
     reinterpret_cast<zsu::File*>(zsu)->firmwares.at(firmware_index));
 }
 uint8_t const* libulf_zsu_get_firmware_data(zsu_handle const zsu,

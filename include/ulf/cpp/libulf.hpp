@@ -43,6 +43,7 @@
 #include <filesystem>
 #include <functional>
 #include <optional>
+#include <ranges>
 #include <span>
 #include <string>
 #include <string_view>
@@ -51,6 +52,33 @@
 #include "error2string.hpp"
 #include "ulf/c/libulf.h"
 #include "ulf_error.hpp"
+
+namespace {
+
+/**
+ * Execute helper
+ *
+ * \note
+ * Wraps the C API calls into an explicit return value with an exception on
+ * error.
+ *
+ * \tparam T  Return type
+ * \tparam F  Function type
+ * \tparam Ts Parameter type list
+ * \param f   Function (from C API)
+ * \param ts  Parameter pack
+ *
+ * \return API result
+ */
+template<typename T, typename F, typename... Ts>
+constexpr T execute(F f, Ts&&... ts) {
+  T r{};
+  if (auto const e{std::invoke(f, std::forward<Ts>(ts)..., &r)}; e != LIBULF_OK)
+    throw libulf::ulf_error{e, libulf_last_error_string()};
+  return r;
+}
+
+} // namespace
 
 namespace libulf {
 
@@ -69,8 +97,9 @@ enum class Speed : uint8_t {
 
 } // namespace mdu
 
-struct MDU_EIN; // Forward declare
-struct SUSIV2;  // Forward declare
+struct MDU_EIN;   // Forward declare
+struct DECUP_EIN; // Forward declare
+struct SUSIV2;    // Forward declare
 
 /**
  * ZPP file API group
@@ -81,8 +110,17 @@ struct SUSIV2;  // Forward declare
  *
  */
 struct ZPP {
+  /**
+   * A single project CV
+   */
+  struct CV {
+    uint16_t const address{}; ///< CV Address
+    uint8_t const value{};    ///< CV Value
+  };
+
   friend class MDU_EIN;
   friend class SUSIV2;
+  friend class DECUP_EIN;
 
   /**
    * CTor
@@ -145,7 +183,20 @@ struct ZPP {
    *
    * \return unsigned int Block count
    */
-  unsigned int blocks() const { return libulf_zpp_blocks(_zpp); }
+  unsigned int blockCount() const { return libulf_zpp_block_count(_zpp); }
+
+  /**
+   * Returns an iterable view on the projects CV list
+   *
+   * \return CV list
+   */
+  auto cvs() const {
+    return std::views::iota(0uz, libulf_zpp_cv_count(_zpp)) |
+           std::views::transform([this](unsigned int i) {
+             return CV{.address = libulf_zpp_cv_address(_zpp, i),
+                       .value = libulf_zpp_cv_value(_zpp, i)};
+           });
+  }
 
   /**
    * Returns the author of the project
@@ -176,7 +227,8 @@ private:
   zpp_handle _zpp; ///< Underlying handle
 };
 
-struct MDU_EIN; // Forward declare
+struct MDU_EIN;   // Forward declare
+struct DECUP_EIN; // Forward declare
 
 /**
  * ZPP file API group
@@ -187,98 +239,10 @@ struct MDU_EIN; // Forward declare
  *
  */
 struct ZSU {
-  /**
-   * Firmware iterator wrapper
-   *
-   * \details Usually, this class is used to iterate over all firmwares and
-   * select / search a decoder by pinging each id.
-   *
-   * \details This is the poor mans approach to mapping C++ iterators to C and
-   * then again to C++. Which means it is neither perfect, nor good. But it
-   * works and its better than throwing around a raw handle.
-   *
-   * \note To make this stl compliant, we'd need to create a type `Firmware` and
-   * set it as a base type. However, then every dereferencing would create a
-   * copy of `_zsu` and `_fwIndex`.
-   *
-   * \warning When a firmware is chosen, the Iterator shouldn't be incremented
-   * or decremented. This WILL move to a new firmware which can't be checked and
-   * may or may not destroy the decoder as a result. This shoud be
-   * self-explainatory but who knows who will use this library.
-   *
-   */
-  struct FirmwareIterator {
+  struct Firmware {
     friend class ZSU;
     friend class MDU_EIN;
-
-    // Construct/copy/destroy
-    FirmwareIterator() = delete;
-    FirmwareIterator(FirmwareIterator const&) = default;
-    FirmwareIterator& operator=(FirmwareIterator const&) = default;
-    FirmwareIterator(FirmwareIterator&& source)
-      : _zsu{source._zsu}, _fwIndex{source._fwIndex} {
-      source._zsu = nullptr;
-    }
-    FirmwareIterator& operator=(FirmwareIterator&& source) {
-      _zsu = source._zsu;
-      _fwIndex = source._fwIndex;
-      source._zsu = nullptr;
-      return *this;
-    }
-    ~FirmwareIterator() = default;
-
-    /**
-     * Pre-increment
-     *
-     * \return FirmwareIterator&
-     */
-    FirmwareIterator& operator++() {
-      _fwIndex++;
-      return *this;
-    }
-
-    /**
-     * Post-increment
-     *
-     * \return FirmwareIterator
-     */
-    FirmwareIterator operator++(int) {
-      auto retval{*this};
-      _fwIndex++;
-      return retval;
-    }
-
-    /**
-     * Pre-decrement
-     *
-     * \return FirmwareIterator&
-     */
-    FirmwareIterator& operator--() {
-      _fwIndex--;
-      return *this;
-    }
-
-    /**
-     * Post-incement
-     *
-     * \return FirmwareIterator
-     */
-    FirmwareIterator operator--(int) {
-      auto retval{*this};
-      _fwIndex--;
-      return retval;
-    }
-
-    /**
-     * Comparison
-     *
-     * \param rhs
-     * \return true   Equal
-     * \return false  Not equal
-     */
-    bool operator==(FirmwareIterator const& rhs) const {
-      return _zsu == rhs._zsu && _fwIndex == rhs._fwIndex;
-    }
+    friend class DECUP_EIN;
 
     /**
      * Returns the ID of the current firmware (matches the compatible decoder
@@ -359,15 +323,12 @@ struct ZSU {
 
   private:
     // Internal CTors
-    FirmwareIterator(zsu_handle zsu, unsigned int fwIndex = 0uz)
+    Firmware(zsu_handle zsu, unsigned int fwIndex = 0uz)
       : _zsu{zsu}, _fwIndex{fwIndex} {}
 
     zsu_handle _zsu;         ///< Underlying ZSU handle
     unsigned int _fwIndex{}; ///< Firmware index
   };
-
-  using iterator = FirmwareIterator;
-  using const_iterator = FirmwareIterator;
 
   /**
    * CTor
@@ -399,20 +360,10 @@ struct ZSU {
    */
   bool valid() const { return _zsu; }
 
-  /**
-   * Begin
-   *
-   * \return iterator Begin iterator
-   */
-  iterator begin() const { return FirmwareIterator{_zsu}; }
-
-  /**
-   * End
-   *
-   * \return iterator End iterator
-   */
-  iterator end() const {
-    return FirmwareIterator{_zsu, libulf_zsu_get_firmware_count(_zsu)};
+  auto firmwares() const {
+    return std::views::iota(0uz, libulf_zsu_get_firmware_count(_zsu)) |
+           std::views::transform(
+             [this](unsigned int i) { return Firmware{_zsu, i}; });
   }
 
 private:
@@ -464,12 +415,7 @@ struct COM {
    *
    * \throws ulf_error    If an error occurred
    */
-  bool reset() {
-    bool r{};
-    if (auto const e{libulf_com_reset(_lib, &r)}; e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
-  }
+  bool reset() { return execute<bool>(libulf_com_reset, _lib); }
 
   /**
    * Sends a SUSIV2 command to the device
@@ -478,12 +424,7 @@ struct COM {
    *
    * \throws ulf_error    If an error occurred
    */
-  bool susiv2() {
-    bool r{};
-    if (auto const e{libulf_com_susiv2(_lib, &r)}; e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
-  }
+  bool susiv2() { return execute<bool>(libulf_com_susiv2, _lib); }
 
   /**
    * Sends a MDU_EIN command to the device
@@ -492,12 +433,7 @@ struct COM {
    *
    * \throws ulf_error    If an error occurred
    */
-  bool mdu_ein() {
-    bool r{};
-    if (auto const e{libulf_com_mdu_ein(_lib, &r)}; e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
-  }
+  bool mdu_ein() { return execute<bool>(libulf_com_mdu_ein, _lib); }
 
 private:
   // Internal CTor
@@ -532,11 +468,8 @@ struct SUSIV2 {
    * \throws ulf_error    If an error occurred
    */
   std::optional<uint8_t> cvRead(uint16_t cv) {
-    int r{};
-    if (auto const e{libulf_susiv2_cv_read(_lib, cv, &r)}; e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-
-    if (r >= 0) return static_cast<uint8_t>(r);
+    if (auto const r{execute<int>(libulf_susiv2_cv_read, _lib, cv)}; r >= 0)
+      return static_cast<uint8_t>(r);
     return std::nullopt;
   }
 
@@ -551,11 +484,7 @@ struct SUSIV2 {
    * \throws ulf_error    If an error occurred
    */
   bool cvWrite(uint16_t cv, uint8_t value) {
-    bool r{};
-    if (auto const e{libulf_susiv2_cv_write(_lib, cv, value, &r)};
-        e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+    return execute<bool>(libulf_susiv2_cv_write, _lib, cv, value);
   }
 
   /**
@@ -565,12 +494,7 @@ struct SUSIV2 {
    *
    * \throws ulf_error    If an error occurred
    */
-  bool zppErase() {
-    bool r{};
-    if (auto const e{libulf_susiv2_zpp_erase(_lib, &r)}; e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
-  }
+  bool zppErase() { return execute<bool>(libulf_susiv2_zpp_erase, _lib); }
 
   /**
    * Writes a sound flash block to the decoder
@@ -583,12 +507,8 @@ struct SUSIV2 {
    * \throws ulf_error    If an error occurred
    */
   bool zppWrite(ZPP& zpp, uint32_t index) {
-    bool r{};
-    if (auto const e{libulf_susiv2_zpp_write(
-          _lib, static_cast<zpp_handle>(zpp), index, &r)};
-        e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+    return execute<bool>(
+      libulf_susiv2_zpp_write, _lib, static_cast<zpp_handle>(zpp), index);
   }
 
   /**
@@ -598,12 +518,7 @@ struct SUSIV2 {
    *
    * \throws ulf_error    If an error occurred
    */
-  bool features() {
-    bool r{};
-    if (auto const e{libulf_susiv2_features(_lib, &r)}; e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
-  }
+  bool features() { return execute<bool>(libulf_susiv2_features, _lib); }
 
   /**
    * Requests the decoder to quit ZUSI mode
@@ -616,12 +531,7 @@ struct SUSIV2 {
    * \throws ulf_error    If an error occurred
    */
   bool exit(bool reboot, bool cv8_reset) {
-    bool r{};
-    if (auto const e{libulf_susiv2_exit(
-          _lib, static_cast<bool>(reboot), static_cast<bool>(cv8_reset), &r)};
-        e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+    return execute<bool>(libulf_susiv2_exit, _lib, reboot, cv8_reset);
   }
 
   /**
@@ -635,12 +545,8 @@ struct SUSIV2 {
    * \throws ulf_error    If an error occurred
    */
   bool zppLcDcQuery(ZPP& zpp) {
-    bool r{};
-    if (auto const e{libulf_susiv2_zpp_lc_dc_query(
-          _lib, static_cast<zpp_handle>(zpp), &r)};
-        e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+    return execute<bool>(
+      libulf_susiv2_zpp_lc_dc_query, _lib, static_cast<zpp_handle>(zpp));
   }
 
 private:
@@ -674,12 +580,7 @@ struct MDU_EIN {
    *
    * \throws ulf_error    If an error occurred
    */
-  bool enterMDU() {
-    bool r{};
-    if (auto const e{libulf_mdu_ein_enter_mdu(_lib, &r)}; e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
-  }
+  bool enterMDU() { return execute<bool>(libulf_mdu_ein_enter_mdu, _lib); }
 
   /**
    * Commands selected decoders to enter MDU mode (Update)
@@ -695,12 +596,7 @@ struct MDU_EIN {
    * \throws ulf_error    If an error occurred
    */
   bool enterDCCZSU(uint32_t id = 0uz, uint32_t sn = 0uz, bool done = true) {
-    bool r{};
-    if (auto const e{libulf_mdu_ein_enter_dcc_zsu(
-          _lib, id, sn, static_cast<bool>(done), &r)};
-        e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+    return execute<bool>(libulf_mdu_ein_enter_dcc_zsu, _lib, id, sn, done);
   }
 
   /**
@@ -716,12 +612,7 @@ struct MDU_EIN {
    * \throws ulf_error    If an error occurred
    */
   bool enterDCCZPP(uint32_t sn = 0uz, bool done = true) {
-    bool r{};
-    if (auto const e{
-          libulf_mdu_ein_enter_dcc_zpp(_lib, sn, static_cast<bool>(done), &r)};
-        e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+    return execute<bool>(libulf_mdu_ein_enter_dcc_zpp, _lib, sn, done);
   }
 
   /**
@@ -737,10 +628,7 @@ struct MDU_EIN {
    * \throws ulf_error    If an error occurred
    */
   bool ping(uint32_t sn, uint32_t id) {
-    bool r{};
-    if (auto const e{libulf_mdu_ein_ping(_lib, sn, id, &r)}; e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+    return execute<bool>(libulf_mdu_ein_ping, _lib, sn, id);
   }
 
   /**
@@ -761,12 +649,8 @@ struct MDU_EIN {
    * \throws ulf_error    If an error occurred
    */
   bool configTransferRate(mdu::Speed speed) {
-    bool r{};
-    if (auto const e{libulf_mdu_ein_config_transfer_rate(
-          _lib, std::to_underlying(speed), &r)};
-        e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+    return execute<bool>(
+      libulf_mdu_ein_config_transfer_rate, _lib, std::to_underlying(speed));
   }
 
   /**
@@ -776,15 +660,12 @@ struct MDU_EIN {
    *
    * \param cv  Cv address to read
    *
-   * \return uint8_t      Value of the CV
+   * \return int          Value of the CV
    *
    * \throws ulf_error    If an error occurred
    */
-  uint8_t cvRead(uint16_t cv) {
-    int r{};
-    if (auto const e{libulf_mdu_ein_cv_read(_lib, cv, &r)}; e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return static_cast<uint8_t>(r);
+  int cvRead(uint16_t cv) {
+    return execute<int>(libulf_mdu_ein_cv_read, _lib, cv);
   }
 
   /**
@@ -800,11 +681,7 @@ struct MDU_EIN {
    * \throws ulf_error    If an error occurred
    */
   bool cvWrite(uint16_t cv, uint8_t value) {
-    bool r{};
-    if (auto const e{libulf_mdu_ein_cv_write(_lib, cv, value, &r)};
-        e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+    return execute<bool>(libulf_mdu_ein_cv_write, _lib, cv, value);
   }
 
   /**
@@ -816,12 +693,7 @@ struct MDU_EIN {
    *
    * \throws ulf_error    If an error occurred
    */
-  bool busy() {
-    bool r{};
-    if (auto const e{libulf_mdu_ein_busy(_lib, &r)}; e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
-  }
+  bool busy() { return execute<bool>(libulf_mdu_ein_busy, _lib); }
 
   /**
    * Checks if the given ZPP can fit into the decoder
@@ -835,12 +707,8 @@ struct MDU_EIN {
    * \throws ulf_error    If an error occurred
    */
   bool zppValidQuery(ZPP& zpp) {
-    bool r{};
-    if (auto const e{libulf_mdu_ein_zpp_valid_query(
-          _lib, static_cast<zpp_handle>(zpp), &r)};
-        e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+    return execute<bool>(
+      libulf_mdu_ein_zpp_valid_query, _lib, static_cast<zpp_handle>(zpp));
   }
 
   /**
@@ -856,12 +724,8 @@ struct MDU_EIN {
    * \throws ulf_error    If an error occurred
    */
   bool zppLcDcQuery(ZPP& zpp) {
-    bool r{};
-    if (auto const e{libulf_mdu_ein_zpp_lc_dc_query(
-          _lib, static_cast<zpp_handle>(zpp), &r)};
-        e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+    return execute<bool>(
+      libulf_mdu_ein_zpp_lc_dc_query, _lib, static_cast<zpp_handle>(zpp));
   }
 
   /**
@@ -876,12 +740,8 @@ struct MDU_EIN {
    * \throws ulf_error    If an error occurred
    */
   bool zppErase(ZPP& zpp) {
-    bool r{};
-    if (auto const e{
-          libulf_mdu_ein_zpp_erase(_lib, static_cast<zpp_handle>(zpp), &r)};
-        e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+    return execute<bool>(
+      libulf_mdu_ein_zpp_erase, _lib, static_cast<zpp_handle>(zpp));
   }
 
   /**
@@ -897,12 +757,8 @@ struct MDU_EIN {
    * \throws ulf_error    If an error occurred
    */
   bool zppUpdate(ZPP& zpp, uint32_t index) {
-    bool r{};
-    if (auto const e{libulf_mdu_ein_zpp_update(
-          _lib, static_cast<zpp_handle>(zpp), index, &r)};
-        e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+    return execute<bool>(
+      libulf_mdu_ein_zpp_update, _lib, static_cast<zpp_handle>(zpp), index);
   }
 
   /**
@@ -917,12 +773,8 @@ struct MDU_EIN {
    * \throws ulf_error    If an error occurred
    */
   bool zppUpdateEnd(ZPP& zpp) {
-    bool r{};
-    if (auto const e{libulf_mdu_ein_zpp_update_end(
-          _lib, static_cast<zpp_handle>(zpp), &r)};
-        e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+    return execute<bool>(
+      libulf_mdu_ein_zpp_update_end, _lib, static_cast<zpp_handle>(zpp));
   }
 
   /**
@@ -935,10 +787,7 @@ struct MDU_EIN {
    * \throws ulf_error    If an error occurred
    */
   bool zppExitReset() {
-    bool r{};
-    if (auto const e{libulf_mdu_ein_zpp_exit_reset(_lib, &r)}; e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+    return execute<bool>(libulf_mdu_ein_zpp_exit_reset, _lib);
   }
 
   /**
@@ -946,19 +795,15 @@ struct MDU_EIN {
    *
    * \note Corresponds to `::libulf_mdu_ein_zsu_salsa_20_iv`
    *
-   * \param firmware  FirmwareIterator
+   * \param firmware  Firmware
    *
    * \return bool         `true` if successful, `false` else
    *
    * \throws ulf_error    If an error occurred
    */
-  bool zsuSalsa20Iv(ZSU::FirmwareIterator& firmware) {
-    bool r{};
-    if (auto const e{libulf_mdu_ein_zsu_salsa20_iv(
-          _lib, firmware._zsu, firmware._fwIndex, &r)};
-        e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+  bool zsuSalsa20Iv(ZSU::Firmware& firmware) {
+    return execute<bool>(
+      libulf_mdu_ein_zsu_salsa20_iv, _lib, firmware._zsu, firmware._fwIndex);
   }
 
   /**
@@ -966,19 +811,15 @@ struct MDU_EIN {
    *
    * \note Corresponds to `::libulf_mdu_ein_zsu_erase`
    *
-   * \param firmware  FirmwareIterator
+   * \param firmware  Firmware
    *
    * \return bool         `true` if successful, `false` else
    *
    * \throws ulf_error    If an error occurred
    */
-  bool zsuErase(ZSU::FirmwareIterator& firmware) {
-    bool r{};
-    if (auto const e{
-          libulf_mdu_ein_zsu_erase(_lib, firmware._zsu, firmware._fwIndex, &r)};
-        e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+  bool zsuErase(ZSU::Firmware& firmware) {
+    return execute<bool>(
+      libulf_mdu_ein_zsu_erase, _lib, firmware._zsu, firmware._fwIndex);
   }
 
   /**
@@ -986,20 +827,16 @@ struct MDU_EIN {
    *
    * \note Corresponds to `::libulf_mdu_ein_zsu_update`
    *
-   * \param firmware  FirmwareIterator
+   * \param firmware  Firmware
    * \param index     Block index
    *
    * \return bool         `true` if successful, `false` else
    *
    * \throws ulf_error    If an error occurred
    */
-  bool zsuUpdate(ZSU::FirmwareIterator& firmware, uint32_t index) {
-    bool r{};
-    if (auto const e{libulf_mdu_ein_zsu_update(
-          _lib, firmware._zsu, firmware._fwIndex, index, &r)};
-        e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+  bool zsuUpdate(ZSU::Firmware& firmware, uint32_t index) {
+    return execute<bool>(
+      libulf_mdu_ein_zsu_update, _lib, firmware._zsu, firmware._fwIndex, index);
   }
 
   /**
@@ -1007,19 +844,15 @@ struct MDU_EIN {
    *
    * \note Corresponds to `::libulf_mdu_ein_zsu_crc32_start`
    *
-   * \param firmware  FirmwareIterator
+   * \param firmware  Firmware
    *
    * \return bool         `true` if successful, `false` else
    *
    * \throws ulf_error    If an error occurred
    */
-  bool zsuCrc32Start(ZSU::FirmwareIterator& firmware) {
-    bool r{};
-    if (auto const e{libulf_mdu_ein_zsu_crc32_start(
-          _lib, firmware._zsu, firmware._fwIndex, &r)};
-        e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+  bool zsuCrc32Start(ZSU::Firmware& firmware) {
+    return execute<bool>(
+      libulf_mdu_ein_zsu_crc32_start, _lib, firmware._zsu, firmware._fwIndex);
   }
 
   /**
@@ -1032,10 +865,7 @@ struct MDU_EIN {
    * \throws ulf_error    If an error occurred
    */
   bool zsuCrc32Result() {
-    bool r{};
-    if (auto const e{libulf_mdu_ein_zsu_crc32_result(_lib, &r)}; e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+    return execute<bool>(libulf_mdu_ein_zsu_crc32_result, _lib);
   }
 
   /**
@@ -1049,16 +879,183 @@ struct MDU_EIN {
    * \throws ulf_error    If an error occurred
    */
   bool zsuCrc32ResultExit() {
-    bool r{};
-    if (auto const e{libulf_mdu_ein_zsu_crc32_result_exit(_lib, &r)};
-        e != LIBULF_OK)
-      throw ulf_error{e, libulf_last_error_string()};
-    return r;
+    return execute<bool>(libulf_mdu_ein_zsu_crc32_result_exit, _lib);
   }
 
 private:
   // Internal CTor
   MDU_EIN(libulf_handle& lib) : _lib{lib} {}
+
+  libulf_handle& _lib; ///< Underlying handle
+};
+
+struct DECUP_EIN {
+  friend class LibULF;
+
+  /**
+   * Resets a decoder to bootloader in update mode
+   *
+   * \note Corresponds to `::libulf_decup_ein_enter_zsu`
+   *
+   * \return bool         `true` if successful, `false` else
+   *
+   * \throws ulf_error    If an error occurred
+   */
+  bool enterZSU() { return execute<bool>(libulf_decup_ein_enter_zsu, _lib); }
+
+  /**
+   * Resets a decoder to bootloader in soundload mode
+   *
+   * \note Corresponds to `::libulf_decup_ein_enter_zsu`
+   *
+   * \return bool         `true` if successful, `false` else
+   *
+   * \throws ulf_error    If an error occurred
+   */
+  bool enterZPP() { return execute<bool>(libulf_decup_ein_enter_zpp, _lib); }
+
+  /**
+   * Transmits a decoder id
+   *
+   * \note Corresponds to `::libulf_decup_ein_zsu_decoder_id`
+   *
+   * \param id Decoder Id
+   *
+   * \return bool         `true` if successful, `false` else
+   *
+   * \throws ulf_error    If an error occurred
+   */
+  bool zsuDecoderId(uint8_t id) {
+    return execute<bool>(libulf_decup_ein_zsu_decoder_id, _lib, id);
+  }
+
+  /**
+   * Transmits the update page count
+   *
+   * \note Corresponds to `::libulf_decup_ein_zsu_page_count`
+   *
+   * \param firmware Firmware
+   *
+   * \return bool         `true` if successful, `false` else
+   *
+   * \throws ulf_error    If an error occurred
+   */
+  bool zsuPageCount(ZSU::Firmware& firmware) {
+    return execute<bool>(
+      libulf_decup_ein_zsu_page_count, _lib, firmware._zsu, firmware._fwIndex);
+  }
+
+  /**
+   * Transmits the update security bytes
+   *
+   * \note Corresponds to `::libulf_decup_ein_zsu_security_bytes`
+   *
+   * \return bool         `true` if successful, `false` else
+   *
+   * \throws ulf_error    If an error occurred
+   */
+  bool zsuSecurityBytes() {
+    return execute<bool>(libulf_decup_ein_zsu_security_bytes, _lib);
+  }
+
+  /**
+   * Transmits an update block
+   *
+   * \note Corresponds to `::libulf_decup_ein_zsu_blocks`
+   *
+   * \param firmware  Firmware
+   * \param index     Block index
+   *
+   * \return bool         `true` if successful, `false` else
+   *
+   * \throws ulf_error    If an error occurred
+   */
+  bool zsuBlocks(ZSU::Firmware& firmware, std::size_t index) {
+    return execute<bool>(libulf_decup_ein_zsu_blocks,
+                         _lib,
+                         firmware._zsu,
+                         firmware._fwIndex,
+                         index);
+  }
+
+  /**
+   * Reads a sigle cv
+   *
+   * \param cv    Cv address
+   *
+   * \note Corresponds to `::libulf_decup_ein_cv_read`
+   *
+   * \return int          Read cv value
+   *
+   * \throws ulf_error    If an error occurred
+   */
+  int cvRead(uint16_t cv) {
+    return execute<int>(libulf_decup_ein_cv_read, _lib, cv);
+  }
+
+  /**
+   * Writes a single cv
+   *
+   * \note Corresponds to `::libulf_decup_ein_cv_write`
+   *
+   * \param cv      Cv address
+   * \param value   Cv value
+   *
+   * \return bool         `true` if successful, `false` else
+   *
+   * \throws ulf_error    If an error occurred
+   */
+  bool cvWrite(uint16_t cv, uint8_t value) {
+    return execute<bool>(libulf_decup_ein_cv_write, _lib, cv, value);
+  }
+
+  /**
+   * Reads the decoder id
+   *
+   * \note Corresponds to `::libulf_decup_ein_zpp_decoder_id`
+   *
+   * \return int          Read cv value
+   *
+   * \throws ulf_error    If an error occurred
+   */
+  int zppDecoderId() {
+    return execute<int>(libulf_decup_ein_zpp_decoder_id, _lib);
+  }
+
+  /**
+   * Erases the decoder sound flash
+   *
+   * \note Corresponds to `::libulf_decup_ein_zpp_erase_flash`
+   *
+   * \return bool         `true` if successful, `false` else
+   *
+   * \throws ulf_error    If an error occurred
+   */
+  bool zppEraseFlash() {
+    return execute<bool>(libulf_decup_ein_zpp_erase_flash, _lib);
+  }
+
+  /**
+   * Writes a block to the decoder sound flash
+   *
+   * \note Corresponds to `::libulf_decup_ein_zpp_write_flash`
+   *
+   * \param zpp           ZPP project
+   * \param index         ZPP block index
+   *
+   * \return bool         `true` if successful, `false` else
+   *
+   * \throws ulf_error    If an error occurred
+   */
+  bool zppWriteFlash(ZPP& zpp, size_t index) {
+    return execute<bool>(libulf_decup_ein_zpp_write_flash,
+                         _lib,
+                         static_cast<zpp_handle>(zpp),
+                         index);
+  }
+
+private:
+  DECUP_EIN(libulf_handle& lib) : _lib{lib} {}
 
   libulf_handle& _lib; ///< Underlying handle
 };
@@ -1077,7 +1074,11 @@ struct LibULF {
   LibULF& operator=(LibULF const&) = delete;
 
   LibULF(LibULF&& source) : _lib{source._lib} { source._lib = nullptr; }
-  LibULF& operator=(LibULF&& source) = delete;
+  LibULF& operator=(LibULF&& source) {
+    _lib = source._lib;
+    source._lib = nullptr;
+    return *this;
+  }
   ~LibULF() { libulf_destroy(_lib); }
 
   /**
@@ -1125,6 +1126,32 @@ struct LibULF {
   Error close() { return static_cast<Error>(libulf_close(_lib)); }
 
   /**
+   * Sets the USB RTS line state
+   *
+   * \note Corresponds to `::libulf_set_rts`
+   *
+   * \param enable if `true` enable, disable otherwise
+   *
+   * \return Error
+   */
+  Error setRTS(bool enable) {
+    return static_cast<Error>(libulf_set_rts(_lib, enable));
+  }
+
+  /**
+   * Sets the USB DTR line state
+   *
+   * \note Corresponds to `::libulf_set_dtr`
+   *
+   * \param enable if `true` enable, disable otherwise
+   *
+   * \return Error
+   */
+  Error setDTR(bool enable) {
+    return static_cast<Error>(libulf_set_dtr(_lib, enable));
+  }
+
+  /**
    * Returns the COM API interface group
    *
    * \return COM&
@@ -1145,12 +1172,15 @@ struct LibULF {
    */
   MDU_EIN& mdu_ein() { return _mdu_ein; }
 
+  DECUP_EIN& decup_ein() { return _decup_ein; }
+
 private:
   libulf_handle _lib; ///< Underlying handle
 
-  COM _com{_lib};         ///< COM interface
-  SUSIV2 _susiv2{_lib};   ///< SUSIV2 interface
-  MDU_EIN _mdu_ein{_lib}; ///< MDU_EIN interface
+  COM _com{_lib};             ///< COM interface
+  SUSIV2 _susiv2{_lib};       ///< SUSIV2 interface
+  MDU_EIN _mdu_ein{_lib};     ///< MDU_EIN interface
+  DECUP_EIN _decup_ein{_lib}; ///< DECUP_EIN interface
 };
 
 } // namespace libulf

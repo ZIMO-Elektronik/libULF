@@ -22,7 +22,7 @@ public:
   bool MatchAndExplain(R const& range, std::ostream* os) const {
     if (os) *os << std::endl;
 
-    {  // Size check
+    { // Size check
       auto const size{std::ranges::size(range)};
       auto const e_size{std::ranges::size(m_e_range)};
       if (size != e_size) {
@@ -33,7 +33,7 @@ public:
       }
     }
     if (std::ranges::equal(range, m_e_range)) return true;
-    {  // Not equal, check first cause
+    { // Not equal, check first cause
       auto it{std::ranges::begin(range)};
       auto const end{std::ranges::end(range)};
       auto e_it{std::ranges::begin(m_e_range)};

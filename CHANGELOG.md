@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 0.4.0
+
+- Add: DECUP_EIN ZPP and ZSU update (no CV-Sets yet)
+- Add: ZPP cv interface to api
+- ***Breaking*** Change: Renamed `libulf_zpp_blocks` to `libulf_zpp_block_count`
+- ***Breaking*** Change: Renamed `ZPP::blocks` to `ZPP::blockCount`
+- ***Breaking*** Change: Drop `FirmwareIterator` in favor of view interface and `Firmware` lazy type
+
 ## 0.3.2
 
 - ***Breaking*** Change: Default backend for OSX to libserialport

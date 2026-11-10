@@ -20,7 +20,8 @@ int main() {
   auto lib{setup::connect()};
   if (!lib) return -1;
 
-  auto zsu{libulf_zsu_read(paths::zsu_path.data(), paths::zsu_path.size())};
+  auto zsu{
+    libulf_zsu_read(paths::ms_zsu_path.data(), paths::ms_zsu_path.size())};
   if (!zsu) return -1;
 
   size_t fwIndex{};
@@ -111,6 +112,7 @@ int main() {
         return -1;
       bar(static_cast<double>(i + 1) / static_cast<double>(blocks));
     }
+    bar.erase();
   }
 
   std::cout << "10. Start CRC32 verification" << std::endl;

@@ -34,8 +34,8 @@ elseif(APPLE)
   set(BACKEND_LIBSERIALPORT_DEFAULT ON)
 else()
   # Default (for now)
-  set(BACKEND_LIBUSB_DEFAULT ON)
-  set(BACKEND_LIBSERIALPORT_DEFAULT OFF)
+  set(BACKEND_LIBUSB_DEFAULT OFF)
+  set(BACKEND_LIBSERIALPORT_DEFAULT ON)
 endif()
 
 option(LIBULF_BACKEND_LIBUSB "Libusb as backend" ${BACKEND_LIBUSB_DEFAULT})
@@ -72,6 +72,11 @@ add_library(
   ${TARGET} SHARED
   src/transmission/transmission_base.cpp
   src/transmission/com/base.cpp
+  src/transmission/decup_ein/base.cpp
+  src/transmission/decup_ein/cv_read.cpp
+  src/transmission/decup_ein/preamble.cpp
+  src/transmission/decup_ein/security_bytes.cpp
+  src/transmission/decup_ein/zpp_decoder_id.cpp
   src/transmission/mdu_ein/base.cpp
   src/transmission/mdu_ein/cv_read.cpp
   src/transmission/mdu_ein/config_transfer_rate.cpp
@@ -82,6 +87,7 @@ add_library(
   src/bridge/bridge_com.cpp
   src/bridge/bridge_context.cpp
   src/bridge/bridge_susiv2.cpp
+  src/bridge/bridge_decup_ein.cpp
   src/bridge/bridge_mdu_ein.cpp
   src/bridge/bridge_zpp.cpp
   src/bridge/bridge_zsu.cpp
@@ -121,6 +127,10 @@ if(NOT TARGET ULF::SUSIV2)
   cpmaddpackage("gh:ZIMO-Elektronik/ULF_SUSIV2@0.3.5")
 endif()
 
+if(NOT TARGET ULF::DECUP_EIN)
+  cpmaddpackage("gh:ZIMO-Elektronik/ULF_DECUP_EIN@0.2.1")
+endif()
+
 if(NOT TARGET ZPP::ZPP)
   cpmaddpackage("gh:ZIMO-Elektronik/ZPP@0.2.1")
 endif()
@@ -153,6 +163,7 @@ target_include_directories(${TARGET}
 target_link_libraries(
   ${TARGET}
   ULF::MDU_EIN
+  ULF::DECUP_EIN
   ULF::SUSIV2
   ZPP::ZPP
   ZSU::ZSU
