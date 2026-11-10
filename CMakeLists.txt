@@ -73,6 +73,7 @@ add_library(
   src/transmission/transmission_base.cpp
   src/transmission/com/base.cpp
   src/transmission/decup_ein/base.cpp
+  src/transmission/decup_ein/cv_read.cpp
   src/transmission/decup_ein/preamble.cpp
   src/transmission/decup_ein/security_bytes.cpp
   src/transmission/mdu_ein/base.cpp
