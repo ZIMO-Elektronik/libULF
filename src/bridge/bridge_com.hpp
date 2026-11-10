@@ -43,6 +43,7 @@ struct COM {
   std::string ping();
   bool reset();
   bool susiv2();
+  bool decup_ein();
   bool mdu_ein();
 
 private:

@@ -71,6 +71,10 @@ void Bridge::openFd(int Fd) { return _ctx.connection->openFd(Fd); }
  */
 void Bridge::close() { return _ctx.connection->close(); }
 
+void Bridge::setRTS(bool enable) { return _ctx.connection->setRTS(enable); }
+
+void Bridge::setDTR(bool enable) { return _ctx.connection->setDTR(enable); }
+
 /**
  * COM getter
  *
@@ -91,6 +95,13 @@ SUSIV2& Bridge::susiv2() { return _susiv2; }
  * \return MDU_EIN& MDU_EIN
  */
 MDU_EIN& Bridge::mdu_ein() { return _mdu_ein; }
+
+/**
+ * DECUP_EIN getter
+ *
+ * \return DECUP_EIN& DECUP_EIN
+ */
+DECUP_EIN& Bridge::decup_ein() { return _decup_ein; }
 
 /**
  * ZPP getter

@@ -154,6 +154,10 @@ libulf_error libulf_openFd(libulf_handle handle, int Fd);
  */
 libulf_error libulf_close(libulf_handle handle);
 
+libulf_error libulf_set_rts(libulf_handle handle, bool enable);
+
+libulf_error libulf_set_dtr(libulf_handle handle, bool enable);
+
 /**
  * Returns the last error string
  *
@@ -239,6 +243,8 @@ libulf_error libulf_com_susiv2(libulf_handle hlib, bool* success);
  * \return libulf_error LIBULF_OK on succes, LIBULF_ERR_ else
  */
 libulf_error libulf_com_mdu_ein(libulf_handle hlib, bool* success);
+
+libulf_error libulf_com_decup_ein(libulf_handle hlib, bool* success);
 
 /** ---------------------------------------------------
  *  Bridge SUSIV2
@@ -828,6 +834,32 @@ libulf_error libulf_mdu_ein_zsu_crc32_result(libulf_handle hlib, bool* success);
  */
 libulf_error libulf_mdu_ein_zsu_crc32_result_exit(libulf_handle hlib,
                                                   bool* success);
+
+/** ---------------------------------------------------
+ *  Bridge DECUP_EIN
+ *  ---------------------------------------------------
+ */
+
+libulf_error libulf_decup_ein_enter_zsu(libulf_handle hlib, bool* success);
+
+libulf_error libulf_decup_ein_enter_zpp(libulf_handle hlib, bool* success);
+
+libulf_error
+libulf_decup_ein_zsu_decoder_id(libulf_handle hlib, uint8_t id, bool* success);
+
+libulf_error libulf_decup_ein_zsu_page_count(libulf_handle hlib,
+                                             zsu_handle hzsu,
+                                             size_t firmware_index,
+                                             bool* success);
+
+libulf_error libulf_decup_ein_zsu_security_bytes(libulf_handle hlib,
+                                                 bool* success);
+
+libulf_error libulf_decup_ein_zsu_blocks(libulf_handle hlib,
+                                         zsu_handle hzsu,
+                                         size_t firmware_index,
+                                         uint32_t index,
+                                         bool* success);
 
 /** ---------------------------------------------------
  *  Bridge ZPP

@@ -47,6 +47,9 @@ struct IConnection {
 
   virtual void flush() = 0;
 
+  virtual void setRTS(bool enable) = 0;
+  virtual void setDTR(bool enable) = 0;
+
   /**
    * Write range
    *

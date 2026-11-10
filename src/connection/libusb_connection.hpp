@@ -50,6 +50,9 @@ struct LibusbConnection : IConnection {
 
   virtual void flush() override;
 
+  virtual void setRTS(bool enable) override;
+  virtual void setDTR(bool enable) override;
+
 private:
   void config();
   void claim();
@@ -71,6 +74,12 @@ private:
   libusb_device_handle* _handle{nullptr}; ///< Device
   uint8_t _tx_ep, _rx_ep;                 ///< Endpoints
   int _interface;                         ///< Interface
+
+  struct PinState {
+    bool rts{};
+    bool dtr{};
+    bool cts{};
+  } _ps{};
 };
 
 } // namespace internal

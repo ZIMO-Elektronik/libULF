@@ -144,6 +144,32 @@ libulf_error libulf_close(libulf_handle handle) {
   }
 }
 
+libulf_error libulf_set_rts(libulf_handle handle, bool enable) {
+  try {
+    to_bridge(handle)->setRTS(enable);
+    return LIBULF_OK;
+  } catch (libulf::ulf_error const& e) {
+    last_what = e.what();
+    return static_cast<libulf_error>(static_cast<libulf::Error>(e));
+  } catch (...) {
+    last_what = "BUG! Sonething bad has happened and no one knows what!";
+    return LIBULF_ERR_UNKNOWN;
+  }
+}
+
+libulf_error libulf_set_dtr(libulf_handle handle, bool enable) {
+  try {
+    to_bridge(handle)->setDTR(enable);
+    return LIBULF_OK;
+  } catch (libulf::ulf_error const& e) {
+    last_what = e.what();
+    return static_cast<libulf_error>(static_cast<libulf::Error>(e));
+  } catch (...) {
+    last_what = "BUG! Sonething bad has happened and no one knows what!";
+    return LIBULF_ERR_UNKNOWN;
+  }
+}
+
 char const* libulf_last_error_string() { return last_what; }
 
 /** ---------------------------------------------------
@@ -165,6 +191,10 @@ libulf_error libulf_com_susiv2(libulf_handle hlib, bool* success) {
 
 libulf_error libulf_com_mdu_ein(libulf_handle hlib, bool* success) {
   return execute([&]() { return to_bridge(hlib)->com().mdu_ein(); }, success);
+}
+
+libulf_error libulf_com_decup_ein(libulf_handle hlib, bool* success) {
+  return execute([&]() { return to_bridge(hlib)->com().decup_ein(); }, success);
 }
 
 /** ---------------------------------------------------
@@ -396,6 +426,58 @@ libulf_error libulf_mdu_ein_zsu_crc32_result_exit(libulf_handle hlib,
                                                   bool* success) {
   return execute(
     [&]() { return to_bridge(hlib)->mdu_ein().zsuCRC32ResultExit(); }, success);
+}
+
+/** ---------------------------------------------------
+ *  Bridge DECUP_EIN
+ *  ---------------------------------------------------
+ */
+
+libulf_error libulf_decup_ein_enter_zsu(libulf_handle hlib, bool* success) {
+  return execute([&]() { return to_bridge(hlib)->decup_ein().enterZSU(); },
+                 success);
+}
+
+libulf_error libulf_decup_ein_enter_zpp(libulf_handle hlib, bool* success) {
+  return execute([&]() { return to_bridge(hlib)->decup_ein().enterZPP(); },
+                 success);
+}
+
+libulf_error
+libulf_decup_ein_zsu_decoder_id(libulf_handle hlib, uint8_t id, bool* success) {
+  return execute(
+    [&]() { return to_bridge(hlib)->decup_ein().zsuDecoderId(id); }, success);
+}
+
+libulf_error libulf_decup_ein_zsu_page_count(libulf_handle hlib,
+                                             zsu_handle hzsu,
+                                             size_t firmware_index,
+                                             bool* success) {
+  return execute(
+    [&]() {
+      return to_bridge(hlib)->decup_ein().zsuPageCount(
+        to_zsu(hzsu)->firmwares.at(firmware_index));
+    },
+    success);
+}
+
+libulf_error libulf_decup_ein_zsu_security_bytes(libulf_handle hlib,
+                                                 bool* success) {
+  return execute(
+    [&]() { return to_bridge(hlib)->decup_ein().zsuSecurityBytes(); }, success);
+}
+
+libulf_error libulf_decup_ein_zsu_blocks(libulf_handle hlib,
+                                         zsu_handle hzsu,
+                                         size_t firmware_index,
+                                         uint32_t index,
+                                         bool* success) {
+  return execute(
+    [&]() {
+      return to_bridge(hlib)->decup_ein().zsuBlocks(
+        to_zsu(hzsu)->firmwares.at(firmware_index), index);
+    },
+    success);
 }
 
 /** ---------------------------------------------------

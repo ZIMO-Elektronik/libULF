@@ -273,6 +273,40 @@ void LibusbConnection::flush() {
 }
 
 /**
+ * Sets the RTS line state
+ *
+ * \param enable Enable if true, otherwise disable
+ */
+void LibusbConnection::setRTS(bool enable) {
+  uint8_t s{_ps.dtr << 1u | enable << 0u};
+  if (auto const rc{libusb_control_transfer(
+        _handle, 0x21u, 0x22u, s, _interface, nullptr, 0u, 0u)};
+      rc != LIBUSB_SUCCESS) {
+    throw libulf::ulf_error{libulf::map(rc), "Failed to set RTS line state"};
+    std::unreachable();
+  }
+
+  _ps.rts = enable;
+}
+
+/**
+ * Sets the DTR line state
+ *
+ * \param enable Enable if true, otherwise disable
+ */
+void LibusbConnection::setDTR(bool enable) {
+  uint8_t s{enable << 1u | _ps.rts << 0u};
+  if (auto const rc{libusb_control_transfer(
+        _handle, 0x21u, 0x22u, s, _interface, nullptr, 0u, 0u)};
+      rc != LIBUSB_SUCCESS) {
+    throw libulf::ulf_error{libulf::map(rc), "Failed to set DTR line state"};
+    std::unreachable();
+  }
+
+  _ps.dtr = enable;
+}
+
+/**
  * Write payload
  *
  * \param payload Payload

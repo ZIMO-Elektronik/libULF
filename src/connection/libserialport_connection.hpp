@@ -55,6 +55,9 @@ struct LibserialportConnection : public IConnection {
 
   virtual void flush() override;
 
+  virtual void setRTS(bool enable) override;
+  virtual void setDTR(bool enable) override;
+
 private:
   void config();
 
