@@ -573,7 +573,7 @@ int libulf_zsu_get_firmware_type(zsu_handle const zsu,
 uint32_t libulf_zsu_get_firmware_block_count(zsu_handle const zsu,
                                              size_t const firmware_index) {
   assert(zsu);
-  return bridge::ZSU::blocks(
+  return bridge::ZSU::blockCount(
     reinterpret_cast<zsu::File*>(zsu)->firmwares.at(firmware_index));
 }
 uint8_t const* libulf_zsu_get_firmware_data(zsu_handle const zsu,

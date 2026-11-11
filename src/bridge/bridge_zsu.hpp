@@ -33,18 +33,18 @@
 namespace bridge {
 
 struct ZSU {
-  using AddressedBlock = std::pair<uint32_t, std::span<uint8_t const, 64uz>>;
+  using Block = std::span<uint8_t const>;
+  using AddressedBlock = std::pair<uint32_t, Block>;
 
   static zsu::File* read(std::filesystem::path path);
   static void release(zsu::File* file);
 
-  static uint32_t blocks(zsu::Firmware const& firmware);
+  static uint32_t blockCount(zsu::Firmware const& firmware);
+  static uint32_t blockSize(zsu::Firmware const& firmware);
 
-  static std::pair<uint32_t, std::span<uint8_t const, 64uz>>
-  block(zsu::Firmware const& firmware, uint32_t index);
-
-private:
-  static unsigned int const _blockSize{64uz};
+  static Block block(zsu::Firmware const& firmware, uint32_t index);
+  static AddressedBlock addressedBlock(zsu::Firmware const& firmware,
+                                       uint32_t index);
 };
 
 } // namespace bridge

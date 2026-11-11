@@ -135,13 +135,12 @@ bool DECUP_EIN::zsuSecurityBytes() {
  * \throws ulf_error   First error occurred
  */
 bool DECUP_EIN::zsuBlocks(zsu::Firmware const& firmware, uint32_t index) {
-  uint32_t const block_size{decup::decoder_id2block_size(firmware.id)};
-
   std::vector<uint8_t> m{static_cast<uint8_t>(index)};
-  m.reserve(70uz);
-  std::ranges::copy(std::span<uint8_t const>{firmware.bin}.subspan(
-                      index * block_size, block_size),
-                    std::back_inserter(m));
+  m.reserve(1u                         // Index
+            + ZSU::blockSize(firmware) // Block
+            + 1u                       // XOR
+  );
+  std::ranges::copy(ZSU::block(firmware, index), std::back_inserter(m));
   uint8_t crc{0};
   std::ranges::for_each(m, [&crc](uint8_t const b) { crc ^= b; });
   m.push_back(crc);

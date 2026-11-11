@@ -64,22 +64,47 @@ void ZSU::release(zsu::File* file) { return delete file; }
  * \param firmware  Firmware
  * \return uint32_t Block count
  */
-uint32_t ZSU::blocks(zsu::Firmware const& firmware) {
-  return firmware.bin.size() / _blockSize;
+uint32_t ZSU::blockCount(zsu::Firmware const& firmware) {
+  return firmware.bin.size() / blockSize(firmware);
 }
 
 /**
- * Get block at index
+ * Get Firmware block size
+ *
+ * \param firmware  Firmware
+ * \return uint32_t Block size
+ */
+uint32_t ZSU::blockSize(zsu::Firmware const& firmware) {
+  return firmware.type == '1'   ? 32uz  // PIC16
+         : firmware.type == '2' ? 64uz  // PIC18
+                                : 64uz; // STM32
+}
+
+/**
+ * Get a firmware block
  *
  * \param firmware  Firmware
  * \param index     Block index
- * \return std::pair<uint32_t, std::span<uint8_t const, 64uz>>
+ *
+ * \return Block
  */
-ZSU::AddressedBlock ZSU::block(zsu::Firmware const& firmware, uint32_t index) {
-  assert(index < blocks(firmware));
-  return {index * _blockSize,
-          std::span<uint8_t const, 64uz>{
-            firmware.bin.data() + (index * _blockSize), _blockSize}};
+ZSU::Block ZSU::block(zsu::Firmware const& firmware, uint32_t index) {
+  assert(index < blockCount(firmware));
+  auto const block_size{blockSize(firmware)};
+  return {firmware.bin.data() + (index * block_size), block_size};
+}
+
+/**
+ * Get addressed block at index
+ *
+ * \param firmware  Firmware
+ * \param index     Block index
+ *
+ * \return Addressed block
+ */
+ZSU::AddressedBlock ZSU::addressedBlock(zsu::Firmware const& firmware,
+                                        uint32_t index) {
+  return {index * blockSize(firmware), block(firmware, index)};
 }
 
 } // namespace bridge

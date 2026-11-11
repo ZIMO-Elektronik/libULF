@@ -487,8 +487,11 @@ bool MDU_EIN::zsuUpdate(uint32_t address,
  * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zsuUpdate(zsu::Firmware const& firmware, uint32_t index) {
-  auto const addressed_block{_zsu.block(firmware, index)};
-  return zsuUpdate(addressed_block.first, addressed_block.second);
+  auto const addressed_block{_zsu.addressedBlock(firmware, index)};
+  return zsuUpdate(
+    addressed_block.first,
+    std::span<uint8_t const, 64uz>{addressed_block.second.data(),
+                                   addressed_block.second.size()});
 }
 
 /**
