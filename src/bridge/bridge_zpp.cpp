@@ -86,6 +86,11 @@ unsigned int ZPP::cvs(zpp::File* file) {
   return file->cvs.size();
 }
 
+ZPP::Block ZPP::block(zpp::File* file, unsigned int index) {
+  return std::span<uint8_t const, 256uz>{
+    file->flash.data() + index * _blockSize, _blockSize};
+}
+
 /**
  * Get flash block
  *
@@ -95,15 +100,13 @@ unsigned int ZPP::cvs(zpp::File* file) {
  *
  * \note Will pad last block with zeros
  */
-ZPP::AddressedBlock ZPP::block(zpp::File* file, unsigned int block) {
-  LOG_INFO("Getting block nr. ", block + 1);
+ZPP::AddressedBlock ZPP::addressedBlock(zpp::File* file, unsigned int index) {
+  LOG_INFO("Getting block nr. ", index + 1);
 
   LIBULF_ASSERT(file) << "Attempted to get block from NULL";
-  LIBULF_ASSERT(block < blocks(file)) << "Block out of bounds";
+  LIBULF_ASSERT(index < blocks(file)) << "Block out of bounds";
 
-  return {block * _blockSize,
-          std::span<uint8_t const, 256uz>{
-            file->flash.data() + block * _blockSize, _blockSize}};
+  return {index * _blockSize, block(file, index)};
 }
 
 /**

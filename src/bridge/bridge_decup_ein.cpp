@@ -27,6 +27,7 @@
 
 #include "bridge_decup_ein.hpp"
 #include <decup/decup.hpp>
+#include "config.hpp"
 #include "transmission/decup_ein/base.hpp"
 #include "transmission/decup_ein/cv_read.hpp"
 #include "transmission/decup_ein/preamble.hpp"
@@ -80,7 +81,8 @@ bool DECUP_EIN::enterZPP() {
  * \throws ulf_error   First error occurred
  */
 bool DECUP_EIN::zsuDecoderId(uint8_t id) {
-  transmission::decup_ein::Base t{_ctx.connection, 100u, id};
+  transmission::decup_ein::Base t{
+    _ctx.connection, internal::config::timeout::decup_ein::zsu_decoder_id, id};
   try {
     t.execute();
     return t.evaluateBool();
@@ -176,8 +178,20 @@ uint8_t DECUP_EIN::cvRead(uint16_t cv) {
  * \throws ulf_error   First error occurred
  */
 bool DECUP_EIN::cvWrite(uint16_t cv, uint8_t value) {
-  bool returnValue;
-  return returnValue;
+  decup::Packet v{
+    static_cast<uint8_t>(decup::Command::CvWrite), // Command
+    0xAAu,                                         // Security byte
+    static_cast<uint8_t>(cv >> 8u),                //
+    static_cast<uint8_t>(cv >> 0u),                // Cv Address
+  };
+
+  v.push_back(decup::crc8(v)); // Checksum
+  v.push_back(value);          // Value
+
+  transmission::decup_ein::Base t{
+    _ctx.connection, std::span<uint8_t const>{v.data(), v.size()}, 100u};
+  t.execute();
+  return !t.evaluateBool();
 }
 
 /**
@@ -188,8 +202,9 @@ bool DECUP_EIN::cvWrite(uint16_t cv, uint8_t value) {
  * \throws ulf_error   First error occurred
  */
 uint8_t DECUP_EIN::decoderId() {
-  uint8_t returnValue;
-  return returnValue;
+  using std::operator""sv;
+  throw libulf::ulf_error{libulf::Error::unknown, "Missing Implementation"};
+  std::unreachable();
 }
 
 /**
@@ -200,8 +215,16 @@ uint8_t DECUP_EIN::decoderId() {
  * \throws ulf_error   First error occurred
  */
 bool DECUP_EIN::zppFlashErase() {
-  bool returnValue;
-  return returnValue;
+  transmission::decup_ein::Base t{
+    _ctx.connection,
+    internal::config::timeout::decup_ein::zpp_flash_erase,
+    static_cast<uint8_t>(decup::Command::DeleteFlash),
+    0x55u,
+    0xFFu,
+    0xFFu,
+  };
+  t.execute();
+  return !t.evaluateBool();
 }
 
 /**
@@ -215,6 +238,14 @@ bool DECUP_EIN::zppFlashErase() {
  * \throws ulf_error   First error occurred
  */
 bool DECUP_EIN::zppWrite(zpp::File* file, uint32_t index) {
+  decup::Packet p{
+    0x05u,
+    0x55u,
+    static_cast<uint8_t>(index >> 8u),
+    static_cast<uint8_t>(index >> 0u),
+  };
+  std::ranges::copy(ZPP::block(file, index), std::back_inserter(p));
+
   bool returnValue;
   return returnValue;
 }

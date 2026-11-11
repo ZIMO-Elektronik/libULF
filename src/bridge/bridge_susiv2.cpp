@@ -121,7 +121,7 @@ bool SUSIV2::zppWrite(uint32_t address, std::span<uint8_t const> block) {
  * \throws ulf_error   First error occurred
  */
 bool SUSIV2::zppWrite(zpp::File* file, uint32_t index) {
-  auto const block{_zpp.block(file, index)};
+  auto const block{_zpp.addressedBlock(file, index)};
   return zppWrite(block.first, block.second);
 }
 

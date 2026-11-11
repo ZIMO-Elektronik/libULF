@@ -336,7 +336,7 @@ bool MDU_EIN::zppUpdate(uint32_t address,
  * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zppUpdate(zpp::File* file, uint32_t index) {
-  auto const addressed_block{_zpp.block(file, index)};
+  auto const addressed_block{_zpp.addressedBlock(file, index)};
   return zppUpdate(addressed_block.first, addressed_block.second);
 }
 

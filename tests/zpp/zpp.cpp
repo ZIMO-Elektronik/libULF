@@ -16,7 +16,7 @@ TEST_F(TestZpp, block) {
   auto const expected_block{
     std::span<uint8_t>{file->flash}.subspan(block * 256u, 256u)};
 
-  auto const addr_block{lib.zpp().block(file, block)};
+  auto const addr_block{lib.zpp().addressedBlock(file, block)};
 
   ASSERT_EQ(addr_block.first, block);
   ASSERT_THAT(addr_block.second, RM(expected_block));
@@ -29,7 +29,7 @@ TEST_F(TestZpp, last_block) {
   auto const expected_block{
     std::span<uint8_t>{file->flash}.subspan(last_block * 256u, 256u)};
 
-  auto const addr_block{lib.zpp().block(file, last_block)};
+  auto const addr_block{lib.zpp().addressedBlock(file, last_block)};
 
   ASSERT_EQ(addr_block.first, last_block * 256u);
   ASSERT_THAT(addr_block.second, RM(expected_block));

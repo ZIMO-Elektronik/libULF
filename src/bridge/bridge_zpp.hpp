@@ -33,7 +33,8 @@
 namespace bridge {
 
 struct ZPP {
-  using AddressedBlock = std::pair<uint32_t, std::span<uint8_t const, 256uz>>;
+  using Block = std::span<uint8_t const, 256uz>;
+  using AddressedBlock = std::pair<uint32_t, Block>;
 
   static zpp::File* read(std::filesystem::path path);
   static void release(zpp::File* file);
@@ -41,7 +42,8 @@ struct ZPP {
   static unsigned int blocks(zpp::File* file);
   static unsigned int cvs(zpp::File* file);
 
-  static AddressedBlock block(zpp::File* file, unsigned int block);
+  static Block block(zpp::File* file, unsigned int index);
+  static AddressedBlock addressedBlock(zpp::File* file, unsigned int index);
 
   static std::string_view author(zpp::File* file);
   static std::string_view email(zpp::File* file);

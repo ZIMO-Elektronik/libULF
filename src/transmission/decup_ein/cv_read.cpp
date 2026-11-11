@@ -29,6 +29,7 @@
 #include <decup/decup.hpp>
 #include <utility>
 #include "base.hpp"
+#include "config.hpp"
 #include "ulf/cpp/ulf_error.hpp"
 
 namespace transmission::decup_ein {
@@ -45,10 +46,10 @@ void CvRead::execute() {
   initial_t.execute();
   _value |= initial_t.evaluateBool() ? 1u << 0u : 0u;
 
-  Base t{_conn, 0u, 0xFFu};
+  Base t{_conn, internal::config::timeout::decup_ein::cv_read, 0xFFu};
   for (unsigned int i{1u}; i < 8u; i++) {
     t.execute();
-    _value |= initial_t.evaluateBool() ? 1u << i : 0u;
+    _value |= initial_t.evaluateBool() ? 0u : 1u << i;
   }
 }
 
