@@ -20,7 +20,7 @@ struct ProgressBar {
       else if (j == pos) std::cout << ">";
       else std::cout << " ";
     }
-    std::cout << int(progress * 100.0) << " %";
+    std::cout << "] " << int(progress * 100.0) << " %";
     std::cout << "\r";
     std::cout.flush();
   }
