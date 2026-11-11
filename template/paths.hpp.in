@@ -31,5 +31,6 @@
 
 namespace paths {
 std::string const zpp_path = "@ZPP_PATH@";
-std::string const zsu_path = "@ZSU_PATH@";
+std::string const ms_zsu_path = "@MS_ZSU_PATH@";
+std::string const mx_zsu_path = "@MX_ZSU_PATH@";
 } // namespace paths

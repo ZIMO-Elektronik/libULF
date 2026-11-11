@@ -18,9 +18,8 @@ int main() {
   auto lib{setup::connect()};
   if (!lib) return -1;
 
-  std::string_view path{"/home/jonas/Downloads/DS240307/DS240307.zsu"};
-
-  auto zsu{libulf_zsu_read(path.data(), path.size())};
+  auto zsu{
+    libulf_zsu_read(paths::mx_zsu_path.data(), paths::mx_zsu_path.size())};
   if (!zsu) return -1;
 
   size_t fwIndex{};

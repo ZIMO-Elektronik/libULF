@@ -24,7 +24,7 @@ struct TestMDU_EIN : public TestBase {
   zpp::File zpp{zpp::read(paths::zpp_path)};
   zpp_handle zppHandle{reinterpret_cast<zpp_handle>(&zpp)};
 
-  zsu::File zsu{zsu::read(paths::zsu_path)};
+  zsu::File zsu{zsu::read(paths::ms_zsu_path)};
   zsu_handle zsuHandle{reinterpret_cast<zsu_handle>(&zsu)};
 
   size_t fwIndex{};
