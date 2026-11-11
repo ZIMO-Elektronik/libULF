@@ -83,7 +83,7 @@ bool DECUP_EIN::zsuDecoderId(uint8_t id) {
   transmission::decup_ein::Base t{_ctx.connection, 100u, id};
   try {
     t.execute();
-    return !t.evaluateBool();
+    return t.evaluateBool();
   } catch (libulf::ulf_error const& e) { return false; }
 }
 
@@ -105,7 +105,7 @@ bool DECUP_EIN::zsuPageCount(zsu::Firmware const& firmware) {
   transmission::decup_ein::Base t{
     _ctx.connection, 100u, static_cast<uint8_t>(page_count)};
   t.execute();
-  return t.evaluateBool();
+  return !t.evaluateBool();
 }
 
 /**
@@ -118,7 +118,7 @@ bool DECUP_EIN::zsuPageCount(zsu::Firmware const& firmware) {
 bool DECUP_EIN::zsuSecurityBytes() {
   transmission::decup_ein::SecurityBytes t{_ctx.connection, 100u};
   t.execute();
-  return t.evaluateBool();
+  return !t.evaluateBool();
 }
 
 /**

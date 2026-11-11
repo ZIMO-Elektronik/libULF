@@ -39,7 +39,7 @@ void SecurityBytes::execute() {
   auto const l{[this](uint8_t const byte) {
     Base t{_conn, _timeout, byte};
     t.execute();
-    return t.evaluateBool();
+    return !t.evaluateBool();
   }};
 
   _first_success = l(0x55u);
