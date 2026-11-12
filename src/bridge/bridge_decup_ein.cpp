@@ -32,6 +32,7 @@
 #include "transmission/decup_ein/cv_read.hpp"
 #include "transmission/decup_ein/preamble.hpp"
 #include "transmission/decup_ein/security_bytes.hpp"
+#include "transmission/decup_ein/zpp_decoder_id.hpp"
 #include "ulf/cpp/ulf_error.hpp"
 
 namespace bridge {
@@ -202,9 +203,9 @@ bool DECUP_EIN::cvWrite(uint16_t cv, uint8_t value) {
  * \throws ulf_error   First error occurred
  */
 uint8_t DECUP_EIN::decoderId() {
-  using std::operator""sv;
-  throw libulf::ulf_error{libulf::Error::unknown, "Missing Implementation"};
-  std::unreachable();
+  transmission::decup_ein::ZppDecoderId t{_ctx.connection};
+  t.execute();
+  return t.evaluateBool();
 }
 
 /**

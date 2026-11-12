@@ -31,6 +31,14 @@
 
 namespace transmission::decup_ein {
 
+/**
+ * DECUP_EIN security bytes transmission
+ *
+ * \details
+ * This struct combines all necessary transmissions into one execution, while
+ * combining their result.
+ *
+ */
 struct SecurityBytes : ITransmission {
   SecurityBytes(std::shared_ptr<internal::IConnection> conn,
                 std::size_t timeout);
@@ -43,11 +51,11 @@ struct SecurityBytes : ITransmission {
   int evaluateValue() final;
 
 private:
-  std::shared_ptr<internal::IConnection> _conn;
-  std::size_t _timeout;
+  std::shared_ptr<internal::IConnection> _conn; ///< USB Connection
+  std::size_t _timeout;                         ///< Timeout
 
-  bool _first_success{};
-  bool _second_success{};
+  bool _first_success{};  ///< First transmission result
+  bool _second_success{}; ///< Second transmission result
 };
 
 } // namespace transmission::decup_ein

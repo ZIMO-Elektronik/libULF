@@ -840,21 +840,116 @@ libulf_error libulf_mdu_ein_zsu_crc32_result_exit(libulf_handle hlib,
  *  ---------------------------------------------------
  */
 
+/**
+ * ZSU entry
+ *
+ * \details
+ * Uses [DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
+ *
+ * \warning
+ * It is illegal to pass NULL. Passing an invalid handle results in UB and
+ * should be avoided
+ *
+ * \param [inout] hlib    libulf handle
+ * \param [out]   success true, if successful, false else
+ *
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
+ */
 libulf_error libulf_decup_ein_enter_zsu(libulf_handle hlib, bool* success);
 
+/**
+ * ZPP entry
+ *
+ * \details
+ * Uses [DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
+ *
+ * \warning
+ * It is illegal to pass NULL. Passing an invalid handle results in UB and
+ * should be avoided
+ *
+ * \param [inout] hlib    libulf handle
+ * \param [out]   success true, if successful, false else
+ *
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
+ */
 libulf_error libulf_decup_ein_enter_zpp(libulf_handle hlib, bool* success);
 
+/**
+ * Transmits a decoder id (zsu)
+ *
+ * \details
+ * Uses [DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
+ *
+ * \warning
+ * It is illegal to pass NULL. Passing an invalid handle results in UB and
+ * should be avoided
+ *
+ * \param [inout] hlib    libulf handle
+ * \param [in]    id      decoder id
+ * \param [out]   success true, if successful, false else
+ *
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
+ */
 libulf_error
 libulf_decup_ein_zsu_decoder_id(libulf_handle hlib, uint8_t id, bool* success);
 
+/**
+ * Transmits the update page count (zsu)
+ *
+ * \details
+ * Uses [DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
+ *
+ * The correct page counted is directly calculated from the given firmware.
+ *
+ * \warning
+ * It is illegal to pass NULL. Passing an invalid handle results in UB and
+ * should be avoided
+ *
+ * \param [inout] hlib            libulf handle
+ * \param [in]    hzsu            zsu handle
+ * \param [in]    firmware_index  firmware index
+ * \param [out]   success         true, if successful, false else
+ *
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
+ */
 libulf_error libulf_decup_ein_zsu_page_count(libulf_handle hlib,
                                              zsu_handle hzsu,
                                              size_t firmware_index,
                                              bool* success);
 
+/**
+ * Transmits the security bytes (zsu)
+ *
+ * \details
+ * Uses [DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
+ *
+ * \warning
+ * It is illegal to pass NULL. Passing an invalid handle results in UB and
+ * should be avoided
+ *
+ * \param [inout] hlib    libulf handle
+ * \param [out]   success true, if successful, false else
+ *
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
+ */
 libulf_error libulf_decup_ein_zsu_security_bytes(libulf_handle hlib,
                                                  bool* success);
 
+/**
+ * Transmits a single update block selected by its index.
+ *
+ * \details
+ * Uses [DECUP_EIN](https://github.com/ZIMO-Elektronik/ULF_DECUP_EIN)
+ *
+ * \warning
+ * It is illegal to pass NULL. Passing an invalid handle results in UB and
+ * should be avoided
+ *
+ * \param [inout] hlib    libulf handle
+ * \param [out]   success true, if successful, false else
+ *
+ * \return libulf_error  LIBULF_OK on success, LIBULF_ERR_ else
+ */
 libulf_error libulf_decup_ein_zsu_blocks(libulf_handle hlib,
                                          zsu_handle hzsu,
                                          size_t firmware_index,

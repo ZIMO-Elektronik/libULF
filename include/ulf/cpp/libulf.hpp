@@ -69,8 +69,9 @@ enum class Speed : uint8_t {
 
 } // namespace mdu
 
-struct MDU_EIN; // Forward declare
-struct SUSIV2;  // Forward declare
+struct MDU_EIN;   // Forward declare
+struct DECUP_EIN; // Forward declare
+struct SUSIV2;    // Forward declare
 
 /**
  * ZPP file API group
@@ -176,7 +177,8 @@ private:
   zpp_handle _zpp; ///< Underlying handle
 };
 
-struct MDU_EIN; // Forward declare
+struct MDU_EIN;   // Forward declare
+struct DECUP_EIN; // Forward declare
 
 /**
  * ZPP file API group
@@ -1062,6 +1064,36 @@ private:
 
   libulf_handle& _lib; ///< Underlying handle
 };
+
+struct DECUP_EIN {
+  friend class LibULF;
+
+  bool enterZSU() {
+    bool r{};
+    if (auto const e{libulf_decup_ein_enter_zsu(_lib, &r)}; e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
+    return r;
+  }
+
+  bool enterZPP() {
+    bool r{};
+    if (auto const e{libulf_decup_ein_enter_zpp(_lib, &r)}; e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
+    return r;
+  }
+
+  bool zsuDecoderId(uint8_t id) {
+    bool r{};
+    if (auto const e{libulf_decup_ein_zsu_decoder_id(_lib, &r)}; e != LIBULF_OK)
+      throw ulf_error{e, libulf_last_error_string()};
+    return r;
+  }
+
+private:
+  DECUP_EIN(libulf_handle& lib) : _lib{lib} {}
+
+  libulf_handle& _lib; ///< Underlying handle
+}
 
 /**
  * LibULF library wrapper

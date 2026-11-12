@@ -31,10 +31,20 @@
 
 namespace transmission::decup_ein {
 
+/**
+ * CTor
+ *
+ * \param conn    USB Connection
+ * \param timeout Receive timeout
+ */
 SecurityBytes::SecurityBytes(std::shared_ptr<internal::IConnection> conn,
                              std::size_t timeout)
   : _conn{conn}, _timeout{timeout} {}
 
+/**
+ * Executes all transmissions
+ *
+ */
 void SecurityBytes::execute() {
   auto const l{[this](uint8_t const byte) {
     Base t{_conn, _timeout, byte};
@@ -53,6 +63,11 @@ std::string SecurityBytes::evaluateString() {
   std::unreachable();
 }
 
+/**
+ * Returns the result as bool
+ *
+ * \return true, if successful, false else
+ */
 bool SecurityBytes::evaluateBool() { return _first_success && _second_success; }
 
 /// Stub

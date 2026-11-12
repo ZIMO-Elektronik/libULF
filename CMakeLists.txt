@@ -76,6 +76,7 @@ add_library(
   src/transmission/decup_ein/cv_read.cpp
   src/transmission/decup_ein/preamble.cpp
   src/transmission/decup_ein/security_bytes.cpp
+  src/transmission/decup_ein/zpp_decoder_id.cpp
   src/transmission/mdu_ein/base.cpp
   src/transmission/mdu_ein/cv_read.cpp
   src/transmission/mdu_ein/config_transfer_rate.cpp
