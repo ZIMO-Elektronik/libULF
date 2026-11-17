@@ -60,6 +60,44 @@
           "ignoreFailures": false
         }
       ],
+    },
+    {
+      "name": "Debug MxZsuUpdate",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/examples/decup_ein/zsu_update/MxZsuUpdate",
+      "args": [],
+      "stopAtEntry": true,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": false
+        }
+      ],
+    },
+    {
+      "name": "Debug MxZppLoad",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/examples/decup_ein/zpp_load/MxZppLoad",
+      "args": [],
+      "stopAtEntry": true,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": false
+        }
+      ],
     }
   ]
 }

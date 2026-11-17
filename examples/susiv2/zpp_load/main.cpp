@@ -14,11 +14,11 @@ int main() {
   auto handle{setup::connect()};
   if (!handle) return -1;
 
-  auto z_handle{
-    libulf_zpp_read(paths::zpp_path.data(), paths::zpp_path.size())};
+  auto z_handle{libulf_zpp_read(paths::zpp_16bit_path.data(),
+                                paths::zpp_16bit_path.size())};
   if (!z_handle) return -1;
 
-  long const count{libulf_zpp_blocks(z_handle)};
+  long const count{libulf_zpp_block_count(z_handle)};
   bool boolean{}; // Result container (implicit bool)
 
   std::cout << "2. Change Mode to SUSIV2" << std::endl;
@@ -44,6 +44,7 @@ int main() {
       }
       bar(static_cast<double>(i) / static_cast<double>(count));
     }
+    bar.erase();
   }
 
   std::cout << "6. Tell decoder to exit ZUSI" << std::endl;

@@ -29,6 +29,7 @@
 
 #include "bridge_com.hpp"
 #include "bridge_context.hpp"
+#include "bridge_decup_ein.hpp"
 #include "bridge_mdu_ein.hpp"
 #include "bridge_susiv2.hpp"
 #include "bridge_zpp.hpp"
@@ -69,9 +70,13 @@ struct Bridge {
 
   void close();
 
+  void setRTS(bool enable);
+  void setDTR(bool enable);
+
   COM& com();
   SUSIV2& susiv2();
   MDU_EIN& mdu_ein();
+  DECUP_EIN& decup_ein();
 
   ZPP& zpp();
   ZSU& zsu();
@@ -81,9 +86,10 @@ private:
   ZPP _zpp{};   ///< ZPP bridge
   ZSU _zsu{};   ///< ZSU bridge
 
-  COM _com{_ctx};                     ///< COM bridge
-  SUSIV2 _susiv2{_ctx, _zpp};         ///< SUSIV2 bridge
-  MDU_EIN _mdu_ein{_ctx, _zpp, _zsu}; ///< MDU_EIN bridge
+  COM _com{_ctx};                         ///< COM bridge
+  SUSIV2 _susiv2{_ctx, _zpp};             ///< SUSIV2 bridge
+  MDU_EIN _mdu_ein{_ctx, _zpp, _zsu};     ///< MDU_EIN bridge
+  DECUP_EIN _decup_ein{_ctx, _zpp, _zsu}; ///< DECUP_EIN bridge
 };
 
 } // namespace bridge

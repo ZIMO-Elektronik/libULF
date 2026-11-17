@@ -1,9 +1,10 @@
-#include "setup.hpp"
-#include <cstdlib>
+#pragma once
+
+#include <ulf/c/libulf.h>
 
 namespace setup {
 
-libulf_handle connect() {
+static inline libulf_handle connect() {
   libulf_handle handle{libulf_create()};
   if (!handle) return handle;
 
@@ -17,7 +18,7 @@ libulf_handle connect() {
   return handle;
 }
 
-void disconnect(libulf_handle handle) {
+static inline void disconnect(libulf_handle handle) {
   libulf_close(handle);
   libulf_destroy(handle);
 }

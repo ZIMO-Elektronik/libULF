@@ -158,6 +158,24 @@ void LibserialportConnection::flush() {
 }
 
 /**
+ * Sets the RTS line state
+ *
+ * \param enable Enable if true, otherwise disable
+ */
+void LibserialportConnection::setRTS(bool enable) {
+  sp_set_rts(_port, enable ? SP_RTS_ON : SP_RTS_OFF);
+}
+
+/**
+ * Sets the DTR line state
+ *
+ * \param enable Enable if true, otherwise disable
+ */
+void LibserialportConnection::setDTR(bool enable) {
+  sp_set_dtr(_port, enable ? SP_DTR_ON : SP_DTR_OFF);
+}
+
+/**
  * Write payload to out buffer
  *
  * \param payload Payload
