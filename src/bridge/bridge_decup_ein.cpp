@@ -134,7 +134,7 @@ bool DECUP_EIN::zsuPageCount(zsu::Firmware const& firmware) {
 bool DECUP_EIN::zsuSecurityBytes() {
   transmission::decup_ein::SecurityBytes t{_ctx.connection, 100u};
   t.execute();
-  return !t.evaluateBool();
+  return t.evaluateBool();
 }
 
 /**

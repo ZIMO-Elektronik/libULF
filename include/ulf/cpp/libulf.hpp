@@ -435,6 +435,15 @@ struct COM {
    */
   bool mdu_ein() { return execute<bool>(libulf_com_mdu_ein, _lib); }
 
+  /**
+   * Sends a DECUP_EIN command to the device
+   *
+   * \return bool         `true` if successful, `false` else
+   *
+   * \throws ulf_error    If an error occurred
+   */
+  bool decup_ein() { return execute<bool>(libulf_com_decup_ein, _lib); }
+
 private:
   // Internal CTor
   COM(libulf_handle& lib) : _lib{lib} {}

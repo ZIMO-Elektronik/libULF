@@ -91,7 +91,8 @@ int main() {
   }
 
   std::cout << "7. Send security bytes" << std::endl;
-  if (libulf_decup_ein_zsu_security_bytes(lib, &result) != LIBULF_OK) {
+  if (libulf_decup_ein_zsu_security_bytes(lib, &result) != LIBULF_OK ||
+      !result) {
     std::cout << "Unable to transmit security bytes" << std::endl;
     return -1;
   }

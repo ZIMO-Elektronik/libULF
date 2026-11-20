@@ -262,6 +262,9 @@ bool MDU_EIN::zppLcDcQuery(std::span<uint8_t const, 4uz> dev_code) {
 /**
  * ZPP LC DC Query
  *
+ * \note
+ * If the ZPP is not coded, no check is made
+ *
  * \param file ZPP File
  *
  * \return bool true, if successful, false else
@@ -269,7 +272,7 @@ bool MDU_EIN::zppLcDcQuery(std::span<uint8_t const, 4uz> dev_code) {
  * \throws ulf_error   First error occurred
  */
 bool MDU_EIN::zppLcDcQuery(zpp::File* file) {
-  return zppLcDcQuery(file->developer_code);
+  return file->coded ? zppLcDcQuery(file->developer_code) : true;
 }
 
 /**
