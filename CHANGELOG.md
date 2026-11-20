@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.4.1
+
+- Fix: Missing `COM::decup_ein` api method
+- Fix: `DECUP_EIN` zsu security bytes transmission evaluation
+- Change: both `SUSIV2` and `MDU_EIN` lc dc query does now check if the project is coded
+
 ## 0.4.0
 
 - Add: DECUP_EIN ZPP and ZSU update (no CV-Sets yet)

@@ -181,6 +181,9 @@ bool SUSIV2::zppLcDcQuery(uint32_t dev_code) {
 /**
  * LC DC query
  *
+ * \note
+ * If the ZPP is not coded, no check is made
+ *
  * \param file  ZPP file
  *
  * \return bool true, if successful, false else
@@ -188,7 +191,9 @@ bool SUSIV2::zppLcDcQuery(uint32_t dev_code) {
  * \throws ulf_error   First error occurred
  */
 bool SUSIV2::zppLcDcQuery(zpp::File* file) {
-  return zppLcDcQuery(zusi::data2uint32(file->developer_code.data()));
+  return file->coded
+           ? zppLcDcQuery(zusi::data2uint32(file->developer_code.data()))
+           : true;
 }
 
 } // namespace bridge
